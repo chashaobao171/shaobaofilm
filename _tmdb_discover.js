@@ -23,7 +23,7 @@ function loadExistingFilms() {
   return eval('(' + match[1] + ')');
 }
 
-// HTTP GET helper
+// HTTP GET helper with error handling
 function fetchJSON(url) {
   return new Promise((resolve, reject) => {
     https.get(url, res => {
@@ -31,8 +31,20 @@ function fetchJSON(url) {
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try {
-          resolve(JSON.parse(data));
+          const json = JSON.parse(data);
+          
+          // Check for API errors
+          if (res.statusCode !== 200) {
+            console.error(`API Error: Status ${res.statusCode}`);
+            console.error(`Response: ${data}`);
+            reject(new Error(`API returned status ${res.statusCode}`));
+            return;
+          }
+          
+          resolve(json);
         } catch (e) {
+          console.error(`JSON parse error: ${e.message}`);
+          console.error(`Raw data: ${data}`);
           reject(e);
         }
       });
@@ -122,6 +134,14 @@ async function main() {
   console.log('Fetching trending films...');
   const trending = await discoverTrending();
   
+  // Validate response structure
+  if (!trending || !trending.results || !Array.isArray(trending.results)) {
+    console.error('Invalid trending response:', JSON.stringify(trending, null, 2));
+    throw new Error('TMDB API returned invalid trending data structure');
+  }
+  
+  console.log(`Found ${trending.results.length} trending films`);
+  
   for (const film of trending.results.slice(0, 20)) {
     await new Promise(resolve => setTimeout(resolve, 100)); // Rate limiting
     
@@ -146,7 +166,43 @@ async function main() {
     }
   }
   
-  // Step 2: Complete collections
+  // Step 2: Discover popular films
+  console.log('Fetching popular films...');
+  const popular = await discoverPopular();
+  
+  // Validate response structure
+  if (!popular || !popular.results || !Array.isArray(popular.results)) {
+    console.error('Invalid popular response:', JSON.stringify(popular, null, 2));
+    throw new Error('TMDB API returned invalid popular data structure');
+  }
+  
+  console.log(`Found ${popular.results.length} popular films`);
+  
+  for (const film of popular.results.slice(0, 20)) {
+    await new Promise(resolve => setTimeout(resolve, 100)); // Rate limiting
+    
+    const tmdbId = `tmdb${film.id}`;
+    if (existingIds.has(tmdbId)) {
+      console.log(`Skip existing: ${film.title}`);
+      continue;
+    }
+    
+    try {
+      const details = await getFilmDetails(film.id);
+      const converted = convertTMDBFilm(film, details);
+      newFilms.push(converted);
+      
+      if (converted.collection) {
+        collections.add(converted.collection);
+      }
+      
+      console.log(`Added: ${film.title} (${film.release_date?.split('-')[0] || 'N/A'})`);
+    } catch (e) {
+      console.error(`Failed to fetch details for ${film.title}:`, e.message);
+    }
+  }
+  
+  // Step 3: Complete collections
   console.log(`\nProcessing ${collections.size} collections...`);
   
   for (const collectionId of collections) {
