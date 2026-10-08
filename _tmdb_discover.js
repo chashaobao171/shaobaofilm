@@ -111,7 +111,7 @@ function convertTMDBFilm(tmdbFilm, details) {
     g: genres,
     s: tmdbFilm.overview || '',
     acts: actors,
-    p: tmdbFilm.poster_path ? `tmdb${tmdbFilm.poster_path}` : '',
+    p: tmdbFilm.poster_path ? `${IMAGE_BASE}${tmdbFilm.poster_path}` : '',
     id: `tmdb${tmdbFilm.id}`,
     votes: tmdbFilm.vote_count || 0,
     e: tmdbFilm.original_title || '',
