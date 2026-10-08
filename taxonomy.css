@@ -1,0 +1,330 @@
+/* taxonomy.css */
+:root {
+  --bg-primary: #0F1117;
+  --bg-secondary: #171A23;
+  --bg-tertiary: #1E222E;
+  --text-primary: #F5F5F5;
+  --text-secondary: #A0A0A0;
+  --border-color: #2A2E3A;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.taxonomy-header {
+  text-align: center;
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto 60px;
+}
+
+.taxonomy-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #5B8CFF 0%, #F87171 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.taxonomy-header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+/* FIRST LEVEL - MAIN CATEGORY CARDS */
+.taxonomy-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.first-level {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.main-category-card {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  will-change: transform;
+}
+
+.main-category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--category-color);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+
+.main-category-card:hover::before {
+  transform: scaleX(1);
+}
+
+.main-category-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--category-color);
+  box-shadow: var(--shadow);
+}
+
+.main-category-card.active {
+  border-color: var(--category-color);
+  background: var(--bg-tertiary);
+}
+
+.category-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.category-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.category-name-en {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.category-count {
+  font-size: 0.9rem;
+  color: var(--category-color);
+  font-weight: 500;
+}
+
+/* SECOND LEVEL - SUBCATEGORY PANELS */
+.second-level {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s cubic-bezier(0.4, 0.0, 0.2, 1),
+              opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  margin-bottom: 20px;
+  will-change: max-height, opacity;
+}
+
+.second-level.expanded {
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.subcategories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 4px solid var(--category-color);
+}
+
+.subcategory-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.subcategory-card:hover {
+  border-color: var(--category-color);
+  transform: translateX(4px);
+}
+
+.subcategory-card.active {
+  background: rgba(var(--category-color-rgb), 0.1);
+  border-color: var(--category-color);
+}
+
+.subcategory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.subcategory-name {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.subcategory-count {
+  font-size: 0.85rem;
+  color: var(--category-color);
+  background: rgba(var(--category-color-rgb), 0.15);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* THIRD LEVEL - TAG CLOUD */
+.third-level {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.25s cubic-bezier(0.4, 0.0, 0.2, 1),
+              opacity 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+  margin-top: 12px;
+}
+
+.third-level.expanded {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tag-chip:hover {
+  background: var(--category-color);
+  border-color: var(--category-color);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .taxonomy-header h1 {
+    font-size: 2rem;
+  }
+  
+  .first-level {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  
+  .main-category-card {
+    padding: 16px;
+    min-height: 100px;
+  }
+  
+  .category-icon {
+    font-size: 2rem;
+  }
+  
+  .category-name {
+    font-size: 1.1rem;
+  }
+  
+  .subcategories-grid {
+    grid-template-columns: 1fr;
+    padding: 15px;
+  }
+  
+  .tag-chip {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+}
+
+/* HELPER CLASSES */
+.hidden {
+  display: none !important;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* DYNAMIC COLOR CLASSES */
+.color-drama { 
+  --category-color: #F87171; 
+  --category-color-rgb: 248, 113, 113; 
+}
+
+.color-fantasy { 
+  --category-color: #5B8CFF; 
+  --category-color-rgb: 91, 140, 255; 
+}
+
+.color-action { 
+  --category-color: #FBBF24; 
+  --category-color-rgb: 251, 191, 36; 
+}
+
+.color-arthouse { 
+  --category-color: #22D3EE; 
+  --category-color-rgb: 34, 211, 238; 
+}
+
+.color-horror { 
+  --category-color: #A78BFA; 
+  --category-color-rgb: 167, 139, 250; 
+}
+
+.color-comedy { 
+  --category-color: #34D399; 
+  --category-color-rgb: 52, 211, 153; 
+}
+
+.color-animation { 
+  --category-color: #FB923C; 
+  --category-color-rgb: 251, 146, 60; 
+}
+
+.color-documentary { 
+  --category-color: #94A3B8; 
+  --category-color-rgb: 148, 163, 184; 
+}
