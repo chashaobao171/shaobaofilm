@@ -1,0 +1,31 @@
+name: Test TMDB Connectivity
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test TMDB API endpoint
+        run: |
+          echo "Testing TMDB API connectivity from GitHub Actions runner..."
+          
+          # Test main API endpoint (should return 401 without key, proving network works)
+          echo "=== Test 1: API endpoint ==="
+          curl -i -m 30 https://api.themoviedb.org/3/ || echo "FAIL: api.themoviedb.org unreachable"
+          
+          # Test image CDN
+          echo ""
+          echo "=== Test 2: Image CDN ==="
+          curl -I -m 30 https://image.tmdb.org/t/p/w500/placeholder.jpg || echo "FAIL: image.tmdb.org unreachable"
+          
+          # Test with a real public request (genre list, no key needed for some endpoints)
+          echo ""
+          echo "=== Test 3: Public genre endpoint ==="
+          curl -m 30 "https://api.themoviedb.org/3/genre/movie/list" || echo "Note: genre list requires API key"
+          
+          echo ""
+          echo "=== Summary ==="
+          echo "If you see HTTP 401 or JSON error above, network is OK (just missing API key)."
+          echo "If you see connection timeout/refused, TMDB is blocked from this runner."
