@@ -700,6 +700,49 @@ img.ld{opacity:1}
     laurel:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 35C8 30 6 21 10.5 13"/><path d="M26 35c6-5 8-14 3.5-22"/><path d="M10.5 13c1.6-2.2 4.6-2.6 6.6-.6"/><path d="M29.5 13c-1.6-2.2-4.6-2.6-6.6-.6"/><circle cx="20" cy="11" r="3.6" fill="currentColor" stroke="none" opacity=".9"/></svg>'
   };
 
+  /* ============ URL参数解析与筛选跳转 ============ */
+  function getURLParams(){
+    var params=new URLSearchParams(window.location.search);
+    return {
+      genre:params.get('genre'),
+      year:params.get('year'),
+      rating:params.get('rating')
+    };
+  }
+  
+  function showFilterNotice(text){
+    var notice=document.createElement('div');
+    notice.style.cssText='position:fixed;top:80px;right:20px;background:#5B8CFF;color:white;padding:12px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:1000;font-size:14px;';
+    notice.textContent=text;
+    document.body.appendChild(notice);
+    
+    setTimeout(function(){
+      notice.style.transition='opacity 0.3s, transform 0.3s';
+      notice.style.opacity='0';
+      notice.style.transform='translateX(20px)';
+      setTimeout(function(){notice.remove();},300);
+    },3000);
+  }
+  
+  function applyFiltersFromURL(){
+    var params=getURLParams();
+    
+    if(params.genre){
+      console.log('Filtering by genre: '+params.genre);
+      showFilterNotice('当前筛选: '+params.genre);
+      
+      setTimeout(function(){
+        var genreChips=$$("#genreChips .chip");
+        for(var i=0;i<genreChips.length;i++){
+          if(genreChips[i].textContent.trim().indexOf(params.genre)!==-1){
+            genreChips[i].click();
+            break;
+          }
+        }
+      },500);
+    }
+  }
+
   /* ============ 数据整理 ============ */
   var FILMS=D.films.map(function(f,i){f._i=i;return f;});
   var GEN={},CTRY={},DEC={};
@@ -1215,6 +1258,9 @@ img.ld{opacity:1}
   });
 
   renderFilms();
+  
+  // 应用URL参数筛选（如果有）
+  applyFiltersFromURL();
 })();
 </script>
 </body>
