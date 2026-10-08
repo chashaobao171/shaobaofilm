@@ -808,8 +808,10 @@ img.ld{opacity:1}
     return a;
   }
   function fcard(f,i){
-    var cover=f.p
-      ?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">'
+    // Use smaller thumbnail for TMDB posters (w185 instead of w500)
+    var posterUrl = f.p ? f.p.replace('/w500/', '/w185/') : '';
+    var cover=posterUrl
+      ?'<img src="'+esc(posterUrl)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">'
       :'';
     var ph=f.p?"":'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
     var meta=[f.y,f.c].filter(Boolean).join(" · ");
@@ -961,7 +963,8 @@ img.ld{opacity:1}
     }).sort(function(a,b){return num(b.r)-num(a.r);}).slice(0,10);
     if(!others.length)return "";
     return '<div class="sim"><h4>口味相近</h4><div class="simrow">'+others.map(function(x){
-      var cover=x.p?'<img src="'+esc(x.p)+'" alt="'+esc(x.t)+'" loading="lazy" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px" onload="this.classList.add(\'ld\')">':'<span style="display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:2/3;background:#0a0a0e;border-radius:6px;color:#3a3a46;font-family:var(--serif)">'+esc(String(x.t).slice(0,1))+'</span>';
+      var thumbUrl = x.p ? x.p.replace('/w500/', '/w185/') : '';
+      var cover=thumbUrl?'<img src="'+esc(thumbUrl)+'" alt="'+esc(x.t)+'" loading="lazy" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px" onload="this.classList.add(\'ld\')">':'<span style="display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:2/3;background:#0a0a0e;border-radius:6px;color:#3a3a46;font-family:var(--serif)">'+esc(String(x.t).slice(0,1))+'</span>';
       return '<button class="mc" data-i="'+x._i+'" style="background:none;border:0;padding:0;cursor:pointer;text-align:left">'+cover
         +'<div class="mc-t" style="font-size:11.5px">'+esc(x.t)+'</div></button>';
     }).join("")+'</div></div>';
