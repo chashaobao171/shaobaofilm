@@ -1,0 +1,50 @@
+name: Manual Backfill - Historical Quality Films
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no commit)'
+        required: false
+        default: 'false'
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run backfill discovery
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        run: node _tmdb_backfill.js
+      
+      - name: Show backfill summary
+        run: |
+          echo "Backfill Summary:"
+          node -e "const d=require('./_tmdb_backfilled.json'); console.log('New films discovered:', d.count);"
+      
+      - name: Merge into films-data.js
+        if: github.event.inputs.dry_run != 'true'
+        run: node _tmdb_merge_backfill.js
+      
+      - name: Commit and push if changed
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add films-data.js _tmdb_backfilled.json
+          git diff --staged --quiet || (git commit -m "Backfill: Add historical quality films from TMDB" && git push)
+      
+      - name: Upload backfill results
+        uses: actions/upload-artifact@v4
+        with:
+          name: backfill-results
+          path: _tmdb_backfilled.json
