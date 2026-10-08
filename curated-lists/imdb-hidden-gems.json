@@ -1,0 +1,10 @@
+{
+  "name": "IMDb Hidden Gems",
+  "source": "https://www.imdb.com/list/ls023724896/",
+  "description": "IMDb 8.0+评分，5k-50k投票量的隐藏佳作",
+  "films": [
+    {"title": "The Man from Earth", "year": 2007, "imdbId": "tt0756683"},
+    {"title": "Coherence", "year": 2013, "imdbId": "tt2866360"},
+    {"title": "Moon", "year": 2009, "imdbId": "tt1182345"}
+  ]
+}
