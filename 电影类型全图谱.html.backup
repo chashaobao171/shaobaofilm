@@ -311,10 +311,10 @@ select.sel:focus{border-color:var(--brand)}
 .mod-tags i{font-style:normal;font-size:11.5px;padding:3px 9px;border-radius:5px;background:var(--brand-dim);color:var(--brand);border:1px solid var(--brand-line)}
 .mod-a{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 17px;border:1px solid var(--line);border-radius:8px;font-size:13px;color:var(--ink2);transition:all .16s}
 .mod-a:hover{border-color:var(--brand);color:var(--brand)}
+.mod-a svg{width:14px;height:14px}
 .mod-a.film-link.primary{background:var(--surf1);border-color:var(--brand);color:var(--brand);font-weight:500}
 .mod-a.film-link.secondary{opacity:.75}
 .mod-a.film-link.secondary:hover{opacity:1}
-.mod-a svg{width:14px;height:14px}
 .sim{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
 .sim h4{font-family:var(--serif);font-size:15px;font-weight:700;margin:0 0 13px;color:var(--ink2)}
 .simrow{display:grid;grid-auto-flow:column;grid-auto-columns:96px;gap:11px;overflow-x:auto;padding-bottom:6px}
@@ -723,9 +723,6 @@ img.ld{opacity:1}
     {v:"sources",n:"片源查找",c:4}
   ];
   $("#nav").innerHTML=TABS.map(function(t,i){
-    if(t.v==="genres"){
-      return '<a href="taxonomy.html" style="display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;font-size:13px;color:var(--ink2);transition:all .16s;white-space:nowrap"><span>'+t.n+'</span><span class="c">'+t.c+'</span></a>';
-    }
     return '<button data-v="'+t.v+'"'+(i===0?' class="on"':'')+'>'+t.n+'<span class="c">'+t.c+'</span></button>';
   }).join("");
   function go(v){
@@ -814,8 +811,10 @@ img.ld{opacity:1}
     return a;
   }
   function fcard(f,i){
-    var cover=f.p
-      ?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">'
+    // Use smaller thumbnail for TMDB posters (w185 instead of w500)
+    var posterUrl = f.p ? f.p.replace('/w500/', '/w185/') : '';
+    var cover=posterUrl
+      ?'<img src="'+esc(posterUrl)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">'
       :'';
     var ph=f.p?"":'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
     var meta=[f.y,f.c].filter(Boolean).join(" · ");
@@ -967,7 +966,8 @@ img.ld{opacity:1}
     }).sort(function(a,b){return num(b.r)-num(a.r);}).slice(0,10);
     if(!others.length)return "";
     return '<div class="sim"><h4>猜你喜欢</h4><div class="simrow">'+others.map(function(x){
-      var cover=x.p?'<img src="'+esc(x.p)+'" alt="'+esc(x.t)+'" loading="lazy" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px" onload="this.classList.add(\'ld\')">':'<span style="display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:2/3;background:#0a0a0e;border-radius:6px;color:#3a3a46;font-family:var(--serif)">'+esc(String(x.t).slice(0,1))+'</span>';
+      var thumbUrl = x.p ? x.p.replace('/w500/', '/w185/') : '';
+      var cover=thumbUrl?'<img src="'+esc(thumbUrl)+'" alt="'+esc(x.t)+'" loading="lazy" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px" onload="this.classList.add(\'ld\')">':'<span style="display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:2/3;background:#0a0a0e;border-radius:6px;color:#3a3a46;font-family:var(--serif)">'+esc(String(x.t).slice(0,1))+'</span>';
       return '<button class="mc" data-i="'+x._i+'" style="background:none;border:0;padding:0;cursor:pointer;text-align:left">'+cover
         +'<div class="mc-t" style="font-size:11.5px">'+esc(x.t)+'</div></button>';
     }).join("")+'</div></div>';
