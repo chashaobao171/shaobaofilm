@@ -461,15 +461,6 @@ img.ld{opacity:1}
 
 /* ---- 详情弹层动作行（换一部） ---- */
 .mod-acts{display:flex;gap:10px;flex-wrap:wrap;margin:-4px 0 22px}
-.mod-src{margin:-12px 0 22px;padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.mod-src[hidden]{display:none}
-.ms-hd{display:block;font-size:11.5px;letter-spacing:.06em;color:var(--ink3);margin-bottom:9px}
-.ms-row{display:flex;flex-wrap:wrap;gap:8px}
-.ms-chip{display:inline-flex;align-items:baseline;gap:7px;padding:7px 12px;border:1px solid var(--brand-line);border-radius:7px;background:var(--brand-dim);color:var(--brand);font-size:12.5px;font-weight:600;text-decoration:none;transition:background .16s,color .16s}
-.ms-chip i{font-style:normal;font-size:10.5px;font-weight:500;color:var(--ink3)}
-.ms-chip:hover{background:var(--brand);color:var(--brand-ink)}
-.ms-chip:hover i{color:var(--brand-ink);opacity:.75}
-.ms-chip:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
 /* ---- 尊重系统减动效偏好 ---- */
 @media (prefers-reduced-motion:reduce){
@@ -947,10 +938,10 @@ img.ld{opacity:1}
 
   /* ============ 片源查找 ============ */
   var SOURCES=[
-    {n:"维C搜搜",h:"vcsoso.com",u:"https://vcsoso.com/",d:"免登录、无广告，主打 1080P / 4K 原盘，站内可直接按片名搜索。"},
-    {n:"KK122",h:"kk122.seesee.sbs",u:"https://kk122.seesee.sbs/",d:"网盘资源站，站内搜索片名即可。"},
-    {n:"VV3nwjk",h:"www.vv3nwjk.com",u:"https://www.vv3nwjk.com/",d:"网盘资源站，域名更换频繁，失效请换用其他入口。"},
-    {n:"1080影视",h:"tvv.movie1080.online",u:"https://tvv.movie1080.online/?ref=qiandh.com",d:"1080P 片源聚合入口，适合收藏做高画质备用。"}
+    {n:"爱看机器人",h:"ikanbot.com",u:"https://www.ikanbot.com/",d:"聚合多家线路的在线播放站，站内直接搜片名，多线路可切换，免登录。"},
+    {n:"低端影视",h:"ddys.io",u:"https://ddys.io/",d:"高质量影视站，提供在线播放与网盘资源，画质与字幕质量高。"},
+    {n:"维C搜搜",h:"vcsoso.com",u:"https://vcsoso.com/",d:"网盘资源搜索，免登录、无广告，主打 1080P / 4K 原盘。"},
+    {n:"KK122",h:"kk122.seesee.sbs",u:"https://kk122.seesee.sbs/",d:"网盘资源站，站内搜索片名即可，更新较快。"}
   ];
   $("#sourcesBox").innerHTML='<div class="sgrid rv-kids">'+SOURCES.map(function(s,i){
     return '<a class="srccard" href="'+s.u+'" target="_blank" rel="noopener" aria-label="在新窗口打开 '+esc(s.n)+'">'
@@ -958,14 +949,6 @@ img.ld{opacity:1}
       +'<p class="sc-d">'+esc(s.d)+'</p>'
       +'<span class="sc-go">'+IC.out+'打开网站</span></a>';
   }).join("")+'</div>';
-
-  /* ============ 在线观看（其他站点） ============ */
-  var WATCH=[
-    {n:"KK122",h:"网盘资源",s:"https://kk122.seesee.sbs/vodsearch/-------------.html?wd=",q:1},
-    {n:"VV3nwjk",h:"在线播放",s:"https://www.vv3nwjk.com/search?q=",q:1},
-    {n:"1080影视",h:"多线路聚合",s:"https://tvv.movie1080.online/?ref=qiandh.com",q:0}
-  ];
-  function watchUrl(w,t){return w.q?w.s+encodeURIComponent(t):w.s;}
 
   /* ============ 详情弹层 ============ */
   function simList(f){
@@ -1021,11 +1004,8 @@ img.ld{opacity:1}
       +'<div class="mod-acts"><button class="mod-a mod-next" type="button" title="在当前筛选范围内随机换一部">'+IC.dice+'换一部</button>'
       +(db?'<a class="mod-a" href="'+db+'" target="_blank" rel="noopener">'+IC.out+(f.id?'在豆瓣查看':'在 IMDb 查看')+'</a>':'')
       +'<a class="mod-a" href="https://vcsoso.com/s/'+encodeURIComponent(f.t)+'" target="_blank" rel="noopener" title="在维C搜搜搜索《'+esc(f.t)+'》的片源">'+IC.play+'找片源</a>'
-      +'<button class="mod-a mod-watch" type="button" aria-expanded="false" title="在更多站点搜索《'+esc(f.t)+'》">'+IC.tv+'在线观看</button>'
+      +'<a class="mod-a" href="https://www.ikanbot.com/search?q='+encodeURIComponent(f.t)+'" target="_blank" rel="noopener" title="在爱看机器人搜索《'+esc(f.t)+'》的在线播放线路">'+IC.tv+'在线观看</a>'
       +'</div>'
-      +'<div class="mod-src" hidden><span class="ms-hd">到这些站搜索《'+esc(f.t)+'》</span><div class="ms-row">'
-      +WATCH.map(function(w){return '<a class="ms-chip" href="'+esc(watchUrl(w,f.t))+'" target="_blank" rel="noopener">'+esc(w.n)+'<i>'+esc(w.h)+'</i></a>';}).join("")
-      +'</div></div>'
       +simList(f)
       +'</div></div>';
     $("#mod").classList.add("on");
@@ -1046,12 +1026,6 @@ img.ld{opacity:1}
   });
   $("#modBody").addEventListener("click",function(e){
     var nx=e.target.closest(".mod-next"); if(nx){nextRandom();return;}
-    var wt=e.target.closest(".mod-watch");
-    if(wt){
-      var p=document.querySelector("#modBody .mod-src");
-      if(p){var was=p.hidden;p.hidden=!was;wt.setAttribute("aria-expanded",was?"true":"false");}
-      return;
-    }
     var m=e.target.closest(".mc"); if(m)openFilm(+m.dataset.i);
   });
   $("#modX").addEventListener("click",closeFilm);

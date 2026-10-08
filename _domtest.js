@@ -99,9 +99,10 @@ if (ctx.window.__T) {
   const mb = store['#modBody'].innerHTML;
   console.log('modal len       ', mb.length);
   console.log('modal watch btn ', (mb.match(/class="mod-a mod-watch"/g) || []).length);
-  console.log('modal src chips ', (mb.match(/class="ms-chip"/g) || []).length);
-  console.log('modal src hidden', /class="mod-src" hidden/.test(mb));
-  console.log('chip hrefs      ', (mb.match(/https?:\/\/[^"]+/g) || []).slice(0, 4).join(' | '));
+  console.log('modal src panel ', (mb.match(/class="mod-src"/g) || []).length);
+  console.log('ikanbot link    ', (mb.match(/ikanbot\.com\/search\?q=/g) || []).length);
+  console.log('vcsoso link     ', (mb.match(/vcsoso\.com\/s\//g) || []).length);
+  console.log('chip hrefs      ', (mb.match(/https?:\/\/[^"]+/g) || []).slice(0, 5).join(' | '));
 } else {
   console.log('modal check      skipped (hook not injected)');
 }
