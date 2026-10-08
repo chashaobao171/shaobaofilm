@@ -21,6 +21,7 @@ class TaxonomyViewer {
   init() {
     this.renderFirstLevel();
     this.attachEventListeners();
+    this.setupLazyLoad();
   }
   
   /**
@@ -163,6 +164,9 @@ class TaxonomyViewer {
     
     // 平滑滚动到卡片位置
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    // 性能监控
+    this.monitorDOMNodes();
   }
   
   /**
@@ -286,6 +290,9 @@ class TaxonomyViewer {
     setTimeout(() => {
       thirdLevel.classList.add('expanded');
     }, 10);
+    
+    // 性能监控
+    this.monitorDOMNodes();
   }
   
   /**
@@ -360,6 +367,54 @@ class TaxonomyViewer {
       currentOpenMain: this.state.currentOpenMain,
       currentOpenSub: this.state.currentOpenSub
     };
+  }
+  
+  /**
+   * 性能优化：设置懒加载
+   */
+  setupLazyLoad() {
+    if (!('IntersectionObserver' in window)) {
+      console.log('IntersectionObserver not supported, skipping lazy load');
+      return;
+    }
+    
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const element = entry.target;
+          if (element.dataset.lazyLoad === 'true') {
+            this.renderLazyContent(element);
+            this.observer.unobserve(element);
+          }
+        }
+      });
+    }, {
+      rootMargin: this.config?.performance?.lazyLoadThreshold ? `${this.config.performance.lazyLoadThreshold}px` : '100px'
+    });
+  }
+  
+  /**
+   * 渲染懒加载内容
+   */
+  renderLazyContent(element) {
+    element.dataset.lazyLoad = 'false';
+    // 预留接口，供未来扩展
+  }
+  
+  /**
+   * 性能优化：监控DOM节点数量
+   */
+  monitorDOMNodes() {
+    const nodeCount = this.container.querySelectorAll('*').length;
+    const maxNodes = this.config?.performance?.maxVisibleNodes || 1000;
+    
+    if (nodeCount > maxNodes) {
+      console.warn(`DOM nodes exceeded recommended limit: ${nodeCount}/${maxNodes}`);
+    } else {
+      console.log(`Current DOM nodes: ${nodeCount}`);
+    }
+    
+    return nodeCount;
   }
 }
 
