@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5.1c-4.4 0-7.9 3-7.9 7.2 0 2.7 1.5 5 3.8 6.2h8.2c2.3-1.2 3.8-3.5 3.8-6.2 0-4.2-3.5-7.2-7.9-7.2Z'/%3E%3Cpath d='M12 5.3c-.8 1.4-2.2 2.4-4.1 2.5M12 5.3c.8 1.4 2.2 2.4 4.1 2.5'/%3E%3Cpath d='M9.2 2.4c.4-.5.4-1.1 0-1.6M14.8 2.4c.4-.5.4-1.1 0-1.6'/%3E%3C/svg%3E">
+<title>烧包影视 shaofilm — 电影全图谱</title>
+<style>
+/* ============================================================
+   烧包影视 shaofilm — cinematic dark + gold
+   ============================================================ */
+:root{
+  --bg:#0d0d11; --surface:#15151c; --surface2:#1e1e28; --pop:#1a1a22;
+  --ink:#f0ede5; --ink2:#a8a39a; --ink3:#6b6660;
+  --line:#2a2a36;
+  --brand:#d4a843; --brand-ink:#1a1a20;
+  --brand-dim:rgba(212,168,67,.12); --brand-line:rgba(212,168,67,.32);
+  --ok:#6b9f4a; --warn:#d4a843; --err:#c85a4a;
+  --r-s:5px; --r-m:9px; --r-l:16px;
+  --sh1:0 1px 2px rgba(0,0,0,.4);
+  --sh2:0 10px 30px -10px rgba(0,0,0,.6);
+  --sh3:0 30px 70px -24px rgba(0,0,0,.72);
+  --sans:"Inter","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","SimSun",Georgia,serif;
+  --wrap:1280px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+::selection{background:var(--brand);color:var(--brand-ink)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:#0a0a0e}
+::-webkit-scrollbar-thumb{background:#2c2c39;border-radius:6px;border:3px solid #0a0a0e}
+::-webkit-scrollbar-thumb:hover{background:#3d3d4d}
+.wrap{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 28px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- header ---------- */
+.hdr{
+  position:sticky;top:0;z-index:60;height:68px;display:flex;align-items:center;
+  background:rgba(13,13,17,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.hdr-in{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 28px;display:flex;align-items:center;gap:22px}
+.logo{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.lgm{width:30px;height:30px;color:var(--brand);flex:0 0 auto;transition:transform .5s var(--ease-out)}
+.logo:hover .lgm{transform:rotate(90deg)}
+.lgt{display:flex;flex-direction:column;line-height:1.05}
+.lgt .lgs{font-family:var(--serif);font-size:21px;font-weight:700;color:var(--brand);letter-spacing:.04em}
+.lgt small{font-family:var(--sans);font-size:8.5px;font-weight:700;letter-spacing:.32em;color:var(--ink3);margin-top:3px}
+.nav{display:flex;align-items:center;gap:2px;margin-left:8px;flex:1;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav button{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:7px;
+  font-size:13.5px;color:var(--ink2);white-space:nowrap;transition:color .16s,background .16s;
+}
+.nav button:hover{color:var(--ink)}
+.nav button.on{color:var(--brand);background:var(--brand-dim)}
+.nav button .c{font-size:10.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.nav button.on .c{color:var(--brand);opacity:.7}
+.hsearch{position:relative;flex:0 0 250px;max-width:250px}
+.hsearch svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ink3)}
+.hsearch input{
+  width:100%;height:38px;padding:0 12px 0 34px;background:var(--surface);border:1px solid var(--line);
+  border-radius:8px;color:var(--ink);font-size:13px;outline:none;transition:border-color .16s;
+}
+.hsearch input::placeholder{color:var(--ink3)}
+.hsearch input:focus{border-color:var(--brand)}
+
+/* ---------- views ---------- */
+.view{display:none}
+.view.on{display:block;animation:vin .3s ease}
+@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-bg{
+  position:absolute;inset:-8% -4%;display:grid;grid-template-columns:repeat(12,1fr);
+  grid-auto-rows:1fr;gap:9px;opacity:.3;filter:blur(1.5px) saturate(.75) contrast(1.05);pointer-events:none;
+}
+.hero-bg img{width:100%;height:100%;object-fit:cover;border-radius:3px}
+.hero-veil{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 12% 100%,rgba(13,13,17,.99) 0%,rgba(13,13,17,.72) 42%,rgba(13,13,17,.25) 100%),
+    linear-gradient(to top,rgba(13,13,17,1) 0%,rgba(13,13,17,.55) 46%,rgba(13,13,17,.3) 100%);
+}
+.hero-in{position:relative;z-index:2;padding:66px 0 52px}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:7px;height:27px;padding:0 13px;margin-bottom:24px;
+  background:var(--brand-dim);border:1px solid var(--brand-line);border-radius:999px;
+  color:var(--brand);font-size:12px;font-weight:600;letter-spacing:.05em;
+}
+.hero-tag svg{width:13px;height:13px}
+.hero-stats{display:flex;flex-wrap:wrap;gap:0;max-width:760px;margin-bottom:34px}
+.hs{flex:1 1 120px;padding-right:22px}
+.hs+.hs{padding-left:22px;border-left:1px solid var(--line)}
+.hs b{display:block;font-size:29px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums;line-height:1.2}
+.hs span{font-size:12px;color:var(--ink2)}
+.hero-cta{display:flex;gap:13px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;height:43px;padding:0 21px;border-radius:8px;font-size:14.5px;font-weight:600;transition:transform .16s,border-color .16s,color .16s}
+.btn svg{width:16px;height:16px}
+.btn-p{background:var(--brand);color:var(--brand-ink)}
+.btn-p:hover{transform:translateY(-1px)}
+.btn-s{border:1px solid var(--line);color:var(--ink)}
+.btn-s:hover{border-color:var(--brand);color:var(--brand)}
+
+/* ---------- filter bar ---------- */
+.fbar{padding:26px 0 4px}
+.fbar-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;flex:1}
+.chip{
+  padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
+  font-size:12.5px;color:var(--ink2);transition:all .14s;white-space:nowrap;
+}
+.chip:hover{border-color:var(--brand-line);color:var(--ink)}
+.chip.on{background:var(--brand-dim);border-color:var(--brand-line);color:var(--brand);font-weight:600}
+.chip .n{font-size:10px;color:var(--ink3);margin-left:5px;font-variant-numeric:tabular-nums}
+.chip.on .n{color:var(--brand);opacity:.75}
+.segs{display:flex;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:3px}
+.segs button{padding:5px 11px;border-radius:6px;font-size:12.5px;color:var(--ink2);transition:all .14s;white-space:nowrap}
+.segs button:hover{color:var(--ink)}
+.segs button.on{background:var(--brand);color:var(--brand-ink);font-weight:600}
+select.sel{
+  height:33px;padding:0 10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  color:var(--ink2);font-size:12.5px;outline:none;cursor:pointer;max-width:190px;
+}
+select.sel:focus{border-color:var(--brand)}
+.fcount{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:6px 0 18px;font-size:12.5px;color:var(--ink3);flex-wrap:wrap}
+.fcount b{color:var(--brand);font-variant-numeric:tabular-nums}
+.reset{font-size:12.5px;color:var(--ink3);border-bottom:1px dotted var(--ink3)}
+.reset:hover{color:var(--brand);border-color:var(--brand)}
+
+/* ---------- film grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:20px 18px}
+.fc{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden;
+  cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s;display:flex;flex-direction:column;
+}
+.fc:hover{transform:translateY(-4px);border-color:var(--brand-line);box-shadow:var(--sh2)}
+.fcp{position:relative;aspect-ratio:2/3;background:#0a0a0e;overflow:hidden}
+.fcp img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+.fc:hover .fcp img{transform:scale(1.05)}
+.fcp .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:34px;color:rgba(255,255,255,.13);background:linear-gradient(150deg,#1c1c26,#0a0a0e)}
+.fcp::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,9,.82) 0%,rgba(6,6,9,.15) 34%,transparent 58%)}
+.fcp .rate{
+  position:absolute;top:8px;right:8px;z-index:2;padding:2px 7px;border-radius:5px;
+  background:rgba(10,10,14,.74);backdrop-filter:blur(4px);color:var(--brand);
+  font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.01em;
+}
+.fcp .rate::before{content:"★ ";font-size:10px}
+.fcp .yr{position:absolute;top:9px;left:9px;z-index:2;font-size:11.5px;color:rgba(240,237,229,.72);font-variant-numeric:tabular-nums;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.fcp .dir{position:absolute;left:10px;right:10px;bottom:9px;z-index:2;font-size:11.5px;color:rgba(240,237,229,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.9)}
+.fcb{padding:12px 13px 14px;display:flex;flex-direction:column;gap:7px;flex:1}
+.fct{margin:0;font-size:15px;font-weight:650;line-height:1.3;letter-spacing:.01em;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.fce{margin:0;font-size:11.5px;color:var(--ink3);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:16px}
+.fcs{margin:0;font-size:12.5px;line-height:1.6;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.fcg{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:2px}
+.fcg i{font-style:normal;font-size:10.5px;padding:2px 7px;border-radius:4px;background:var(--surface2);color:var(--ink3);border:1px solid var(--line)}
+.more{
+  display:block;margin:36px auto 0;padding:11px 34px;border:1px solid var(--line);border-radius:8px;
+  color:var(--ink2);font-size:14px;transition:all .16s;
+}
+.more:hover{border-color:var(--brand);color:var(--brand)}
+.more[hidden]{display:none}
+.empty{padding:70px 0;text-align:center;color:var(--ink3)}
+
+/* ---------- generic section (other views) ---------- */
+.vhead{padding:52px 0 6px}
+.vhead h2{font-family:var(--serif);font-size:clamp(26px,3.4vw,40px);font-weight:700;margin:0 0 12px;letter-spacing:.01em}
+.vhead h2 span{font-family:var(--sans);font-size:12.5px;font-weight:600;letter-spacing:.14em;color:var(--brand);margin-left:12px;vertical-align:middle;text-transform:uppercase}
+.vhead p{font-size:14.5px;color:var(--ink2);max-width:860px;margin:0}
+.vhead p b{color:var(--ink)}
+.subnav{position:sticky;top:68px;z-index:40;margin:22px 0 8px;padding:10px 0;background:rgba(13,13,17,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{padding:5px 11px;border-radius:999px;border:1px solid var(--line);font-size:12.5px;color:var(--ink2);white-space:nowrap;transition:all .14s}
+.subnav button:hover{color:var(--brand);border-color:var(--brand-line)}
+.subnav button .c{font-size:10px;color:var(--ink3);margin-left:5px}
+.grp{padding:34px 0 6px}
+.grp>h3{
+  font-family:var(--serif);font-size:21px;font-weight:700;margin:0 0 5px;display:flex;align-items:center;gap:11px;
+}
+.grp>h3::before{content:"";width:3px;height:19px;border-radius:2px;background:var(--acc,var(--brand))}
+.grp>.gs{font-size:13px;color:var(--ink3);margin:0 0 20px}
+
+/* taxonomy */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px}
+.tg{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:15px 16px;transition:border-color .16s,transform .16s}
+.tg:hover{border-color:var(--brand-line);transform:translateY(-2px)}
+.tg .th{display:flex;align-items:baseline;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.tg .ti{font-size:11px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.tg .tn{font-size:15.5px;font-weight:650;color:var(--ink)}
+.tg .te{font-size:11px;color:var(--ink3);font-style:italic}
+.tg .td{font-size:12.5px;color:var(--ink2);margin:0 0 9px;line-height:1.6}
+.tg .tf{font-size:11.5px;color:var(--ink3);margin:0;padding-top:9px;border-top:1px solid var(--line);line-height:1.7}
+
+/* awards */
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.aw{display:flex;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:16px;transition:border-color .16s}
+.aw:hover{border-color:var(--brand-line)}
+.aw svg{flex:0 0 26px;width:26px;height:26px;color:var(--acc,var(--brand));opacity:.85;margin-top:2px}
+.aw .an{font-size:14.5px;font-weight:650;margin-bottom:2px}
+.aw .ae{font-size:11px;color:var(--ink3);font-style:italic;margin-bottom:6px}
+.aw .am{font-size:11.5px;color:var(--brand);margin-bottom:5px}
+.aw .ad{font-size:12.5px;color:var(--ink2);line-height:1.6}
+
+/* ranks */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px}
+.rk{display:block;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:16px;transition:border-color .16s,transform .16s}
+.rk:hover{border-color:var(--brand-line);transform:translateY(-2px)}
+.rk .rn{font-size:14.5px;font-weight:650;margin-bottom:3px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.rk .rn .go{color:var(--brand);font-size:12px;flex:0 0 auto}
+.rk .re{font-size:11px;color:var(--ink3);font-style:italic;margin-bottom:6px}
+.rk .rm{font-size:11.5px;color:var(--brand);margin-bottom:5px}
+.rk .rd{font-size:12.5px;color:var(--ink2);line-height:1.6}
+
+/* ---------- collections ---------- */
+.coll{padding:30px 0 4px}
+.coll-hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.coll-hd h3{font-family:var(--serif);font-size:22px;font-weight:700;margin:0 0 4px;display:flex;align-items:center;gap:11px}
+.coll-hd h3::before{content:"";width:3px;height:20px;border-radius:2px;background:var(--brand)}
+.coll-hd .ce{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase}
+.coll-hd .cd{font-size:13px;color:var(--ink3);margin:0;max-width:720px}
+.coll-more{font-size:12.5px;color:var(--brand);white-space:nowrap;border-bottom:1px solid var(--brand-line);padding-bottom:1px}
+.coll-more:hover{opacity:.8}
+.cstrip{display:grid;grid-auto-flow:column;grid-auto-columns:152px;gap:13px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x proximity}
+.cstrip::-webkit-scrollbar{height:8px}
+.cstrip::-webkit-scrollbar-track{background:transparent}
+.cstrip::-webkit-scrollbar-thumb{background:#2c2c39;border-radius:5px;border:2px solid var(--bg)}
+.mc{scroll-snap-align:start;cursor:pointer;background:transparent;border:0;padding:0;text-align:left;transition:transform .18s}
+.mc:hover{transform:translateY(-4px)}
+.mc-p{position:relative;aspect-ratio:2/3;border-radius:var(--r-m);overflow:hidden;background:#0a0a0e;border:1px solid var(--line)}
+.mc-p img{width:100%;height:100%;object-fit:cover;transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+.mc:hover .mc-p img{transform:scale(1.06)}
+.mc-p .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:30px;color:rgba(255,255,255,.13);background:linear-gradient(150deg,#1c1c26,#0a0a0e)}
+.mc-p .rate{position:absolute;top:7px;right:7px;z-index:2;padding:1px 6px;border-radius:5px;background:rgba(10,10,14,.76);backdrop-filter:blur(4px);color:var(--brand);font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.mc-p .rate::before{content:"★ ";font-size:9px}
+.mc-p::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(6,6,9,.6),transparent 45%)}
+.mc-t{font-size:12.5px;font-weight:600;margin:8px 0 1px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mc-s{font-size:11px;color:var(--ink3);font-variant-numeric:tabular-nums}
+
+/* sources 片源查找 */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.srccard{display:flex;flex-direction:column;gap:12px;padding:20px 18px 16px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--surface);color:var(--ink);text-decoration:none;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.srccard:hover{transform:translateY(-3px);border-color:var(--brand-line);box-shadow:var(--sh2)}
+.srccard:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.sc-hd{display:flex;align-items:center;gap:12px}
+.sc-i{flex:0 0 34px;height:34px;border:1px solid var(--brand-line);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--brand)}
+.sc-hd h3{font-family:var(--serif);font-size:17px;font-weight:700;margin:0;line-height:1.2}
+.sc-h{display:block;font-family:var(--sans);font-size:11px;color:var(--ink3);letter-spacing:.06em;margin-top:2px}
+.sc-d{font-size:12.5px;line-height:1.65;color:var(--ink2);margin:0;flex:1}
+.sc-go{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--brand);border:1px solid var(--brand-line);border-radius:7px;padding:7px 12px;background:var(--brand-dim);transition:background .16s,color .16s}
+.sc-go svg{width:13px;height:13px}
+.srccard:hover .sc-go{background:var(--brand);color:var(--brand-ink)}
+
+/* directors */
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px}
+.dc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-m);padding:16px;border-left:3px solid var(--dc,var(--brand));transition:transform .16s,border-color .16s;cursor:pointer}
+.dc:hover{transform:translateY(-2px);border-color:var(--brand-line)}
+.dc .dlk{margin-top:9px;font-size:11.5px;color:var(--brand);opacity:0;transition:opacity .16s}
+.dc:hover .dlk{opacity:1}
+.dc .dn{font-family:var(--serif);font-size:17px;font-weight:700;margin-bottom:1px}
+.dc .de{font-size:11px;color:var(--ink3);font-style:italic;margin-bottom:4px}
+.dc .dl{font-size:11.5px;color:var(--dc,var(--brand));margin-bottom:8px}
+.dc .ds{font-size:12.5px;color:var(--ink2);line-height:1.62;margin-bottom:9px}
+.dc .df{font-size:11.5px;color:var(--ink3);padding-top:9px;border-top:1px solid var(--line);line-height:1.7}
+.dc .df b{color:var(--ink2);font-weight:600}
+
+/* ---------- modal ---------- */
+.mod{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:26px}
+.mod.on{display:flex}
+.mod-bd{position:absolute;inset:0;background:rgba(6,6,9,.8);backdrop-filter:blur(6px);animation:fade .2s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.mod-card{
+  position:relative;z-index:2;width:100%;max-width:940px;max-height:88vh;overflow:auto;
+  background:var(--pop);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--sh3);
+  animation:rise .26s cubic-bezier(.2,.8,.3,1);
+}
+@keyframes rise{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+.mod-x{position:absolute;top:13px;right:13px;z-index:3;width:34px;height:34px;border-radius:50%;background:rgba(10,10,14,.66);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:all .16s}
+.mod-x:hover{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.mod-x svg{width:16px;height:16px}
+.mod-in{display:grid;grid-template-columns:280px 1fr;gap:0}
+.mod-l{display:flex;align-items:center;justify-content:center;background:#0a0a0e;overflow:hidden;border-radius:var(--r-l) 0 0 var(--r-l)}
+.mod-l img{width:100%;height:auto;max-height:min(76vh,760px);object-fit:contain}
+.mod-l .ph{width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:56px;color:rgba(255,255,255,.1)}
+.mod-r{padding:30px 32px 34px;min-width:0}
+.mod-r h2{font-family:var(--serif);font-size:clamp(22px,3vw,31px);font-weight:700;margin:0 0 5px;line-height:1.24;letter-spacing:.01em}
+.mod-r .oe{font-size:13px;color:var(--ink3);font-style:italic;margin:0 0 18px}
+.mod-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.mod-meta span{font-size:12px;padding:4px 10px;border-radius:6px;background:var(--surface2);border:1px solid var(--line);color:var(--ink2)}
+.mod-meta span.rate{color:var(--brand);border-color:var(--brand-line);font-weight:700}
+.mod-kv{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:13.5px;margin-bottom:20px}
+.mod-kv dt{color:var(--ink3);white-space:nowrap}
+.mod-kv dd{margin:0;color:var(--ink2)}
+.mod-kv dd b{color:var(--ink);font-weight:600}
+.mod-syn{font-size:14.5px;line-height:1.82;color:#ddd8ce;margin:0 0 22px}
+.mod-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
+.mod-tags i{font-style:normal;font-size:11.5px;padding:3px 9px;border-radius:5px;background:var(--brand-dim);color:var(--brand);border:1px solid var(--brand-line)}
+.mod-a{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 17px;border:1px solid var(--line);border-radius:8px;font-size:13px;color:var(--ink2);transition:all .16s}
+.mod-a:hover{border-color:var(--brand);color:var(--brand)}
+.mod-a svg{width:14px;height:14px}
+.sim{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.sim h4{font-family:var(--serif);font-size:15px;font-weight:700;margin:0 0 13px;color:var(--ink2)}
+.simrow{display:grid;grid-auto-flow:column;grid-auto-columns:96px;gap:11px;overflow-x:auto;padding-bottom:6px}
+.simrow::-webkit-scrollbar{height:7px}
+.simrow::-webkit-scrollbar-thumb{background:#2c2c39;border-radius:5px}
+
+/* ---------- footer / backtop ---------- */
+.ftr{margin-top:70px;border-top:1px solid var(--line);padding:38px 0 60px;color:var(--ink3);font-size:12.5px;line-height:1.85}
+.ftr b{color:var(--ink2)}
+.top{
+  position:fixed;right:26px;bottom:26px;z-index:70;width:42px;height:42px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--line);color:var(--ink2);display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transition:all .2s;box-shadow:var(--sh2);
+}
+.top.on{opacity:1;visibility:visible}
+.top:hover{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+
+/* ============================================================
+   动效系统（参照 v4 原型：翻转 / 波浪入场 / 滚动渐入 / 流光 / 磁吸）
+   ============================================================ */
+:root{--ease-out:cubic-bezier(.16,1,.3,1);--ease-io:cubic-bezier(.65,0,.35,1);--ease-spring:cubic-bezier(.34,1.56,.64,1)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+
+/* ---- 翻转标签：类型 chips 激活时翻面 ---- */
+.chip{transform-origin:50% 50%;transition:transform .3s var(--ease-spring),border-color .14s,color .14s,background .14s}
+.chip:hover{transform:translateY(-2px)}
+.chip.on{animation:chipflip .5s var(--ease-spring)}
+@keyframes chipflip{0%{transform:rotateX(0)}45%{transform:rotateX(90deg) scale(1.07)}100%{transform:rotateX(0)}}
+
+/* ---- 影片卡波浪入场（backwards 结束后交还 hover 控制） ---- */
+@keyframes cardin{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.fc{animation:cardin .5s var(--ease-out) backwards}
+.grid.noanim .fc{animation:none}
+
+/* ---- 图片按加载淡入 ---- */
+.fcp img,.mc-p img,.hero-bg img,.simrow img,.mod-l img,.dwf-f img{
+  opacity:0;transition:opacity .45s ease,transform .5s cubic-bezier(.2,.7,.3,1);
+}
+img.ld{opacity:1}
+
+/* ---- 滚动渐入（animation 收尾，不占用 transform，hover 照常） ---- */
+[data-rv]{opacity:0}
+[data-rv].vis{opacity:1;animation:rvin .65s var(--ease-out) backwards}
+@keyframes rvin{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.rv-kids>*{opacity:0}
+.rv-kids.vis>*{opacity:1;animation:kidin .5s var(--ease-out) backwards}
+@keyframes kidin{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.rv-kids.vis>*:nth-child(2){animation-delay:.07s}
+.rv-kids.vis>*:nth-child(3){animation-delay:.14s}
+.rv-kids.vis>*:nth-child(4){animation-delay:.21s}
+.rv-kids.vis>*:nth-child(5){animation-delay:.28s}
+.rv-kids.vis>*:nth-child(6){animation-delay:.35s}
+.rv-kids.vis>*:nth-child(7){animation-delay:.42s}
+.rv-kids.vis>*:nth-child(8){animation-delay:.49s}
+.rv-kids.vis>*:nth-child(9){animation-delay:.56s}
+.rv-kids.vis>*:nth-child(10){animation-delay:.63s}
+.rv-kids.vis>*:nth-child(11){animation-delay:.7s}
+.rv-kids.vis>*:nth-child(12){animation-delay:.77s}
+
+/* ---- 翻转卡：奖项（正面信息，背面评语） ---- */
+.awf{perspective:1100px;cursor:pointer}
+.awi{position:relative;height:196px;transform-style:preserve-3d;transition:transform .7s var(--ease-spring)}
+.awf:hover .awi,.awf:focus-visible .awi,.awf.flip .awi{transform:rotateY(180deg)}
+.awf .aw{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.awf-b{transform:rotateY(180deg);border-color:var(--brand-line);flex-direction:column;background:linear-gradient(165deg,#20202b,var(--surface))}
+.awx{display:flex;flex-direction:column;height:100%;min-width:0;flex:1}
+.awb-t{font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--brand);margin-bottom:8px}
+.awf-b .ad{font-size:12.5px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.awf-hint{margin-top:auto;padding-top:8px;font-size:10.5px;color:var(--ink3);letter-spacing:.08em}
+
+/* ---- hero：数字滚动入场 / 流光 logo / 浮动几何 / 跑马灯 ---- */
+@keyframes cntin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hs b{animation:cntin .6s var(--ease-out) backwards}
+.hs:nth-child(2) b{animation-delay:.08s}
+.hs:nth-child(3) b{animation-delay:.16s}
+.hs:nth-child(4) b{animation-delay:.24s}
+.lgs{
+  background:linear-gradient(110deg,var(--brand) 0%,#f0dfa0 30%,var(--brand) 55%);
+  background-size:250% 100%;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:var(--brand);
+  animation:lgshine 6s var(--ease-io) infinite;
+}
+@keyframes lgshine{0%{background-position:120% 0}60%,100%{background-position:-120% 0}}
+.hero-deco{position:absolute;inset:0;z-index:1;pointer-events:none}
+.hd{position:absolute}
+.hd-c{width:96px;height:96px;border:1px solid rgba(212,168,67,.28);border-radius:50%;top:15%;right:9%;animation:hfloat 11s ease-in-out infinite}
+.hd-s{width:44px;height:44px;border:1px solid rgba(92,122,205,.3);border-radius:9px;bottom:30%;right:23%;animation:hfloat 9s ease-in-out -3s infinite}
+.hd-t{width:0;height:0;border-left:24px solid transparent;border-right:24px solid transparent;border-bottom:40px solid rgba(200,90,74,.14);top:26%;left:40%;animation:hfloat 13s ease-in-out -6s infinite}
+@keyframes hfloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-15px) rotate(4deg)}}
+.hero-mq{
+  position:relative;z-index:2;border-top:1px solid rgba(42,42,54,.8);overflow:hidden;padding:11px 0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+}
+.mq-track{display:flex;width:max-content;animation:mqrun 90s linear infinite}
+.hero-mq:hover .mq-track{animation-play-state:paused}
+.mq-half{display:flex;flex:none}
+.mq-item{display:inline-flex;align-items:center;gap:8px;padding-right:36px;font-size:12px;color:var(--ink3);white-space:nowrap}
+.mq-item i{font-style:normal;color:var(--brand);font-size:10.5px;font-variant-numeric:tabular-nums;opacity:.9}
+@keyframes mqrun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---- 类型卡可点击跳转筛选 ---- */
+.tg{position:relative}
+.tg.pick{cursor:pointer}
+.tg.pick:hover{border-color:var(--brand)}
+.tg.pick .tg-badge{position:absolute;top:12px;right:12px;width:6px;height:6px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 3px var(--brand-dim)}
+.tg.pick .tv{margin:9px 0 0;padding-top:9px;border-top:1px solid var(--line);font-size:11px;color:var(--brand);letter-spacing:.02em}
+.tg.pick .tv b{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ---- 奖项背面：跳转筛选按钮 ---- */
+.awf-go{
+  margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;
+  padding:7px 13px;border-radius:7px;border:1px solid var(--brand-line);background:var(--brand-dim);
+  color:var(--brand);font-size:12px;font-weight:600;transition:all .16s;
+}
+.awf-go:hover{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+
+/* ---- 导演翻转卡（正面代表作海报，背面概览） ---- */
+.dgrid{grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:16px}
+.dwf{perspective:1100px;cursor:pointer}
+.dwi{position:relative;aspect-ratio:2/3;transform-style:preserve-3d;transition:transform .7s var(--ease-spring)}
+.dwf:hover .dwi,.dwf:focus-visible .dwi,.dwf.flip .dwi{transform:rotateY(180deg)}
+.dwf .dside{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;border-radius:var(--r-m);border:1px solid var(--line);background:var(--surface)}
+.dwf-f img{width:100%;height:100%;object-fit:cover}
+.dwf-f .dgrad{position:absolute;left:0;right:0;bottom:0;padding:38px 14px 12px;background:linear-gradient(to top,rgba(6,6,9,.95) 24%,rgba(6,6,9,.55) 66%,transparent)}
+.dwf-f .dn{font-family:var(--serif);font-size:17px;font-weight:700;color:#fff;line-height:1.2}
+.dwf-f .de{font-size:10.5px;color:rgba(240,237,229,.62);font-style:italic;margin-top:2px}
+.dwf-f .dreg{position:absolute;top:9px;left:9px;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(10,10,14,.74);backdrop-filter:blur(4px);color:var(--dc,var(--brand));border:1px solid rgba(255,255,255,.09);letter-spacing:.06em}
+.dwf-f .dhint{position:absolute;top:10px;right:10px;font-size:10px;color:rgba(240,237,229,.66);background:rgba(10,10,14,.6);padding:2px 7px;border-radius:4px;letter-spacing:.08em}
+.dwf-f .dnoph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:linear-gradient(165deg,#20202b,#0d0d11);padding:16px;text-align:center}
+.dwf-f .dnoph .dn{font-size:22px}
+.dwf-b{transform:rotateY(180deg);display:flex;flex-direction:column;padding:14px 14px 12px;background:linear-gradient(165deg,#20202b,var(--surface));border-color:var(--brand-line)}
+.dwf-b .dn{font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:1px}
+.dwf-b .de{font-size:10.5px;color:var(--ink3);font-style:italic;margin-bottom:7px}
+.dwf-b .ds{font-size:11.5px;color:var(--ink2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:0 0 10px}
+.dwf-b .dfrow{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:5.5px 0;border-top:1px solid rgba(42,42,54,.65);font-size:11.5px;color:var(--ink2);cursor:pointer;text-align:left;width:100%;transition:color .14s}
+.dwf-b .dfrow:hover{color:var(--brand)}
+.dwf-b .dfrow .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dwf-b .dfrow .r{color:var(--brand);font-weight:700;flex:0 0 auto;font-variant-numeric:tabular-nums}
+.dwf-b .dlk{margin-top:auto;padding-top:10px}
+.dwf-b .dlk button{display:block;width:100%;padding:8px 0;border-radius:7px;border:1px solid var(--brand-line);background:var(--brand-dim);color:var(--brand);font-size:11.5px;font-weight:600;transition:all .16s}
+.dwf-b .dlk button:hover{background:var(--brand);color:var(--brand-ink)}
+
+/* ---- 导演筛选条 ---- */
+.dirtools{display:flex;align-items:center;gap:14px;margin:18px 0 2px;flex-wrap:wrap}
+.dirtool-c{font-size:12px;color:var(--ink3)}
+
+/* ---- 详情弹层动作行（换一部） ---- */
+.mod-acts{display:flex;gap:10px;flex-wrap:wrap;margin:-4px 0 22px}
+
+/* ---- 尊重系统减动效偏好 ---- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  [data-rv],.rv-kids>*{opacity:1!important}
+  .fc{animation:none}
+  .mq-track{animation:none}
+}
+
+@media (max-width:1080px){
+  .hsearch{flex:0 0 190px;max-width:190px}
+  .hero-bg{grid-template-columns:repeat(8,1fr)}
+  .mod-in{grid-template-columns:220px 1fr}
+}
+@media (max-width:820px){
+  .wrap,.hdr-in{padding:0 18px}
+  .hdr{height:auto;padding:9px 0}
+  .hdr-in{flex-wrap:wrap;gap:10px}
+  .logo{font-size:18px}
+  .nav{order:3;flex:1 0 100%;margin-left:0}
+  .hsearch{flex:1 1 auto;max-width:none}
+  .hero-in{padding:52px 0 40px}
+  .hero-bg{grid-template-columns:repeat(6,1fr);opacity:.24}
+  .hero-deco{display:none}
+  .hs{flex:1 1 44%}
+  .hs:nth-child(3){border-left:0;padding-left:0}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:16px 12px}
+  .fcb{padding:10px 11px 12px}
+  .fcs{-webkit-line-clamp:2;font-size:12px}
+  .subnav{position:static}
+  .mod{padding:12px}
+  .mod-in{grid-template-columns:1fr}
+  .mod-l{border-radius:var(--r-l) var(--r-l) 0 0;padding:12px 12px 0}
+  .mod-l img{max-height:56vh}
+  .mod-r{padding:22px 20px 26px}
+  .bwrap{grid-template-columns:1fr}
+  .cstrip{grid-auto-columns:132px}
+}
+@media (max-width:460px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .tgrid,.agrid,.rgrid{grid-template-columns:1fr}
+  .dgrid{grid-template-columns:repeat(2,1fr);gap:12px}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <a href="#" class="logo" id="homeBtn" aria-label="烧包影视 首页">
+      <svg class="lgm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.1c-4.4 0-7.9 3-7.9 7.2 0 2.7 1.5 5 3.8 6.2h8.2c2.3-1.2 3.8-3.5 3.8-6.2 0-4.2-3.5-7.2-7.9-7.2Z"/><path d="M12 5.3c-.8 1.4-2.2 2.4-4.1 2.5M12 5.3c.8 1.4 2.2 2.4 4.1 2.5"/><path d="M9.2 2.4c.4-.5.4-1.1 0-1.6M14.8 2.4c.4-.5.4-1.1 0-1.6"/></svg>
+      <span class="lgt"><span class="lgs">烧包影视</span><small>SHAOFILM</small></span>
+    </a>
+    <nav class="nav" id="nav"></nav>
+    <div class="hsearch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+      <input type="search" id="q" placeholder="搜索片名 / 导演 / 类型 / 年份" autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ 影史名片 ============ -->
+  <section class="view on" id="view-films">
+    <div class="hero">
+      <div class="hero-bg" id="heroBg"></div>
+      <div class="hero-veil"></div>
+      <div class="hero-deco" aria-hidden="true">
+        <span class="hd hd-c"></span><span class="hd hd-s"></span><span class="hd hd-t"></span>
+      </div>
+      <div class="wrap hero-in">
+        <span class="hero-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5"/></svg>
+          电影发现引擎
+        </span>
+        <div class="hero-stats">
+          <div class="hs"><b id="s1">—</b><span>部影片名片</span></div>
+          <div class="hs"><b id="s2">—</b><span>个细分类型</span></div>
+          <div class="hs"><b id="s3">—</b><span>项奖项与榜单</span></div>
+          <div class="hs"><b id="s4">—</b><span>位导演谱系</span></div>
+        </div>
+        <div class="hero-cta">
+          <a href="#" class="btn btn-p" id="ctaExplore">开始挑片
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="#" class="btn btn-s" id="ctaColls">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+            精选片单
+          </a>
+          <button class="btn btn-s" id="ctaRandom">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>
+            随便看一部
+          </button>
+        </div>
+      </div>
+      <div class="hero-mq" id="heroMq" aria-hidden="true"></div>
+    </div>
+
+    <div class="wrap">
+      <div class="fbar">
+        <div class="fbar-row">
+          <div class="chips" id="chips"></div>
+          <div class="segs" id="segs"></div>
+          <select class="sel" id="ctry"><option value="">全部地区</option></select>
+          <select class="sel" id="decade"><option value="">全部年代</option></select>
+        </div>
+        <div class="fcount">
+          <span id="fcount">—</span>
+          <button class="reset" id="reset" hidden>清除筛选</button>
+        </div>
+      </div>
+      <div class="grid" id="filmGrid"></div>
+      <button class="more" id="moreBtn" hidden>加载更多</button>
+    </div>
+  </section>
+
+  <!-- ============ 精选片单 ============ -->
+  <section class="view" id="view-colls">
+    <div class="wrap">
+      <div class="vhead" data-rv>
+        <h2>精选片单 <span>Collections</span></h2>
+        <p>按主题、地区、年代与口味自动编排的 <b id="collCount">—</b> 组片单，每组都配一段挑选逻辑。横向滑动浏览，点任意一张海报直接读简介。</p>
+      </div>
+      <div id="collsBox"></div>
+    </div>
+  </section>
+
+  <!-- ============ 类型图谱 ============ -->
+  <section class="view" id="view-genres">
+    <div class="wrap">
+      <div class="vhead" data-rv>
+        <h2>电影类型全图谱 <span id="genreCount">— Genres</span></h2>
+        <p>从「题材」往下拆到<b>子类型 / 流派 / 运动 / 形式 / 情绪</b>五个维度，共 <b id="genreCount2">—</b> 种。每种给一句话定义与 3–4 部经典代表作。类型边界本身是模糊的，同一影片常跨多类。<b>卡片带金色角标的，点击即可跳到影史名片筛选该类型的影片。</b></p>
+      </div>
+      <nav class="subnav" id="subnav"></nav>
+      <div id="taxBox"></div>
+    </div>
+  </section>
+
+  <!-- ============ 权威奖项 ============ -->
+  <section class="view" id="view-awards">
+    <div class="wrap">
+      <div class="vhead" data-rv>
+        <h2>权威奖项 <span>Awards</span></h2>
+        <p>从欧洲三大电影节到各国学院奖，再到类型片与新人奖，共 <b id="awCount">—</b> 项，按影响力分六层。奖项是「谁被记住」的机制，也是找片最省力的入口。<b>悬停或点击卡片翻面看评语；翻面后可一键跳到影史名片，筛选库内该奖项的获奖影片。</b></p>
+      </div>
+      <div id="awardsBox"></div>
+    </div>
+  </section>
+
+  <!-- ============ 权威榜单 ============ -->
+  <section class="view" id="view-ranks">
+    <div class="wrap">
+      <div class="vhead" data-rv>
+        <h2>权威榜单 <span>Lists</span></h2>
+        <p><b id="rkCount">—</b> 个外部权威榜单入口，分五类。想自己挖片单，从这些地方开始。</p>
+      </div>
+      <div id="ranksBox"></div>
+    </div>
+  </section>
+
+  <!-- ============ 导演谱系 ============ -->
+  <section class="view" id="view-dirs">
+    <div class="wrap">
+      <div class="vhead" data-rv>
+        <h2>导演谱系 <span>Directors</span></h2>
+        <p>按华语、日本、韩国、好莱坞、欧洲与当代新锐分组，共 <b id="drCount">—</b> 位导演。正面是代表作海报，<b>悬停或点击卡片翻面</b>看风格判断与代表作概览；背面可一键筛选其库内影片。</p>
+      </div>
+      <div class="dirtools" data-rv>
+        <div class="hsearch" style="flex:1;max-width:360px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+          <input type="search" id="dirQ" placeholder="搜索导演 / 代表作…" autocomplete="off">
+        </div>
+        <span class="dirtool-c" id="dirShown">—</span>
+      </div>
+      <div id="dirsBox"></div>
+    </div>
+  </section>
+
+  <!-- ============ 片源查找 ============ -->
+  <section class="view" id="view-sources">
+    <div class="wrap">
+      <div class="vhead" data-rv>
+        <h2>片源查找 <span>Sources</span></h2>
+        <p>本库只做资料与片单检索，正片请到以下站点搜索观看。第三方站点域名更换频繁，打不开就换下一个。</p>
+      </div>
+      <div id="sourcesBox"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  <div class="wrap ftr-in">
+    <svg class="lgm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:20px;height:20px;color:var(--brand);display:inline-block;vertical-align:-4px;margin-right:7px"><path d="M12 5.1c-4.4 0-7.9 3-7.9 7.2 0 2.7 1.5 5 3.8 6.2h8.2c2.3-1.2 3.8-3.5 3.8-6.2 0-4.2-3.5-7.2-7.9-7.2Z"/><path d="M12 5.3c-.8 1.4-2.2 2.4-4.1 2.5M12 5.3c.8 1.4 2.2 2.4 4.1 2.5"/><path d="M9.2 2.4c.4-.5.4-1.1 0-1.6M14.8 2.4c.4-.5.4-1.1 0-1.6"/></svg><b>烧包影视 shaofilm</b> · 影片资料与海报来自豆瓣公开页面与 wmdb.tv 公开接口，仅供个人浏览与学习，版权归各权利人所有。<br>
+    评分以豆瓣公开数据为参照，仅供排序参考，会随时间变化。类型与流派划分是主观整理，欢迎按自己的口味修正。<br>
+    本页为纯静态页面，数据存于同目录的 <b>films-data.js</b>，海报存于 <b>posters/</b> 文件夹——三者需放在一起，单独移动 HTML 会导致封面空白。
+  </div>
+</footer>
+
+<div class="mod" id="mod" aria-hidden="true">
+  <div class="mod-bd" id="modBd"></div>
+  <div class="mod-card" role="dialog" aria-modal="true">
+    <button class="mod-x" id="modX" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div id="modBody"></div>
+  </div>
+</div>
+
+<button class="top" id="top" aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</button>
+
+<script src="films-data.js"></script>
+<script>
+(function(){
+  "use strict";
+  var D=window.CINE;
+  if(!D){document.body.innerHTML='<div style="padding:60px;text-align:center;color:#a8a39a;font-family:sans-serif">数据文件 films-data.js 未加载。请确认它与本 HTML 放在同一目录。</div>';return;}
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+  var esc=function(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");};
+  var num=function(v){return parseFloat(v)||0;};
+  var REDUCED=!!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var FINE=!!(window.matchMedia&&window.matchMedia("(pointer: fine)").matches);
+
+  var IC={
+    out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+    dice:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>',
+    play:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8.6l6 3.4-6 3.4z" fill="currentColor" stroke="none"/></svg>',
+    laurel:'<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 35C8 30 6 21 10.5 13"/><path d="M26 35c6-5 8-14 3.5-22"/><path d="M10.5 13c1.6-2.2 4.6-2.6 6.6-.6"/><path d="M29.5 13c-1.6-2.2-4.6-2.6-6.6-.6"/><circle cx="20" cy="11" r="3.6" fill="currentColor" stroke="none" opacity=".9"/></svg>'
+  };
+
+  /* ============ 数据整理 ============ */
+  var FILMS=D.films.map(function(f,i){f._i=i;return f;});
+  var GEN={},CTRY={},DEC={};
+  FILMS.forEach(function(f){
+    (f.g||[]).forEach(function(g){GEN[g]=(GEN[g]||0)+1;});
+    if(f.c)f.c.split("/").map(function(s){return s.trim();}).filter(Boolean).forEach(function(c){CTRY[c]=(CTRY[c]||0)+1;});
+    if(f.y)DEC[Math.floor(+f.y/10)*10]=(DEC[Math.floor(+f.y/10)*10]||0)+1;
+  });
+  var topGenres=Object.keys(GEN).sort(function(a,b){return GEN[b]-GEN[a];}).slice(0,18);
+  var topCtry=Object.keys(CTRY).sort(function(a,b){return CTRY[b]-CTRY[a];}).slice(0,30);
+  var decades=Object.keys(DEC).map(Number).sort(function(a,b){return a-b;});
+
+  /* ============ 顶部入口 ============ */
+  var TABS=[
+    {v:"films",n:"影史名片",c:D.meta.films},
+    {v:"colls",n:"精选片单",c:"—"},
+    {v:"genres",n:"类型图谱",c:D.meta.types},
+    {v:"awards",n:"权威奖项",c:D.meta.awards},
+    {v:"ranks",n:"权威榜单",c:D.meta.ranks},
+    {v:"dirs",n:"导演谱系",c:D.meta.dirs},
+    {v:"sources",n:"片源查找",c:4}
+  ];
+  $("#nav").innerHTML=TABS.map(function(t,i){
+    return '<button data-v="'+t.v+'"'+(i===0?' class="on"':'')+'>'+t.n+'<span class="c">'+t.c+'</span></button>';
+  }).join("");
+  function go(v){
+    $$("#nav button").forEach(function(x){x.classList.toggle("on",x.dataset.v===v);});
+    $$(".view").forEach(function(s){s.classList.toggle("on",s.id==="view-"+v);});
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  $$("#nav button").forEach(function(b){b.addEventListener("click",function(){go(b.dataset.v);});});
+  $("#homeBtn").addEventListener("click",function(e){e.preventDefault();go("films");});
+  $("#ctaColls").addEventListener("click",function(e){e.preventDefault();go("colls");});
+
+  /* ============ 英雄区 ============ */
+  function countUp(el,to){
+    if(!el)return;
+    if(REDUCED){el.textContent=to;return;}
+    var st=null,dur=1300;
+    function ts(t){
+      if(st===null)st=t;
+      var p=Math.min(1,(t-st)/dur),e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(to*e);
+      if(p<1)requestAnimationFrame(ts);
+    }
+    requestAnimationFrame(ts);
+  }
+  countUp($("#s1"),D.meta.films);countUp($("#s2"),D.meta.types);
+  countUp($("#s3"),D.meta.awards+D.meta.ranks);countUp($("#s4"),D.meta.dirs);
+  $("#awCount").textContent=D.meta.awards; $("#rkCount").textContent=D.meta.ranks; $("#drCount").textContent=D.meta.dirs;
+  $("#genreCount").textContent=D.meta.types+" Genres"; $("#genreCount2").textContent=D.meta.types;
+  var withPoster=FILMS.filter(function(f){return f.p;});
+  var pick=withPoster.slice(0,36);
+  $("#heroBg").innerHTML=pick.map(function(f){return '<img src="'+esc(f.p)+'" alt="" loading="lazy" onload="this.classList.add(\'ld\')">';}).join("");
+  var mqList=FILMS.filter(function(f){return num(f.r)>=8.7;}).sort(function(a,b){return (b.votes||0)-(a.votes||0);}).slice(0,36);
+  var mqHalf=mqList.map(function(f){return '<span class="mq-item">'+esc(f.t)+'<i>★ '+esc(f.r)+'</i></span>';}).join("");
+  $("#heroMq").innerHTML='<div class="mq-track"><div class="mq-half">'+mqHalf+'</div><div class="mq-half">'+mqHalf+'</div></div>';
+
+  /* ============ 名片渲染 ============ */
+  var PAGE=72,shown=PAGE;
+  var state={g:"",dec:"",ctry:"",sort:"rating",q:"",award:""};
+  var AWARDS_SET={};
+  if(D.awardLinks){
+    Object.keys(D.awardLinks).forEach(function(n){
+      var s={};
+      D.awardLinks[n].forEach(function(p){s[p[0]+"|"+String(p[1])]=1;});
+      AWARDS_SET[n]=s;
+    });
+  }
+
+  $("#chips").innerHTML=topGenres.map(function(g){
+    return '<button class="chip" data-g="'+esc(g)+'">'+esc(g)+'<span class="n">'+GEN[g]+'</span></button>';
+  }).join("");
+  var SORTS=[["rating","评分"],["hot","热度"],["year","年代新→旧"],["yearAsc","年代旧→新"],["title","片名"]];
+  $("#segs").innerHTML=SORTS.map(function(s,i){
+    return '<button data-s="'+s[0]+'"'+(i===0?' class="on"':'')+'>'+s[1]+'</button>';
+  }).join("");
+  $("#ctry").innerHTML='<option value="">全部地区</option>'+topCtry.map(function(c){
+    return '<option value="'+esc(c)+'">'+esc(c)+' · '+CTRY[c]+'</option>';
+  }).join("");
+  $("#decade").innerHTML='<option value="">全部年代</option>'+decades.map(function(d){
+    return '<option value="'+d+'">'+(d<1900?"1900 前":d+"s")+' · '+DEC[d]+'</option>';
+  }).join("");
+
+  function match(f){
+    if(state.g&&(f.g||[]).indexOf(state.g)<0)return false;
+    if(state.dec&&String(Math.floor(+f.y/10)*10)!==state.dec)return false;
+    if(state.ctry&&(f.c||"").split("/").map(function(s){return s.trim();}).indexOf(state.ctry)<0)return false;
+    if(state.award){
+      var set=AWARDS_SET[state.award];
+      if(!set||!set[f.t+"|"+String(f.y)])return false;
+    }
+    if(state.q){
+      var hay=(f.t+" "+(f.e||"")+" "+(f.d||"")+" "+(f.c||"")+" "+(f.g||[]).join(" ")+" "+(f.y||"")).toLowerCase();
+      if(hay.indexOf(state.q)<0)return false;
+    }
+    return true;
+  }
+  function sorted(){
+    var a=FILMS.filter(match);
+    var s=state.sort;
+    a.sort(function(x,y){
+      if(s==="rating")return (num(y.r))-(num(x.r))||(y.votes||0)-(x.votes||0);
+      if(s==="hot")return (y.votes||0)-(x.votes||0);
+      if(s==="year")return (+y.y||0)-(+x.y||0);
+      if(s==="yearAsc")return (+x.y||0)-(+y.y||0);
+      return String(x.t).localeCompare(String(y.t),"zh-Hans-CN");
+    });
+    return a;
+  }
+  function fcard(f,i){
+    var cover=f.p
+      ?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">'
+      :'';
+    var ph=f.p?"":'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
+    var meta=[f.y,f.c].filter(Boolean).join(" · ");
+    return '<article class="fc" data-i="'+f._i+'" tabindex="0" role="button" aria-label="'+esc(f.t)+'" style="animation-delay:'+Math.min(i,23)*28+'ms">'
+      +'<div class="fcp">'+ph+cover
+      +(f.r?'<span class="rate">'+esc(f.r)+'</span>':'')
+      +(f.y?'<span class="yr">'+esc(f.y)+'</span>':'')
+      +(f.d?'<span class="dir">'+esc(f.d)+'</span>':'')+'</div>'
+      +'<div class="fcb">'
+      +'<h3 class="fct">'+esc(f.t)+'</h3>'
+      +'<p class="fce">'+esc(f.e||meta||"")+'</p>'
+      +'<p class="fcs">'+esc(f.s||"")+'</p>'
+      +'<div class="fcg">'+(f.g||[]).slice(0,3).map(function(g){return '<i>'+esc(g)+'</i>';}).join("")+'</div>'
+      +'</div></article>';
+  }
+  function renderFilms(anim){
+    var g=$("#filmGrid");
+    g.classList.toggle("noanim",anim===false);
+    var a=sorted();
+    $("#fcount").innerHTML='共 <b>'+a.length+'</b> 部'+(state.award?' · 奖项「'+esc(state.award)+'」':'')+(state.g?' · 类型「'+esc(state.g)+'」':'')+(state.ctry?' · '+esc(state.ctry):'')+(state.dec?' · '+state.dec+'s':'')+(state.q?' · 搜索「'+esc(state.q)+'」':'');
+    $("#reset").hidden=!(state.g||state.dec||state.ctry||state.q||state.award);
+    if(!a.length){g.innerHTML='<p class="empty" style="grid-column:1/-1">没有匹配的影片，换个关键词或清除筛选试试。</p>';$("#moreBtn").hidden=true;return;}
+    g.innerHTML=a.slice(0,shown).map(function(f,i){return fcard(f,i);}).join("");
+    $("#moreBtn").hidden=shown>=a.length;
+    $("#moreBtn").textContent="加载更多（还有 "+(a.length-shown)+" 部）";
+  }
+  $("#chips").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b)return;
+    state.g=(state.g===b.dataset.g)?"":b.dataset.g;
+    $$("#chips .chip").forEach(function(x){x.classList.toggle("on",x.dataset.g===state.g);});
+    shown=PAGE; renderFilms();
+  });
+  $("#segs").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return;
+    state.sort=b.dataset.s;
+    $$("#segs button").forEach(function(x){x.classList.toggle("on",x===b);});
+    renderFilms();
+  });
+  $("#decade").addEventListener("change",function(){state.dec=this.value;shown=PAGE;renderFilms();});
+  $("#ctry").addEventListener("change",function(){state.ctry=this.value;shown=PAGE;renderFilms();});
+  $("#q").addEventListener("input",function(){state.q=this.value.trim().toLowerCase();shown=PAGE;renderFilms();});
+  $("#reset").addEventListener("click",function(){
+    state.g="";state.dec="";state.ctry="";state.q="";state.award="";$("#q").value="";$("#decade").value="";$("#ctry").value="";
+    $$("#chips .chip").forEach(function(x){x.classList.remove("on");});
+    shown=PAGE;renderFilms();renderAwardChip();
+  });
+  $("#moreBtn").addEventListener("click",function(){shown+=PAGE;renderFilms(false);});
+  $("#ctaExplore").addEventListener("click",function(e){e.preventDefault();$(".fbar").scrollIntoView({behavior:"smooth",block:"start"});});
+  $("#ctaRandom").addEventListener("click",function(){openFilm(Math.floor(Math.random()*FILMS.length));});
+
+  function renderAwardChip(){
+    var old=$("#achip"); if(old)old.parentNode.removeChild(old);
+    if(!state.award)return;
+    var b=document.createElement("button");
+    b.className="chip on";b.id="achip";b.type="button";
+    b.innerHTML='奖项「'+esc(state.award)+'」<span class="n">✕</span>';
+    b.title="点击移除奖项筛选";
+    b.addEventListener("click",function(e){e.stopPropagation();state.award="";shown=PAGE;renderFilms();renderAwardChip();});
+    var chips=$("#chips");
+    chips.insertBefore(b,chips.firstChild);
+  }
+
+  function setFilter(o){
+    state.g=o.g||"";state.ctry=o.ctry||"";state.dec=o.dec||"";state.q=o.q||"";state.award=o.award||"";
+    $("#q").value=state.q;$("#ctry").value=state.ctry;$("#decade").value=state.dec;
+    $$("#chips .chip").forEach(function(x){x.classList.toggle("on",x.dataset.g===state.g);});
+    shown=PAGE;renderFilms();renderAwardChip();go("films");
+  }
+
+  /* ============ 精选片单 ============ */
+  function has(f,k){return (f.g||[]).indexOf(k)>=0;}
+  function inC(f,k){return (f.c||"").indexOf(k)>=0;}
+  var CN=function(f){return inC(f,"中国大陆")||inC(f,"中国香港")||inC(f,"中国台湾");};
+  var EU=["法国","意大利","德国","瑞典","苏联","俄罗斯","西班牙","波兰","丹麦","英国","爱尔兰","葡萄牙","希腊","捷克","匈牙利","芬兰","挪威","比利时","荷兰","奥地利","罗马尼亚"];
+  function isEU(f){return EU.some(function(x){return inC(f,x);});}
+  var COLLS=[
+    {n:"豆瓣 9.0+ 神作",e:"9.0 and Above",d:"评分天花板区。先看这些，再决定要不要往下走。",f:function(f){return num(f.r)>=9.0;},sort:"rating",lim:30},
+    {n:"作者电影精选",e:"Auteurs",d:"从电影史坐标里手挑的作者电影：长镜头、留白、结构与时间的实验。",f:function(f){return !!f.curated;},sort:"rating",lim:30},
+    {n:"华语电影",e:"Chinese-language",d:"大陆、香港、台湾三代人的影像记忆，从市井到史诗。",f:CN,sort:"rating",lim:30,preset:{ctry:"中国大陆"}},
+    {n:"日本电影",e:"Japan",d:"从家庭伦理到动画奇观，日本电影总在极小的日常里放大情绪。",f:function(f){return inC(f,"日本");},sort:"rating",lim:30,preset:{ctry:"日本"}},
+    {n:"韩国现实主义",e:"Korea",d:"类型外壳、社会内脏——韩国电影把愤怒拍成了手艺。",f:function(f){return inC(f,"韩国");},sort:"rating",lim:30,preset:{ctry:"韩国"}},
+    {n:"好莱坞经典",e:"Hollywood",d:"工业流水线的黄金产物：明星、类型、叙事模板，以及被反复致敬的镜头。",f:function(f){return inC(f,"美国")&&+f.y>0&&+f.y<1980;},sort:"rating",lim:30},
+    {n:"欧洲作者电影",e:"European Art Cinema",d:"电影节常客与电影语言革命者，慢、晦涩、但值得。",f:isEU,sort:"rating",lim:30},
+    {n:"21 世纪最佳",e:"21st Century",d:"2000 年以后的高分片，兼顾口碑与当代性。",f:function(f){return +f.y>=2000&&num(f.r)>=8.3;},sort:"rating",lim:30,preset:{dec:"2000"}},
+    {n:"世纪之交",e:"1990s",d:"90 年代：独立电影爆发、类型融合、全球化叙事的开端。",f:function(f){return +f.y>=1990&&+f.y<2000&&num(f.r)>=8.3;},sort:"rating",lim:30,preset:{dec:"1990"}},
+    {n:"烧脑悬疑",e:"Mind-bending",d:"结构、反转、不可靠叙述——看完需要再想一遍的片子。",f:function(f){return has(f,"悬疑");},sort:"rating",lim:30,preset:{g:"悬疑"}},
+    {n:"犯罪与黑帮",e:"Crime & Gangster",d:"法律之外的世界，欲望与暴力的秩序。",f:function(f){return has(f,"犯罪");},sort:"rating",lim:30,preset:{g:"犯罪"}},
+    {n:"科幻宇宙",e:"Sci-Fi",d:"从太空史诗到近未来寓言，人类对未知的想象合集。",f:function(f){return has(f,"科幻");},sort:"rating",lim:30,preset:{g:"科幻"}},
+    {n:"动画长片",e:"Animation",d:"手绘、CG 与实验动画——动画不是给小孩的，是给还愿意相信的人。",f:function(f){return has(f,"动画");},sort:"rating",lim:30,preset:{g:"动画"}},
+    {n:"战争与人性",e:"War",d:"战争片最好的一批，往往不是歌颂胜利，而是记录代价。",f:function(f){return has(f,"战争");},sort:"rating",lim:30,preset:{g:"战争"}},
+    {n:"武侠与古装",e:"Wuxia & Period",d:"江湖、朝堂、刀光与长袍，东方类型片的独特美学。",f:function(f){return has(f,"武侠")||has(f,"古装");},sort:"rating",lim:30,preset:{g:"武侠"}},
+    {n:"黑色电影",e:"Film Noir",d:"阴影、烟、宿命与蛇蝎美人，好莱坞最阴郁的一支血脉。",f:function(f){return has(f,"黑色电影");},sort:"rating",lim:24,preset:{g:"黑色电影"}},
+    {n:"音乐与歌舞",e:"Music & Musical",d:"把情绪唱出来的电影：演唱会纪录片、音乐传记与歌舞片。",f:function(f){return has(f,"音乐")||has(f,"歌舞");},sort:"rating",lim:24,preset:{g:"音乐"}},
+    {n:"惊悚与恐怖",e:"Thriller & Horror",d:"心跳加速的那一类，从心理惊悚到怪物恐怖。",f:function(f){return has(f,"惊悚")||has(f,"恐怖");},sort:"rating",lim:30,preset:{g:"惊悚"}},
+    {n:"治愈与家庭",e:"Healing",d:"温柔、日常、余味长。适合疲惫的时候打开。",f:function(f){return (has(f,"家庭")||has(f,"剧情"))&&num(f.r)>=8.6;},sort:"rating",lim:30},
+    {n:"高分纪录片",e:"Documentary",d:"真实比虚构更离奇——纪录片里的人和世界。",f:function(f){return has(f,"纪录片");},sort:"rating",lim:30,preset:{g:"纪录片"}}
+  ];
+
+  function miniCard(f){
+    var cover=f.p?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+'" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">':'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
+    return '<button class="mc" data-i="'+f._i+'" aria-label="'+esc(f.t)+'">'
+      +'<div class="mc-p">'+cover+(f.r?'<span class="rate">'+esc(f.r)+'</span>':'')+'</div>'
+      +'<div class="mc-t">'+esc(f.t)+'</div>'
+      +'<div class="mc-s">'+esc([f.y,f.c].filter(Boolean).join(" · "))+'</div></button>';
+  }
+  var built=0;
+  $("#collsBox").innerHTML=COLLS.map(function(c,ci){
+    var list=FILMS.filter(c.f);
+    if(c.sort==="rating")list.sort(function(a,b){return num(b.r)-num(a.r)||(b.votes||0)-(a.votes||0);});
+    if(list.length<4)return "";
+    built++;
+    var shownList=list.slice(0,c.lim||24);
+    return '<div class="coll" data-rv>'
+      +'<div class="coll-hd"><div><h3>'+esc(c.n)+' <span class="ce">'+esc(c.e)+'</span></h3>'
+      +'<p class="cd">'+esc(c.d)+' · 共 '+list.length+' 部</p></div>'
+      +(c.preset?'<a href="#" class="coll-more" data-c="'+ci+'">在名片中筛选 →</a>':'')
+      +'</div>'
+      +'<div class="cstrip rv-kids">'+shownList.map(miniCard).join("")+'</div></div>';
+  }).join("");
+  $("#collCount").textContent=built;
+  var TABS2=$("#nav button[data-v=colls] .c"); if(TABS2)TABS2.textContent=built;
+  $("#collsBox").addEventListener("click",function(e){
+    var m=e.target.closest(".mc"); if(m){openFilm(+m.dataset.i);return;}
+    var a=e.target.closest(".coll-more"); if(a){e.preventDefault();setFilter(COLLS[+a.dataset.c].preset);}
+  });
+
+  /* ============ 片源查找 ============ */
+  var SOURCES=[
+    {n:"维C搜搜",h:"vcsoso.com",u:"https://vcsoso.com/",d:"免登录、无广告，主打 1080P / 4K 原盘，站内可直接按片名搜索。"},
+    {n:"KK122",h:"kk122.seesee.sbs",u:"https://kk122.seesee.sbs/",d:"网盘资源站，站内搜索片名即可。"},
+    {n:"VV3nwjk",h:"www.vv3nwjk.com",u:"https://www.vv3nwjk.com/",d:"网盘资源站，域名更换频繁，失效请换用其他入口。"},
+    {n:"1080影视",h:"tvv.movie1080.online",u:"https://tvv.movie1080.online/?ref=qiandh.com",d:"1080P 片源聚合入口，适合收藏做高画质备用。"}
+  ];
+  $("#sourcesBox").innerHTML='<div class="sgrid rv-kids">'+SOURCES.map(function(s,i){
+    return '<a class="srccard" href="'+s.u+'" target="_blank" rel="noopener" aria-label="在新窗口打开 '+esc(s.n)+'">'
+      +'<div class="sc-hd"><span class="sc-i">'+(i+1)+'</span><div><h3>'+esc(s.n)+'</h3><span class="sc-h">'+esc(s.h)+'</span></div></div>'
+      +'<p class="sc-d">'+esc(s.d)+'</p>'
+      +'<span class="sc-go">'+IC.out+'打开网站</span></a>';
+  }).join("")+'</div>';
+
+  /* ============ 详情弹层 ============ */
+  function simList(f){
+    var others=FILMS.filter(function(x){
+      if(x._i===f._i)return false;
+      var n=(x.g||[]).filter(function(g){return (f.g||[]).indexOf(g)>=0;}).length;
+      if(n<1)return false;
+      if(f.c&&x.c&&x.c.split("/").map(function(s){return s.trim();}).some(function(c){return f.c.indexOf(c)>=0;}))n+=0.5;
+      return n>=2;
+    }).sort(function(a,b){return num(b.r)-num(a.r);}).slice(0,10);
+    if(!others.length)return "";
+    return '<div class="sim"><h4>口味相近</h4><div class="simrow">'+others.map(function(x){
+      var cover=x.p?'<img src="'+esc(x.p)+'" alt="'+esc(x.t)+'" loading="lazy" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px" onload="this.classList.add(\'ld\')">':'<span style="display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:2/3;background:#0a0a0e;border-radius:6px;color:#3a3a46;font-family:var(--serif)">'+esc(String(x.t).slice(0,1))+'</span>';
+      return '<button class="mc" data-i="'+x._i+'" style="background:none;border:0;padding:0;cursor:pointer;text-align:left">'+cover
+        +'<div class="mc-t" style="font-size:11.5px">'+esc(x.t)+'</div></button>';
+    }).join("")+'</div></div>';
+  }
+  var curIdx=-1;
+  function nextRandom(){
+    var pool=sorted();
+    if(pool.length<2)pool=FILMS;
+    var r;
+    do{r=Math.floor(Math.random()*pool.length);}while(pool[r]._i===curIdx&&pool.length>1);
+    openFilm(pool[r]._i);
+  }
+  function openFilm(i){
+    var f=FILMS[i]; if(!f)return;
+    curIdx=i;
+    var left=f.p
+      ?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+' 海报" onload="this.classList.add(\'ld\')">'
+      :'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
+    var meta=[];
+    if(f.y)meta.push('<span>'+esc(f.y)+'</span>');
+    if(f.c)meta.push('<span>'+esc(f.c)+'</span>');
+    if(f.dur)meta.push('<span>'+esc(f.dur)+'</span>');
+    if(f.r)meta.unshift('<span class="rate">★ '+esc(f.r)+'</span>');
+    var kv='';
+    if(f.d)kv+='<dt>导演</dt><dd><b>'+esc(f.d)+'</b></dd>';
+    if(f.acts)kv+='<dt>主演</dt><dd>'+esc(f.acts)+'</dd>';
+    if(f.c)kv+='<dt>地区</dt><dd>'+esc(f.c)+'</dd>';
+    if(f.dur)kv+='<dt>片长</dt><dd>'+esc(f.dur)+'</dd>';
+    if(f.y)kv+='<dt>年份</dt><dd>'+esc(f.y)+'</dd>';
+    var db=f.id?'https://movie.douban.com/subject/'+f.id+'/':(f.e?'https://www.imdb.com/find/?q='+encodeURIComponent(f.e):'');
+    $("#modBody").innerHTML='<div class="mod-in">'
+      +'<div class="mod-l">'+left+'</div>'
+      +'<div class="mod-r">'
+      +'<h2>'+esc(f.t)+'</h2>'
+      +(f.e?'<p class="oe">'+esc(f.e)+'</p>':'')
+      +'<div class="mod-meta">'+meta.join("")+'</div>'
+      +(kv?'<dl class="mod-kv">'+kv+'</dl>':'')
+      +'<p class="mod-syn">'+esc(f.s||"暂无简介")+'</p>'
+      +((f.g&&f.g.length)?'<div class="mod-tags">'+f.g.map(function(g){return '<i>'+esc(g)+'</i>';}).join("")+'</div>':'')
+      +'<div class="mod-acts"><button class="mod-a mod-next" type="button" title="在当前筛选范围内随机换一部">'+IC.dice+'换一部</button>'
+      +(db?'<a class="mod-a" href="'+db+'" target="_blank" rel="noopener">'+IC.out+(f.id?'在豆瓣查看':'在 IMDb 查看')+'</a>':'')
+      +'<a class="mod-a" href="https://vcsoso.com/s/'+encodeURIComponent(f.t)+'" target="_blank" rel="noopener" title="在维C搜搜搜索《'+esc(f.t)+'》的片源">'+IC.play+'找片源</a>'
+      +'</div>'
+      +simList(f)
+      +'</div></div>';
+    $("#mod").classList.add("on");
+    $("#mod").setAttribute("aria-hidden","false");
+    document.body.style.overflow="hidden";
+  }
+  function closeFilm(){
+    $("#mod").classList.remove("on");
+    $("#mod").setAttribute("aria-hidden","true");
+    document.body.style.overflow="";
+  }
+  $("#filmGrid").addEventListener("click",function(e){
+    var c=e.target.closest(".fc"); if(c)openFilm(+c.dataset.i);
+  });
+  $("#filmGrid").addEventListener("keydown",function(e){
+    if(e.key!=="Enter"&&e.key!==" ")return;
+    var c=e.target.closest(".fc"); if(c){e.preventDefault();openFilm(+c.dataset.i);}
+  });
+  $("#modBody").addEventListener("click",function(e){
+    var nx=e.target.closest(".mod-next"); if(nx){nextRandom();return;}
+    var m=e.target.closest(".mc"); if(m)openFilm(+m.dataset.i);
+  });
+  $("#modX").addEventListener("click",closeFilm);
+  $("#modBd").addEventListener("click",closeFilm);
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeFilm();});
+
+  /* ============ 类型图谱 ============ */
+  $("#subnav").innerHTML=D.tax.map(function(g){
+    return '<button data-k="'+g.k+'">'+g.k+' '+esc(g.t)+'<span class="c">'+g.items.length+'</span></button>';
+  }).join("");
+  $("#taxBox").innerHTML=D.tax.map(function(g){
+    return '<div class="grp" data-rv id="tax-'+g.k+'" style="--acc:'+g.accent+'">'
+      +'<h3>'+g.k+' · '+esc(g.t)+' <span style="font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--ink3);text-transform:uppercase">'+esc(g.te)+'</span></h3>'
+      +'<p class="gs">'+esc(g.s)+'</p>'
+      +'<div class="tgrid rv-kids">'+g.items.map(function(t){
+        var cnt=GEN[t.n]||0;
+        return '<div class="tg'+(cnt?' pick':'')+'"'+(cnt?' data-n="'+esc(t.n)+'" tabindex="0" role="button" aria-label="在影史名片中筛选'+esc(t.n)+'类型"':'')+'>'
+          +(cnt?'<span class="tg-badge" title="库内可筛选"></span>':'')
+          +'<div class="th"><span class="ti">'+esc(t.i)+'</span><span class="tn">'+esc(t.n)+'</span><span class="te">'+esc(t.e)+'</span></div>'
+          +'<p class="td">'+esc(t.d)+'</p><p class="tf">'+esc(t.f)+'</p>'
+          +(cnt?'<p class="tv">库内 <b>'+cnt+'</b> 部 · 点击筛选 →</p>':'')
+          +'</div>';
+      }).join("")+'</div></div>';
+  }).join("");
+  $("#subnav").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return;
+    var el=$("#tax-"+b.dataset.k);
+    if(el)window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-112,behavior:"smooth"});
+  });
+  $("#taxBox").addEventListener("click",function(e){
+    var c=e.target.closest(".tg.pick"); if(!c)return;
+    setFilter({g:c.dataset.n});
+  });
+  $("#taxBox").addEventListener("keydown",function(e){
+    if(e.key!=="Enter"&&e.key!==" ")return;
+    var c=e.target.closest(".tg.pick"); if(c){e.preventDefault();setFilter({g:c.dataset.n});}
+  });
+
+  /* ============ 奖项（翻转卡）/ 榜单 / 导演 ============ */
+  $("#awardsBox").innerHTML=D.awards.map(function(g){
+    return '<div class="grp" data-rv style="--acc:'+g.c+'"><h3>'+esc(g.g)+'</h3><p class="gs">'+esc(g.s)+'</p><div class="agrid rv-kids">'
+      +g.items.map(function(a){
+        var al=(D.awardLinks||{})[a.n];
+        return '<div class="awf" tabindex="0" role="button" aria-label="'+esc(a.n)+'，按回车翻面查看评语"><div class="awi">'
+          +'<div class="aw awf-f">'+IC.laurel+'<div class="awx"><div class="an">'+esc(a.n)+'</div><div class="ae">'+esc(a.e)+'</div>'
+          +'<div class="am">'+esc(a.m)+'</div><div class="awf-hint">悬停 / 点击翻面 ↻</div></div></div>'
+          +'<div class="aw awf-b"><div class="awb-t">'+esc(a.n)+'</div><div class="ad">'+esc(a.d)+'</div>'
+          +(al?'<button class="awf-go" data-a="'+esc(a.n)+'">查看库内 '+al.length+' 部获奖影片 →</button>':'')
+          +'<div class="awf-hint">↺ 点击返回</div></div>'
+          +'</div></div>';
+      }).join("")+'</div></div>';
+  }).join("");
+  function flipAw(e){
+    var go=e.target.closest(".awf-go");
+    if(go){e.stopPropagation();setFilter({award:go.dataset.a});return;}
+    var c=e.target.closest(".awf"); if(!c)return;
+    e.preventDefault();
+    c.classList.toggle("flip");
+  }
+  $("#awardsBox").addEventListener("click",flipAw);
+  $("#awardsBox").addEventListener("keydown",function(e){
+    if(e.key!=="Enter"&&e.key!==" ")return;
+    e.preventDefault();
+    flipAw(e);
+  });
+  $("#ranksBox").innerHTML='<div class="grp"><h3>外部榜单入口 <span style="font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--ink3);text-transform:uppercase">Sources</span></h3><p class="gs">大众评分、影史地位、影评人年度、地区华语与片单平台，共 '+D.meta.ranks+' 个入口，分五类。</p>'
+    +D.ranks.map(function(g){
+      return '<div class="grp" data-rv style="--acc:'+g.c+'"><h3>'+esc(g.g)+'</h3><p class="gs">'+esc(g.s)+'</p><div class="rgrid rv-kids">'
+        +g.items.map(function(r){
+          return '<a class="rk" href="'+esc(r.u)+'" target="_blank" rel="noopener"><div class="rn"><span>'+esc(r.n)+'</span><span class="go">↗</span></div>'
+            +'<div class="re">'+esc(r.e)+'</div><div class="rm">'+esc(r.m)+'</div><div class="rd">'+esc(r.d)+'</div></a>';
+        }).join("")+'</div></div>';
+    }).join("")+'</div>';
+  D.dirs.forEach(function(d){
+    d._films=FILMS.filter(function(f){return (f.d||"").indexOf(d.n)>=0;})
+      .sort(function(a,b){return num(b.r)-num(a.r)||(b.votes||0)-(a.votes||0);});
+    d._hay=(d.n+" "+(d.e||"")+" "+(d.f||[]).join(" ")+" "+d._films.map(function(f){return f.t;}).join(" ")).toLowerCase();
+  });
+  $("#dirsBox").innerHTML=D.dregion.map(function(R){
+    var list=D.dirs.filter(function(d){return d.r===R.r;});
+    if(!list.length)return "";
+    return '<div class="grp dgrp" data-rv data-region="'+esc(R.r)+'"><h3>'+esc(R.r)+' <span style="font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--ink3);text-transform:uppercase">'+esc(R.e)+' · '+list.length+' 位</span></h3>'
+      +'<div class="dgrid rv-kids">'+list.map(function(d){
+        var best=d._films[0];
+        var front=(best&&best.p)
+          ?'<img src="'+esc(best.p)+'" alt="'+esc(d.n)+' 代表作 '+esc(best.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')">'
+            +'<div class="dgrad"><div class="dn">'+esc(d.n)+'</div><div class="de">'+esc(d.e||"")+'</div></div>'
+          :'<div class="dnoph"><div class="dn">'+esc(d.n)+'</div><div class="de">'+esc(d.e||"")+'</div></div>';
+        var rows=d._films.slice(0,3).map(function(f){
+          return '<button class="dfrow" type="button" data-i="'+f._i+'" title="'+esc(f.t)+'"><span class="t">'+esc(f.t)+' <i style="font-style:normal;color:var(--ink3)">'+esc(f.y)+'</i></span><span class="r">'+esc(f.r||"")+'</span></button>';
+        }).join("");
+        if(!rows)rows='<p class="ds" style="margin:6px 0 10px;-webkit-line-clamp:6">代表作：'+esc((d.f||[]).join(" · "))+'</p>';
+        var more=d._films.length>3?'查看库内全部 '+d._films.length+' 部':'在名片中搜索其影片';
+        return '<div class="dwf" style="--dc:'+R.c+'" data-d="'+esc(d.n)+'" tabindex="0" role="button" aria-label="'+esc(d.n)+'，按回车翻面看代表作">'
+          +'<div class="dwi">'
+          +'<div class="dside dwf-f">'+front+'<span class="dreg">'+esc(R.r)+'</span><span class="dhint">翻面 ↻</span></div>'
+          +'<div class="dside dwf-b"><div class="dn">'+esc(d.n)+'</div><div class="de">'+esc(d.e||"")+'</div>'
+          +'<p class="ds">'+esc(d.s||"")+'</p>'
+          +rows
+          +'<div class="dlk"><button type="button" data-search="'+esc(d.n)+'">'+more+' →</button></div>'
+          +'</div></div></div>';
+      }).join("")+'</div></div>';
+  }).join("");
+  function flipDir(e){
+    var row=e.target.closest(".dfrow");
+    if(row){e.stopPropagation();openFilm(+row.dataset.i);return;}
+    var lk=e.target.closest(".dlk button");
+    if(lk){e.stopPropagation();setFilter({q:lk.dataset.search});return;}
+    var c=e.target.closest(".dwf"); if(!c)return;
+    e.preventDefault();
+    c.classList.toggle("flip");
+  }
+  $("#dirsBox").addEventListener("click",flipDir);
+  $("#dirsBox").addEventListener("keydown",function(e){
+    if(e.key!=="Enter"&&e.key!==" ")return;
+    e.preventDefault();
+    flipDir(e);
+  });
+  $("#dirShown").textContent=D.meta.dirs+" 位";
+  $("#dirQ").addEventListener("input",function(){
+    var q=this.value.trim().toLowerCase(),shown=0;
+    var byName={};
+    D.dirs.forEach(function(d){byName[d.n]=d;});
+    $$("#dirsBox .dwf").forEach(function(c){
+      var d=byName[c.dataset.d];
+      var ok=!q||(d&&d._hay.indexOf(q)>=0);
+      c.style.display=ok?"":"none";
+      if(ok)shown++;
+    });
+    $$("#dirsBox .dgrp").forEach(function(g){
+      var vis=$$(".dwf",g).some(function(c){return c.style.display!=="none";});
+      g.style.display=vis?"":"none";
+    });
+    $("#dirShown").textContent=shown+" 位"+(q?" 匹配":"");
+  });
+
+  /* ============ 回到顶部 ============ */
+  var bt=$("#top");
+  window.addEventListener("scroll",function(){bt.classList.toggle("on",window.scrollY>720);},{passive:true});
+  bt.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"});});
+
+  /* ============ 滚动渐入 / 磁吸按钮 / 快捷键 ============ */
+  var hasIO="IntersectionObserver" in window;
+  var io=hasIO?new IntersectionObserver(function(es){
+    es.forEach(function(en){
+      if(en.isIntersecting){en.target.classList.add("vis");io.unobserve(en.target);}
+    });
+  },{threshold:.06,rootMargin:"0px 0px -36px 0px"}):null;
+  $$("[data-rv],.rv-kids").forEach(function(el){
+    if(io)io.observe(el); else el.classList.add("vis");
+  });
+
+  if(!REDUCED&&FINE){
+    $$(".hero-cta .btn").forEach(function(b){
+      b.addEventListener("mousemove",function(e){
+        var r=b.getBoundingClientRect();
+        var x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;
+        b.style.transform="translate("+(x*.16).toFixed(1)+"px,"+(y*.22).toFixed(1)+"px)";
+      });
+      b.addEventListener("mouseleave",function(){b.style.transform="";});
+    });
+  }
+
+  document.addEventListener("keydown",function(e){
+    if(e.key==="/"&&document.activeElement&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){
+      e.preventDefault();
+      $("#q").focus();
+      $("#q").select();
+    }
+  });
+
+  renderFilms();
+})();
+</script>
+</body>
+</html>

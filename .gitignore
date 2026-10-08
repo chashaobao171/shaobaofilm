@@ -1,0 +1,9 @@
+# 派生产物：可由构建管线重新生成，不入库
+_deploy/
+_deploy_webp/
+*.zip
+
+# 系统文件
+Thumbs.db
+Desktop.ini
+.DS_Store
