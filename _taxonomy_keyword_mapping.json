@@ -1,0 +1,253 @@
+{
+  "mappings": {
+    "1": {
+      "name": "硬科幻",
+      "keywords": [
+        "science",
+        "physics",
+        "space exploration",
+        "hard science fiction",
+        "scientific accuracy"
+      ]
+    },
+    "2": {
+      "name": "软科幻",
+      "keywords": [
+        "social science fiction",
+        "dystopia",
+        "utopia",
+        "alternate reality"
+      ]
+    },
+    "3": {
+      "name": "赛博朋克",
+      "keywords": [
+        "cyberpunk",
+        "cyber",
+        "hacker",
+        "virtual reality",
+        "artificial intelligence",
+        "future noir"
+      ]
+    },
+    "4": {
+      "name": "蒸汽朋克",
+      "keywords": [
+        "steampunk",
+        "victorian era",
+        "steam power"
+      ]
+    },
+    "5": {
+      "name": "太空歌剧",
+      "keywords": [
+        "space opera",
+        "outer space",
+        "space",
+        "interstellar",
+        "alien planet"
+      ]
+    },
+    "6": {
+      "name": "时间旅行",
+      "keywords": [
+        "time travel",
+        "time loop",
+        "time paradox",
+        "alternate timeline"
+      ]
+    },
+    "7": {
+      "name": "末世 / 后启示录",
+      "keywords": [
+        "post-apocalyptic",
+        "apocalypse",
+        "dystopia",
+        "survival",
+        "nuclear war",
+        "pandemic"
+      ]
+    },
+    "8": {
+      "name": "外星人",
+      "keywords": [
+        "alien",
+        "extraterrestrial",
+        "ufo",
+        "alien invasion",
+        "first contact"
+      ]
+    },
+    "9": {
+      "name": "人工智能 / 机器人",
+      "keywords": [
+        "artificial intelligence",
+        "robot",
+        "android",
+        "cyborg",
+        "machine",
+        "ai"
+      ]
+    },
+    "10": {
+      "name": "克隆 / 基因工程",
+      "keywords": [
+        "clone",
+        "genetic engineering",
+        "dna",
+        "genetics",
+        "bioengineering"
+      ]
+    },
+    "49": {
+      "name": "侦探 / 推理",
+      "keywords": [
+        "detective",
+        "investigation",
+        "murder investigation",
+        "private detective",
+        "sleuth",
+        "mystery"
+      ]
+    },
+    "50": {
+      "name": "连环杀手",
+      "keywords": [
+        "serial killer",
+        "serial murder",
+        "psychopath",
+        "murder"
+      ]
+    },
+    "51": {
+      "name": "复仇",
+      "keywords": [
+        "revenge",
+        "vengeance",
+        "vigilante"
+      ]
+    },
+    "52": {
+      "name": "黑色电影",
+      "keywords": [
+        "film noir",
+        "noir",
+        "femme fatale",
+        "1940s",
+        "1950s"
+      ]
+    },
+    "53": {
+      "name": "新黑色电影",
+      "keywords": [
+        "neo-noir",
+        "modern noir",
+        "crime",
+        "dark"
+      ]
+    },
+    "55": {
+      "name": "黑色喜剧",
+      "keywords": [
+        "black comedy",
+        "dark comedy",
+        "dark humor",
+        "satire"
+      ]
+    },
+    "56": {
+      "name": "浪漫喜剧",
+      "keywords": [
+        "romantic comedy",
+        "romance",
+        "love story",
+        "dating"
+      ]
+    },
+    "57": {
+      "name": "讽刺喜剧",
+      "keywords": [
+        "satire",
+        "political satire",
+        "social satire",
+        "parody"
+      ]
+    },
+    "65": {
+      "name": "武侠",
+      "keywords": [
+        "wuxia",
+        "martial arts",
+        "kung fu",
+        "swordplay",
+        "chinese"
+      ]
+    },
+    "66": {
+      "name": "功夫 / 武打",
+      "keywords": [
+        "kung fu",
+        "martial arts",
+        "hand to hand combat",
+        "fight"
+      ]
+    },
+    "67": {
+      "name": "剑戟片",
+      "keywords": [
+        "samurai",
+        "sword fight",
+        "japan",
+        "katana",
+        "bushido"
+      ]
+    },
+    "68": {
+      "name": "暴力美学",
+      "keywords": [
+        "stylized violence",
+        "gun fu",
+        "violence",
+        "shootout"
+      ]
+    },
+    "69": {
+      "name": "特工",
+      "keywords": [
+        "spy",
+        "secret agent",
+        "espionage",
+        "cia",
+        "mi6",
+        "intelligence"
+      ]
+    },
+    "70": {
+      "name": "灾难",
+      "keywords": [
+        "disaster",
+        "natural disaster",
+        "catastrophe",
+        "earthquake",
+        "tsunami"
+      ]
+    },
+    "120": {
+      "name": "烧脑",
+      "keywords": [
+        "mindbender",
+        "twist ending",
+        "psychological",
+        "mind game",
+        "complex plot"
+      ]
+    }
+  },
+  "meta": {
+    "version": "0.1.0",
+    "lastUpdate": "2026-10-08",
+    "totalMappings": 30,
+    "status": "initial_draft",
+    "note": "这是初始映射配置，需要补充完整 124 个类型的映射关系"
+  }
+}
