@@ -23,6 +23,9 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         run: node _tmdb_discover.js
 
+      - name: Merge new films into films-data.js
+        run: node _tmdb_merge.js
+
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
