@@ -1,10 +1,13 @@
 // _recount_taxonomy.js
-// 重新精确统计 taxonomy 数据：按"去重影片数"计算主类型/子类型计数，
-// 并为每个标签统计精确命中数（tagCounts），写入 taxonomy-data.js
+// 重新精确统计 taxonomy 数据：直接按每个子类型的 tags + mode 计算"去重影片数"，
+// 与 index.html 的筛选逻辑（data-g / data-go / data-gs）保持完全一致：
+//   mode === "one"  → 影片 g 数组包含 tags[0]
+//   mode === "any"  → 影片 g 数组包含 tags 中任意一个
+//   mode === "all"  → 影片 g 数组包含 tags 全部
+// 分类 count = 该分类下所有【非 all 子类型】tags 的并集命中数（= index.html 的 CAT_TAGS 点击结果）。
 const fs = require('fs');
 const path = require('path');
 const {taxonomyTree} = require(path.join(__dirname, '..', 'taxonomy-data.js'));
-const {taxonomyConfig} = require(path.join(__dirname, 'taxonomy-config.js'));
 
 // 1. 读取影片数据（window.CINE 格式）
 const raw = fs.readFileSync(path.join(__dirname, '..', 'films-data.js'), 'utf8');
@@ -14,40 +17,45 @@ const CINE = eval('(' + m[1] + ')');
 const films = CINE.films;
 console.log('影片总数:', films.length);
 
-// 2. 构建 genre -> [main, sub] 反查表
-const rev = {};
-for (const [g, [a, b]] of Object.entries(taxonomyConfig.genreMapping)) rev[g] = [a, b];
+// 2. 子类型命中判定（与前端一致）
+function subMatch(sub, gs) {
+  const tags = sub.tags || [];
+  if (sub.mode === 'all') return tags.every(t => gs.indexOf(t) >= 0);
+  if (sub.mode === 'any') return tags.some(t => gs.indexOf(t) >= 0);
+  return gs.indexOf(tags[0]) >= 0;
+}
 
-// 3. 初始化统计容器
+// 3. 逐片统计
 const mainSets = {}, subSets = {}, tagCounts = {};
 Object.entries(taxonomyTree).forEach(([mid, mc]) => {
   mainSets[mid] = new Set();
   Object.entries(mc.children).forEach(([sid, sc]) => {
     subSets[mid + ':' + sid] = new Set();
     tagCounts[mid + ':' + sid] = {};
-    sc.tags.forEach(t => tagCounts[mid + ':' + sid][t] = 0);
+    (sc.tags || []).forEach(t => tagCounts[mid + ':' + sid][t] = 0);
   });
 });
 
-// 4. 遍历影片（每部影片对同一类型只计一次）
 films.forEach((f, idx) => {
   const gs = f.g || [];
-  const seenMain = new Set(), seenSub = new Set();
-  gs.forEach(g => {
-    const r = rev[g];
-    if (r) {
-      const [a, b] = r;
-      seenMain.add(a);                     // 同片多标签只算一次
-      if (b && taxonomyTree[a] && taxonomyTree[a].children[b]) seenSub.add(a + ':' + b);
-    }
-  });
-  seenMain.forEach(a => mainSets[a].add(idx));
-  seenSub.forEach(k => subSets[k].add(idx));
-  // 标签精确命中数
   Object.entries(taxonomyTree).forEach(([mid, mc]) => {
     Object.entries(mc.children).forEach(([sid, sc]) => {
-      sc.tags.forEach(t => { if (gs.includes(t)) tagCounts[mid + ':' + sid][t]++; });
+      if (subMatch(sc, gs)) subSets[mid + ':' + sid].add(idx);
+      (sc.tags || []).forEach(t => { if (gs.indexOf(t) >= 0) tagCounts[mid + ':' + sid][t]++; });
     });
+  });
+});
+
+// 4. 分类 count = 非 all 子类型 tags 并集的命中数（与前端 CAT_TAGS 一致）
+Object.entries(taxonomyTree).forEach(([mid, mc]) => {
+  const catTags = new Set();
+  Object.values(mc.children).forEach(sc => {
+    if (sc.mode === 'all') return;
+    (sc.tags || []).forEach(t => catTags.add(t));
+  });
+  films.forEach((f, idx) => {
+    const gs = f.g || [];
+    for (const t of catTags) { if (gs.indexOf(t) >= 0) { mainSets[mid].add(idx); break; } }
   });
 });
 
@@ -84,7 +92,7 @@ fs.writeFileSync(path.join(__dirname, '..', 'taxonomy-data.js'), out);
 console.log('已写入 taxonomy-data.js\n');
 
 // 7. 输出统计摘要
-console.log('=== 主类型（去重影片数）===');
+console.log('=== 主类型 / 子类型（去重影片数）===');
 Object.entries(taxonomyTree).forEach(([mid, mc]) => {
   console.log(`  ${mc.name} (${mid}): ${mc.count} 部`);
   Object.entries(mc.children).forEach(([sid, sc]) => {
