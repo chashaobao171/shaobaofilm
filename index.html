@@ -139,6 +139,22 @@ select.sel:focus{border-color:var(--brand)}
 .reset{font-size:12.5px;color:var(--ink3);border-bottom:1px dotted var(--ink3)}
 .reset:hover{color:var(--brand);border-color:var(--brand)}
 
+/* ---------- 维度筛选 bar ---------- */
+.dimbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.dimbtn{padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:12.5px;color:var(--ink2);transition:all .14s;white-space:nowrap;cursor:pointer}
+.dimbtn:hover{border-color:var(--brand-line);color:var(--ink)}
+.dimbtn.on{background:var(--brand-dim);border-color:var(--brand-line);color:var(--brand);font-weight:600}
+.dimbtn .n{font-size:10px;color:var(--ink3);margin-left:5px;font-variant-numeric:tabular-nums;opacity:.85}
+.dimbtn.on .n{color:var(--brand);opacity:.75}
+.dimpane{display:none;padding:12px;border:1px solid var(--line);border-radius:14px;margin-bottom:12px;background:var(--bg2)}
+.dimpane.open{display:block}
+.dimpane .hsearch{max-width:none;flex:1 1 auto;margin-bottom:10px}
+.fcount-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.active-chips{display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center}
+.active-chip{padding:3px 10px;border-radius:999px;border:1px solid var(--brand-line);background:var(--brand-dim);font-size:12px;color:var(--brand);cursor:pointer;white-space:nowrap}
+.active-chip:hover{opacity:.8}
+.active-chip .x{margin-left:6px;opacity:.6}
+
 /* ---------- film grid ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:20px 18px}
 .fc{
@@ -630,8 +646,24 @@ img.ld{opacity:1}
           <select class="sel" id="ctry"><option value="">全部地区</option></select>
           <select class="sel" id="decade"><option value="">全部年代</option></select>
         </div>
+        <div class="dimbar" id="dimbar">
+          <button class="dimbtn" data-dim="fest" id="dimFest">🎬 电影节</button>
+          <button class="dimbtn" data-dim="award" id="dimAward">🏆 奖项</button>
+          <button class="dimbtn" data-dim="rank" id="dimRank">📈 榜单</button>
+          <button class="dimbtn" data-dim="studio" id="dimStudio">🏢 公司</button>
+        </div>
+        <div class="dimpane" id="dimpane" hidden>
+          <div class="hsearch">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+            <input type="search" id="dimQ" placeholder="搜索该维度选项…" autocomplete="off">
+          </div>
+          <div class="chips" id="dimChips"></div>
+        </div>
         <div class="fcount">
-          <span id="fcount">—</span>
+          <div class="fcount-l">
+            <span id="fcount">—</span>
+            <span class="active-chips" id="activeChips"></span>
+          </div>
           <button class="reset" id="reset" hidden>清除筛选</button>
         </div>
       </div>
@@ -746,6 +778,7 @@ img.ld{opacity:1}
 
 <script src="films-data.js"></script>
 <script src="taxonomy-data.js"></script>
+<script src="dim-data.js"></script>
 <script>
 (function(){
   "use strict";
@@ -862,13 +895,35 @@ img.ld{opacity:1}
 
   /* ============ 名片渲染 ============ */
   var PAGE=72,shown=PAGE;
-  var state={g:"",gs:[],go:[],glabel:"",dec:"",ctry:"",sort:"rating",q:"",award:""};
+  var state={g:"",gs:[],go:[],glabel:"",dec:"",ctry:"",sort:"rating",q:"",award:"",fest:"",rank:"",studio:""};
   var AWARDS_SET={};
   if(D.awardLinks){
     Object.keys(D.awardLinks).forEach(function(n){
       var s={};
       D.awardLinks[n].forEach(function(p){s[p[0]+"|"+String(p[1])]=1;});
       AWARDS_SET[n]=s;
+    });
+  }
+  var DIM_GROUPS={fest:["戛纳电影节 · 金棕榈奖","威尼斯电影节 · 金狮奖","柏林电影节 · 金熊奖","圣丹斯电影节","多伦多国际电影节 · 人民选择奖","锡切斯国际奇幻电影节"],award:[]};
+  if(D.awardLinks){
+    Object.keys(D.awardLinks).forEach(function(n){
+      if(DIM_GROUPS.fest.indexOf(n)<0)DIM_GROUPS.award.push(n);
+    });
+  }
+  var RANK_SET={},STUDIO_SET={};
+  var CINE_DIM=window.CINE_DIM||{};
+  if(CINE_DIM.rank){
+    Object.keys(CINE_DIM.rank).forEach(function(n){
+      var s={};
+      CINE_DIM.rank[n].forEach(function(p){s[p[0]+"|"+String(p[1])]=1;});
+      RANK_SET[n]=s;
+    });
+  }
+  if(CINE_DIM.studio){
+    Object.keys(CINE_DIM.studio).forEach(function(n){
+      var s={};
+      CINE_DIM.studio[n].forEach(function(p){s[p[0]+"|"+String(p[1])]=1;});
+      STUDIO_SET[n]=s;
     });
   }
 
@@ -901,6 +956,18 @@ img.ld{opacity:1}
     if(state.award){
       var set=AWARDS_SET[state.award];
       if(!set||!set[f.t+"|"+String(f.y)])return false;
+    }
+    if(state.fest){
+      var fset=AWARDS_SET[state.fest];
+      if(!fset||!fset[f.t+"|"+String(f.y)])return false;
+    }
+    if(state.rank){
+      var rset=RANK_SET[state.rank];
+      if(!rset||!rset[f.t+"|"+String(f.y)])return false;
+    }
+    if(state.studio){
+      var sset=STUDIO_SET[state.studio];
+      if(!sset||!sset[f.t+"|"+String(f.y)])return false;
     }
     if(state.q){
       var hay=(f.t+" "+(f.e||"")+" "+(f.d||"")+" "+(f.c||"")+" "+(f.g||[]).join(" ")+" "+(f.y||"")).toLowerCase();
@@ -942,8 +1009,8 @@ img.ld{opacity:1}
     var g=$("#filmGrid");
     g.classList.toggle("noanim",anim===false);
     var a=sorted();
-    $("#fcount").innerHTML='共 <b>'+a.length+'</b> 部'+(state.award?' · 奖项「'+esc(state.award)+'」':'')+(state.glabel?' · 类型「'+esc(state.glabel)+'」':(state.g?' · 类型「'+esc(state.g)+'」':''))+(state.ctry?' · '+esc(state.ctry):'')+(state.dec?' · '+state.dec+'s':'')+(state.q?' · 搜索「'+esc(state.q)+'」':'');
-    $("#reset").hidden=!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.q||state.award);
+    $("#fcount").innerHTML='共 <b>'+a.length+'</b> 部'+(state.award?' · 奖项「'+esc(state.award)+'」':'')+(state.fest?' · 电影节「'+esc(state.fest)+'」':'')+(state.rank?' · 榜单「'+esc(state.rank)+'」':'')+(state.studio?' · 公司「'+esc(state.studio)+'」':'')+(state.glabel?' · 类型「'+esc(state.glabel)+'」':(state.g?' · 类型「'+esc(state.g)+'」':''))+(state.ctry?' · '+esc(state.ctry):'')+(state.dec?' · '+state.dec+'s':'')+(state.q?' · 搜索「'+esc(state.q)+'」':'');
+    $("#reset").hidden=!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.q||state.award||state.fest||state.rank||state.studio);
     if(!a.length){g.innerHTML='<p class="empty" style="grid-column:1/-1">没有匹配的影片，换个关键词或清除筛选试试。</p>';$("#moreBtn").hidden=true;return;}
     g.innerHTML=a.slice(0,shown).map(function(f,i){return fcard(f,i);}).join("");
     $("#moreBtn").hidden=shown>=a.length;
@@ -965,33 +1032,105 @@ img.ld{opacity:1}
   $("#ctry").addEventListener("change",function(){state.ctry=this.value;shown=PAGE;renderFilms();});
   $("#q").addEventListener("input",function(){state.q=this.value.trim().toLowerCase();shown=PAGE;renderFilms();});
   $("#reset").addEventListener("click",function(){
-    state.g="";state.gs=[];state.go=[];state.glabel="";state.dec="";state.ctry="";state.q="";state.award="";$("#q").value="";$("#decade").value="";$("#ctry").value="";
+    state.g="";state.gs=[];state.go=[];state.glabel="";state.dec="";state.ctry="";state.q="";state.award="";state.fest="";state.rank="";state.studio="";$("#q").value="";$("#decade").value="";$("#ctry").value="";
     $$("#chips .chip").forEach(function(x){x.classList.remove("on");});
-    shown=PAGE;renderFilms();renderAwardChip();
+    closeDim();
+    shown=PAGE;renderFilms();renderActiveChips();
   });
   $("#moreBtn").addEventListener("click",function(){shown+=PAGE;renderFilms(false);});
   $("#ctaExplore").addEventListener("click",function(e){e.preventDefault();$(".fbar").scrollIntoView({behavior:"smooth",block:"start"});});
   $("#ctaRandom").addEventListener("click",function(){openFilm(Math.floor(Math.random()*FILMS.length));});
 
-  function renderAwardChip(){
-    var old=$("#achip"); if(old)old.parentNode.removeChild(old);
-    if(!state.award)return;
-    var b=document.createElement("button");
-    b.className="chip on";b.id="achip";b.type="button";
-    b.innerHTML='奖项「'+esc(state.award)+'」<span class="n">✕</span>';
-    b.title="点击移除奖项筛选";
-    b.addEventListener("click",function(e){e.stopPropagation();state.award="";shown=PAGE;renderFilms();renderAwardChip();});
-    var chips=$("#chips");
-    chips.insertBefore(b,chips.firstChild);
+  function renderActiveChips(){
+    var box=$("#activeChips");
+    box.innerHTML="";
+    [["fest","电影节"],["award","奖项"],["rank","榜单"],["studio","公司"]].forEach(function(dm){
+      var val=state[dm[0]];
+      if(!val)return;
+      var b=document.createElement("button");
+      b.className="active-chip";b.type="button";
+      b.innerHTML=esc(dm[1])+'「'+esc(val)+'」<span class="x">✕</span>';
+      b.title="点击移除"+dm[1]+"筛选";
+      b.addEventListener("click",function(e){e.stopPropagation();state[dm[0]]="";shown=PAGE;renderFilms();renderActiveChips();updateDimBtns();});
+      box.appendChild(b);
+    });
   }
 
   function setFilter(o){
     state.g=o.g||"";state.gs=o.gs||[];state.go=o.go||[];state.glabel=o.label||"";
-    state.ctry=o.ctry||"";state.dec=o.dec||"";state.q=o.q||"";state.award=o.award||"";
+    state.ctry=o.ctry||"";state.dec=o.dec||"";state.q=o.q||"";state.award=o.award||"";state.fest=o.fest||"";state.rank=o.rank||"";state.studio=o.studio||"";
     $("#q").value=state.q;$("#ctry").value=state.ctry;$("#decade").value=state.dec;
     $$("#chips .chip").forEach(function(x){x.classList.toggle("on",x.dataset.g===state.g);});
-    shown=PAGE;renderFilms();renderAwardChip();go("films");
+    shown=PAGE;renderFilms();renderActiveChips();updateDimBtns();go("films");
   }
+
+  /* ============ 维度筛选交互（电影节/奖项/榜单/公司） ============ */
+  var DIM_LABEL={fest:"电影节",award:"奖项",rank:"榜单",studio:"公司"};
+  var DIM_IC={fest:"🎬",award:"🏆",rank:"📈",studio:"🏢"};
+  var openDimNow="";
+  function dimOptions(dim){
+    if(dim==="fest")return DIM_GROUPS.fest;
+    if(dim==="award")return DIM_GROUPS.award;
+    if(dim==="rank")return Object.keys(RANK_SET);
+    return Object.keys(STUDIO_SET);
+  }
+  function dimCount(dim,k){
+    var s;
+    if(dim==="fest"||dim==="award")s=AWARDS_SET[k];
+    else if(dim==="rank")s=RANK_SET[k];
+    else s=STUDIO_SET[k];
+    return s?Object.keys(s).length:0;
+  }
+  function updateDimBtns(){
+    $$("#dimbar .dimbtn").forEach(function(b){
+      var dim=b.dataset.dim;
+      var sel=state[dim];
+      var label=DIM_IC[dim]+" "+DIM_LABEL[dim]+(sel?" · "+sel+" ✕":"");
+      b.classList.toggle("on",!!sel);
+      b.innerHTML=label+'<span class="n">'+dimOptions(dim).length+'</span>';
+      b.title=sel?"点击移除"+DIM_LABEL[dim]+"筛选":"展开"+DIM_LABEL[dim]+"选项";
+    });
+  }
+  function renderDimChips(){
+    var dim=openDimNow,box=$("#dimChips");
+    if(!dim){box.innerHTML="";return;}
+    var q=($("#dimQ").value||"").trim().toLowerCase();
+    box.innerHTML=dimOptions(dim).map(function(k){
+      if(q&&String(k).toLowerCase().indexOf(q)<0)return "";
+      return '<button class="chip'+(state[dim]===k?' on':'')+'" data-k="'+esc(k)+'">'+esc(k)+'<span class="n">'+dimCount(dim,k)+'</span></button>';
+    }).join("")||'<p class="empty" style="padding:10px 0">没有匹配的选项</p>';
+  }
+  function openDim(dim){
+    if(openDimNow===dim){closeDim();return;}
+    openDimNow=dim;
+    $("#dimQ").value="";
+    var p=$("#dimpane");
+    p.classList.add("open");p.hidden=false;
+    renderDimChips();
+    $("#dimQ").focus();
+  }
+  function closeDim(){
+    openDimNow="";
+    var p=$("#dimpane");
+    p.classList.remove("open");p.hidden=true;
+    $("#dimQ").value="";
+    $("#dimChips").innerHTML="";
+  }
+  $("#dimbar").addEventListener("click",function(e){
+    var b=e.target.closest(".dimbtn");if(!b)return;
+    var dim=b.dataset.dim;
+    if(openDimNow===dim){closeDim();return;}
+    if(state[dim]){state[dim]="";shown=PAGE;renderFilms();renderActiveChips();updateDimBtns();return;}
+    openDim(dim);
+  });
+  $("#dimQ").addEventListener("input",function(){renderDimChips();});
+  $("#dimpane").addEventListener("click",function(e){
+    var b=e.target.closest(".chip");if(!b)return;
+    var dim=openDimNow;if(!dim)return;
+    state[dim]=state[dim]===b.dataset.k?"":b.dataset.k;
+    shown=PAGE;renderFilms();renderActiveChips();updateDimBtns();closeDim();
+  });
+  updateDimBtns();
 
   /* ============ 精选片单 ============ */
   function has(f,k){return (f.g||[]).indexOf(k)>=0;}
