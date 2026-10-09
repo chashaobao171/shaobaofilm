@@ -3,6 +3,11 @@ _deploy/
 _deploy_webp/
 *.zip
 
+# 临时抓取/校验产物：与页面无关，不入库
+.verify_changed.txt
+dl135_*.json
+doulist*.json
+
 # 系统文件
 Thumbs.db
 Desktop.ini
