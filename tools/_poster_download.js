@@ -18,6 +18,7 @@ const CONCURRENCY = parseInt(process.env.POSTER_CONCURRENCY || '8', 10);
 const TIMEOUT_MS = 20000;
 const POSTER_DIR = 'posters';
 const DATA_FILE = 'films-data.js';
+const API_KEY = process.env.TMDB_API_KEY || '';
 
 // 匹配 TMDB 图片 URL 中的文件名，如 https://image.tmdb.org/t/p/w342/abc.jpg
 const FILE_RE = /\/t\/p\/[^\/]+\/([^\/?#]+\.\w+)/;
@@ -58,6 +59,29 @@ function downloadFile(file, destPath) {
     });
     req.on('timeout', () => req.destroy(new Error('timeout')));
     req.on('error', () => resolve(false));
+  });
+}
+
+// 通过 TMDB API 查询影片当前 poster_path（用于数据中旧文件名失效的情况）
+function tmdbPosterPath(tmdbId) {
+  return new Promise((resolve) => {
+    if (!API_KEY || !tmdbId) return resolve(null);
+    const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY}`;
+    const req = https.get(url, { timeout: TIMEOUT_MS }, (res) => {
+      let data = '';
+      res.setEncoding('utf8');
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          if (res.statusCode === 200) {
+            const j = JSON.parse(data);
+            resolve(j.poster_path || null);
+          } else resolve(null);
+        } catch (e) { resolve(null); }
+      });
+    });
+    req.on('timeout', () => req.destroy(new Error('timeout')));
+    req.on('error', () => resolve(null));
   });
 }
 
@@ -112,6 +136,32 @@ async function main() {
 
   const queue = [...files];
   await Promise.all(Array.from({ length: CONCURRENCY }, pool));
+
+  // 兜底：数据中旧海报文件名失效的，用 TMDB API 查询当前 poster_path 重试
+  if (failedFiles.length && API_KEY) {
+    console.log(`\n== Fallback: TMDB API 查询 ${failedFiles.length} 个失败文件的当前海报 ==`);
+    let fbOk = 0;
+    const fbFailed = [];
+    for (const file of failedFiles) {
+      const idxs = byFile.get(file);
+      const tmdbId = idxs.map((i) => films[i].tmdbId).find(Boolean);
+      const posterPath = await tmdbPosterPath(tmdbId);
+      if (posterPath) {
+        const destPath = path.join(POSTER_DIR, posterPath);
+        if ((fs.existsSync(destPath) && fs.statSync(destPath).size > 0) ||
+            (await downloadFile(posterPath, destPath))) {
+          for (const i of idxs) films[i].p = POSTER_DIR + '/' + posterPath;
+          fbOk++;
+          console.log(`fallback ok: ${file} -> ${posterPath} (tmdbId=${tmdbId})`);
+          continue;
+        }
+      }
+      fbFailed.push(file);
+    }
+    failedFiles.length = 0;
+    failedFiles.push(...fbFailed);
+    console.log(`fallback succeeded: ${fbOk}, still failed: ${fbFailed.length}`);
+  }
 
   // 依据最终可用状态重写 p 字段
   let rewritten = 0;
