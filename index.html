@@ -511,6 +511,11 @@ img.ld{opacity:1}
 .dirtools{display:flex;align-items:center;gap:14px;margin:18px 0 2px;flex-wrap:wrap}
 .dirtool-c{font-size:12px;color:var(--ink3)}
 
+/* ---- 精选片单筛选条 ---- */
+.colltools{display:flex;align-items:center;gap:14px;margin:18px 0 2px;flex-wrap:wrap}
+.colltools .chips{flex:1}
+.colltools .dirtool-c{white-space:nowrap}
+
 /* ---- 详情弹层动作行（换一部） ---- */
 .mod-acts{display:flex;gap:10px;flex-wrap:wrap;margin:-4px 0 22px}
 
@@ -640,7 +645,15 @@ img.ld{opacity:1}
     <div class="wrap">
       <div class="vhead" data-rv>
         <h2>精选片单 <span>Collections</span></h2>
-        <p>按主题、地区、年代与口味自动编排的 <b id="collCount">—</b> 组片单，每组都配一段挑选逻辑。横向滑动浏览，点任意一张海报直接读简介。</p>
+        <p>按口碑、地区、类型与奖项自动编排的 <b id="collCount">—</b> 组片单，每组都配一段挑选逻辑。用下方工具条按分组筛选或搜索片单名，横向滑动浏览，点任意一张海报直接读简介。</p>
+      </div>
+      <div class="colltools" data-rv>
+        <div class="hsearch" style="flex:0 0 300px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
+          <input type="search" id="collQ" placeholder="搜索片单名称 / 说明…" autocomplete="off">
+        </div>
+        <div class="chips" id="collChips" style="flex:1"></div>
+        <span class="dirtool-c" id="collShown">—</span>
       </div>
       <div id="collsBox"></div>
     </div>
@@ -692,6 +705,7 @@ img.ld{opacity:1}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
           <input type="search" id="dirQ" placeholder="搜索导演 / 代表作…" autocomplete="off">
         </div>
+        <div class="chips" id="dirChips" style="flex:1"></div>
         <span class="dirtool-c" id="dirShown">—</span>
       </div>
       <div id="dirsBox"></div>
@@ -985,27 +999,33 @@ img.ld{opacity:1}
   var CN=function(f){return inC(f,"中国大陆")||inC(f,"中国香港")||inC(f,"中国台湾");};
   var EU=["法国","意大利","德国","瑞典","苏联","俄罗斯","西班牙","波兰","丹麦","英国","爱尔兰","葡萄牙","希腊","捷克","匈牙利","芬兰","挪威","比利时","荷兰","奥地利","罗马尼亚"];
   function isEU(f){return EU.some(function(x){return inC(f,x);});}
+  function AW(k,f){var s=AWARDS_SET[k];return !!s&&!!s[f.t+"|"+String(f.y)];}
   var COLLS=[
-    {n:"豆瓣 9.0+ 神作",e:"9.0 and Above",d:"评分天花板区。先看这些，再决定要不要往下走。",f:function(f){return num(f.r)>=9.0;},sort:"rating",lim:30},
-    {n:"作者电影精选",e:"Auteurs",d:"从电影史坐标里手挑的作者电影：长镜头、留白、结构与时间的实验。",f:function(f){return !!f.curated;},sort:"rating",lim:30},
-    {n:"华语电影",e:"Chinese-language",d:"大陆、香港、台湾三代人的影像记忆，从市井到史诗。",f:CN,sort:"rating",lim:30,preset:{ctry:"中国大陆"}},
-    {n:"日本电影",e:"Japan",d:"从家庭伦理到动画奇观，日本电影总在极小的日常里放大情绪。",f:function(f){return inC(f,"日本");},sort:"rating",lim:30,preset:{ctry:"日本"}},
-    {n:"韩国现实主义",e:"Korea",d:"类型外壳、社会内脏——韩国电影把愤怒拍成了手艺。",f:function(f){return inC(f,"韩国");},sort:"rating",lim:30,preset:{ctry:"韩国"}},
-    {n:"好莱坞经典",e:"Hollywood",d:"工业流水线的黄金产物：明星、类型、叙事模板，以及被反复致敬的镜头。",f:function(f){return inC(f,"美国")&&+f.y>0&&+f.y<1980;},sort:"rating",lim:30},
-    {n:"欧洲作者电影",e:"European Art Cinema",d:"电影节常客与电影语言革命者，慢、晦涩、但值得。",f:isEU,sort:"rating",lim:30},
-    {n:"21 世纪最佳",e:"21st Century",d:"2000 年以后的高分片，兼顾口碑与当代性。",f:function(f){return +f.y>=2000&&num(f.r)>=8.3;},sort:"rating",lim:30,preset:{dec:"2000"}},
-    {n:"世纪之交",e:"1990s",d:"90 年代：独立电影爆发、类型融合、全球化叙事的开端。",f:function(f){return +f.y>=1990&&+f.y<2000&&num(f.r)>=8.3;},sort:"rating",lim:30,preset:{dec:"1990"}},
-    {n:"烧脑悬疑",e:"Mind-bending",d:"结构、反转、不可靠叙述——看完需要再想一遍的片子。",f:function(f){return has(f,"悬疑");},sort:"rating",lim:30,preset:{g:"悬疑"}},
-    {n:"犯罪与黑帮",e:"Crime & Gangster",d:"法律之外的世界，欲望与暴力的秩序。",f:function(f){return has(f,"犯罪");},sort:"rating",lim:30,preset:{g:"犯罪"}},
-    {n:"科幻宇宙",e:"Sci-Fi",d:"从太空史诗到近未来寓言，人类对未知的想象合集。",f:function(f){return has(f,"科幻");},sort:"rating",lim:30,preset:{g:"科幻"}},
-    {n:"动画长片",e:"Animation",d:"手绘、CG 与实验动画——动画不是给小孩的，是给还愿意相信的人。",f:function(f){return has(f,"动画");},sort:"rating",lim:30,preset:{g:"动画"}},
-    {n:"战争与人性",e:"War",d:"战争片最好的一批，往往不是歌颂胜利，而是记录代价。",f:function(f){return has(f,"战争");},sort:"rating",lim:30,preset:{g:"战争"}},
-    {n:"武侠与古装",e:"Wuxia & Period",d:"江湖、朝堂、刀光与长袍，东方类型片的独特美学。",f:function(f){return has(f,"武侠")||has(f,"古装");},sort:"rating",lim:30,preset:{g:"武侠"}},
-    {n:"黑色电影",e:"Film Noir",d:"阴影、烟、宿命与蛇蝎美人，好莱坞最阴郁的一支血脉。",f:function(f){return has(f,"黑色电影");},sort:"rating",lim:24,preset:{g:"黑色电影"}},
-    {n:"音乐与歌舞",e:"Music & Musical",d:"把情绪唱出来的电影：演唱会纪录片、音乐传记与歌舞片。",f:function(f){return has(f,"音乐")||has(f,"歌舞");},sort:"rating",lim:24,preset:{g:"音乐"}},
-    {n:"惊悚与恐怖",e:"Thriller & Horror",d:"心跳加速的那一类，从心理惊悚到怪物恐怖。",f:function(f){return has(f,"惊悚")||has(f,"恐怖");},sort:"rating",lim:30,preset:{g:"惊悚"}},
-    {n:"治愈与家庭",e:"Healing",d:"温柔、日常、余味长。适合疲惫的时候打开。",f:function(f){return (has(f,"家庭")||has(f,"剧情"))&&num(f.r)>=8.6;},sort:"rating",lim:30},
-    {n:"高分纪录片",e:"Documentary",d:"真实比虚构更离奇——纪录片里的人和世界。",f:function(f){return has(f,"纪录片");},sort:"rating",lim:30,preset:{g:"纪录片"}}
+    {n:"豆瓣 9.0+ 神作",e:"9.0 and Above",d:"评分天花板区。先看这些，再决定要不要往下走。",f:function(f){return num(f.r)>=9.0;},sort:"rating",lim:30,tag:"口碑"},
+    {n:"作者电影精选",e:"Auteurs",d:"从电影史坐标里手挑的作者电影：长镜头、留白、结构与时间的实验。",f:function(f){return !!f.curated;},sort:"rating",lim:30,tag:"口碑"},
+    {n:"华语电影",e:"Chinese-language",d:"大陆、香港、台湾三代人的影像记忆，从市井到史诗。",f:CN,sort:"rating",lim:30,preset:{ctry:"中国大陆"},tag:"地区"},
+    {n:"日本电影",e:"Japan",d:"从家庭伦理到动画奇观，日本电影总在极小的日常里放大情绪。",f:function(f){return inC(f,"日本");},sort:"rating",lim:30,preset:{ctry:"日本"},tag:"地区"},
+    {n:"韩国现实主义",e:"Korea",d:"类型外壳、社会内脏——韩国电影把愤怒拍成了手艺。",f:function(f){return inC(f,"韩国");},sort:"rating",lim:30,preset:{ctry:"韩国"},tag:"地区"},
+    {n:"好莱坞经典",e:"Hollywood",d:"工业流水线的黄金产物：明星、类型、叙事模板，以及被反复致敬的镜头。",f:function(f){return inC(f,"美国")&&+f.y>0&&+f.y<1980;},sort:"rating",lim:30,tag:"地区"},
+    {n:"欧洲作者电影",e:"European Art Cinema",d:"电影节常客与电影语言革命者，慢、晦涩、但值得。",f:isEU,sort:"rating",lim:30,tag:"地区"},
+    {n:"21 世纪最佳",e:"21st Century",d:"2000 年以后的高分片，兼顾口碑与当代性。",f:function(f){return +f.y>=2000&&num(f.r)>=8.3;},sort:"rating",lim:30,preset:{dec:"2000"},tag:"口碑"},
+    {n:"世纪之交",e:"1990s",d:"90 年代：独立电影爆发、类型融合、全球化叙事的开端。",f:function(f){return +f.y>=1990&&+f.y<2000&&num(f.r)>=8.3;},sort:"rating",lim:30,preset:{dec:"1990"},tag:"口碑"},
+    {n:"奥斯卡获奖",e:"Oscar Winners",d:"好莱坞的至高荣誉。从最佳影片到最佳外语片，好莱坞每年把聚光灯打给谁，就是最重要的选片坐标。",f:function(f){return AW("奥斯卡金像奖",f);},sort:"rating",lim:24,preset:{award:"奥斯卡金像奖"},tag:"奖项"},
+    {n:"金球奖",e:"Golden Globes",d:"好莱坞颁奖季的前哨战，兼容商业与艺术口味，得奖片往往既有口碑又不难啃。",f:function(f){return AW("金球奖",f);},sort:"rating",lim:24,preset:{award:"金球奖"},tag:"奖项"},
+    {n:"欧洲三大电影节",e:"Cannes · Venice · Berlin",d:"戛纳金棕榈、威尼斯金狮、柏林金熊——欧洲电影节的最高荣誉，是影史艺术片的硬通货。",f:function(f){return AW("戛纳电影节 · 金棕榈奖",f)||AW("威尼斯电影节 · 金狮奖",f)||AW("柏林电影节 · 金熊奖",f);},sort:"rating",lim:24,tag:"奖项"},
+    {n:"华语电影奖项",e:"HKFA · Golden Horse",d:"香港电影金像奖与台湾金马奖的得奖影片，华语影坛自己选出的年度之选。",f:function(f){return AW("香港电影金像奖",f)||AW("台湾金马奖",f);},sort:"rating",lim:24,tag:"奖项"},
+    {n:"动画最高奖",e:"Annie Awards",d:"动画界的奥斯卡——安妮奖得奖片，代表手绘、CG 与定格动画的技术与艺术顶点。",f:function(f){return AW("安妮奖",f);},sort:"rating",lim:20,preset:{award:"安妮奖"},tag:"奖项"},
+    {n:"烧脑悬疑",e:"Mind-bending",d:"结构、反转、不可靠叙述——看完需要再想一遍的片子。",f:function(f){return has(f,"悬疑");},sort:"rating",lim:30,preset:{g:"悬疑"},tag:"类型"},
+    {n:"犯罪与黑帮",e:"Crime & Gangster",d:"法律之外的世界，欲望与暴力的秩序。",f:function(f){return has(f,"犯罪");},sort:"rating",lim:30,preset:{g:"犯罪"},tag:"类型"},
+    {n:"科幻宇宙",e:"Sci-Fi",d:"从太空史诗到近未来寓言，人类对未知的想象合集。",f:function(f){return has(f,"科幻");},sort:"rating",lim:30,preset:{g:"科幻"},tag:"类型"},
+    {n:"动画长片",e:"Animation",d:"手绘、CG 与实验动画——动画不是给小孩的，是给还愿意相信的人。",f:function(f){return has(f,"动画");},sort:"rating",lim:30,preset:{g:"动画"},tag:"类型"},
+    {n:"战争与人性",e:"War",d:"战争片最好的一批，往往不是歌颂胜利，而是记录代价。",f:function(f){return has(f,"战争");},sort:"rating",lim:30,preset:{g:"战争"},tag:"类型"},
+    {n:"武侠与古装",e:"Wuxia & Period",d:"江湖、朝堂、刀光与长袍，东方类型片的独特美学。",f:function(f){return has(f,"武侠")||has(f,"古装");},sort:"rating",lim:30,preset:{g:"武侠"},tag:"类型"},
+    {n:"黑色电影",e:"Film Noir",d:"阴影、烟、宿命与蛇蝎美人，好莱坞最阴郁的一支血脉。",f:function(f){return has(f,"黑色电影");},sort:"rating",lim:24,preset:{g:"黑色电影"},tag:"类型"},
+    {n:"音乐与歌舞",e:"Music & Musical",d:"把情绪唱出来的电影：演唱会纪录片、音乐传记与歌舞片。",f:function(f){return has(f,"音乐")||has(f,"歌舞");},sort:"rating",lim:24,preset:{g:"音乐"},tag:"类型"},
+    {n:"惊悚与恐怖",e:"Thriller & Horror",d:"心跳加速的那一类，从心理惊悚到怪物恐怖。",f:function(f){return has(f,"惊悚")||has(f,"恐怖");},sort:"rating",lim:30,preset:{g:"惊悚"},tag:"类型"},
+    {n:"治愈与家庭",e:"Healing",d:"温柔、日常、余味长。适合疲惫的时候打开。",f:function(f){return (has(f,"家庭")||has(f,"剧情"))&&num(f.r)>=8.6;},sort:"rating",lim:30,tag:"类型"},
+    {n:"高分纪录片",e:"Documentary",d:"真实比虚构更离奇——纪录片里的人和世界。",f:function(f){return has(f,"纪录片");},sort:"rating",lim:30,preset:{g:"纪录片"},tag:"类型"}
   ];
 
   function miniCard(f){
@@ -1015,14 +1035,16 @@ img.ld{opacity:1}
       +'<div class="mc-t">'+esc(f.t)+'</div>'
       +'<div class="mc-s">'+esc([f.y,f.c].filter(Boolean).join(" · "))+'</div></button>';
   }
-  var built=0;
+  var built=0,builtTags={};
   $("#collsBox").innerHTML=COLLS.map(function(c,ci){
     var list=FILMS.filter(c.f);
     if(c.sort==="rating")list.sort(function(a,b){return num(b.r)-num(a.r)||(b.votes||0)-(a.votes||0);});
     if(list.length<4)return "";
     built++;
+    var tag=c.tag||"其他";
+    builtTags[tag]=(builtTags[tag]||0)+1;
     var shownList=list.slice(0,c.lim||24);
-    return '<div class="coll" data-rv>'
+    return '<div class="coll" data-rv data-tag="'+esc(tag)+'" data-hay="'+esc((c.n+" "+(c.e||"")+" "+c.d).toLowerCase())+'">'
       +'<div class="coll-hd"><div><h3>'+esc(c.n)+' <span class="ce">'+esc(c.e)+'</span></h3>'
       +'<p class="cd">'+esc(c.d)+' · 共 '+list.length+' 部</p></div>'
       +(c.preset?'<a href="#" class="coll-more" data-c="'+ci+'">在名片中筛选 →</a>':'')
@@ -1031,6 +1053,33 @@ img.ld{opacity:1}
   }).join("");
   $("#collCount").textContent=built;
   var TABS2=$("#nav button[data-v=colls] .c"); if(TABS2)TABS2.textContent=built;
+  var COLL_TAG_ORDER=["口碑","地区","奖项","类型"];
+  $("#collChips").innerHTML='<button class="chip on" data-tag="全部">全部<span class="n">'+built+'</span></button>'
+    +COLL_TAG_ORDER.filter(function(t){return builtTags[t];}).map(function(t){
+      return '<button class="chip" data-tag="'+t+'">'+t+'<span class="n">'+builtTags[t]+'</span></button>';
+    }).join("");
+  var collState={tag:"全部",q:""};
+  function applyCollFilter(){
+    var shown=0;
+    $$("#collsBox .coll").forEach(function(el){
+      var ok=(collState.tag==="全部"||el.dataset.tag===collState.tag)
+        &&(!collState.q||(el.dataset.hay||"").indexOf(collState.q)>=0);
+      el.style.display=ok?"":"none";
+      if(ok)shown++;
+    });
+    $("#collShown").textContent=shown+" 组"+(collState.q?" 匹配":"");
+  }
+  $("#collChips").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b)return;
+    collState.tag=b.dataset.tag;
+    $$("#collChips .chip").forEach(function(x){x.classList.toggle("on",x===b);});
+    applyCollFilter();
+  });
+  $("#collQ").addEventListener("input",function(){
+    collState.q=this.value.trim().toLowerCase();
+    applyCollFilter();
+  });
+  applyCollFilter();
   $("#collsBox").addEventListener("click",function(e){
     var m=e.target.closest(".mc"); if(m){openFilm(+m.dataset.i);return;}
     var a=e.target.closest(".coll-more"); if(a){e.preventDefault();setFilter(COLLS[+a.dataset.c].preset);}
@@ -1299,21 +1348,36 @@ img.ld{opacity:1}
     flipDir(e);
   });
   $("#dirShown").textContent=D.meta.dirs+" 位";
-  $("#dirQ").addEventListener("input",function(){
-    var q=this.value.trim().toLowerCase(),shown=0;
+  var dirRegion="全部";
+  $("#dirChips").innerHTML='<button class="chip on" data-r="全部">全部<span class="n">'+D.dirs.length+'</span></button>'
+    +D.dregion.map(function(R){
+      var cnt=D.dirs.filter(function(d){return d.r===R.r;}).length;
+      return '<button class="chip" data-r="'+esc(R.r)+'">'+esc(R.r)+'<span class="n">'+cnt+'</span></button>';
+    }).join("");
+  function applyDirFilter(){
+    var q=($("#dirQ").value||"").trim().toLowerCase(),shown=0;
     var byName={};
     D.dirs.forEach(function(d){byName[d.n]=d;});
-    $$("#dirsBox .dwf").forEach(function(c){
-      var d=byName[c.dataset.d];
-      var ok=!q||(d&&d._hay.indexOf(q)>=0);
-      c.style.display=ok?"":"none";
-      if(ok)shown++;
-    });
     $$("#dirsBox .dgrp").forEach(function(g){
-      var vis=$$(".dwf",g).some(function(c){return c.style.display!=="none";});
-      g.style.display=vis?"":"none";
+      var regOK=dirRegion==="全部"||g.dataset.region===dirRegion;
+      var vis=0;
+      $$(".dwf",g).forEach(function(c){
+        var d=byName[c.dataset.d];
+        var ok=!q||(d&&d._hay.indexOf(q)>=0);
+        c.style.display=ok?"":"none";
+        if(ok)vis++;
+      });
+      g.style.display=(regOK&&vis)?"":"none";
+      if(regOK)shown+=vis;
     });
     $("#dirShown").textContent=shown+" 位"+(q?" 匹配":"");
+  }
+  $("#dirQ").addEventListener("input",applyDirFilter);
+  $("#dirChips").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b)return;
+    dirRegion=b.dataset.r;
+    $$("#dirChips .chip").forEach(function(x){x.classList.toggle("on",x===b);});
+    applyDirFilter();
   });
 
   /* ============ 回到顶部 ============ */
