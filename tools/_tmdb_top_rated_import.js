@@ -186,4 +186,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = {loadExistingFilms, isDuplicate, processMovieData};
+module.exports = {loadExistingFilms, isDuplicate, processMovieData, tmdbRequest, delay};

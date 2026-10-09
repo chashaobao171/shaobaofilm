@@ -1,0 +1,55 @@
+name: Film Library Expansion
+
+on:
+  push:
+    branches:
+      - expansion
+    paths:
+      - 'tools/**_expansion*.js'
+      - 'tools/_merge_all_progress.js'
+      - 'tools/_verify_data.js'
+  workflow_dispatch:
+
+jobs:
+  expand:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+      NODE_OPTIONS: '--max-old-space-size=4096'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: expansion
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: P1 经典正典榜单 (TSPDT + BFI, TMDB 解析)
+        run: |
+          node tools/_canon_import.js --limit=600 || echo "P1 partial (继续后续阶段)"
+          echo "P1 done, candidates=$(node -e "const p=require('./.canon_import_progress.json');console.log(p.candidates?p.candidates.length:0)")"
+
+      - name: P2~P8 编排扩充 (奖项/导演/公司/关键词/国别/系列/纪录片)
+        run: node tools/_expansion_orchestrator.js --max-calls=400
+
+      - name: 合并所有新片 → films-data.js
+        run: node tools/_merge_all_progress.js
+
+      - name: 重建 taxonomy 统计
+        run: node tools/_recount_taxonomy.js
+
+      - name: 数据完整性验证
+        run: node tools/_verify_data.js
+
+      - name: 提交并推送回 expansion 分支
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add films-data.js taxonomy-data.js .canon_import_progress.json .expansion_progress.json .last_merge_count.txt
+          git diff --staged --quiet || (git commit -m "Expand: 影库扩充(P1~P8)自动提交" && git push origin expansion)
+          echo "PUSH_OK=1" >> $GITHUB_ENV
