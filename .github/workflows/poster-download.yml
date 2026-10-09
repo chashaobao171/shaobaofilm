@@ -1,0 +1,44 @@
+name: Poster Download
+
+# 云端下载 TMDB 海报到 posters/ 目录（本地 TMDB 被墙，无法直接拉取）。
+# 仅在 tools/_poster_download.js 变更时触发，避免与 film-expansion 工作流递归互触：
+# - _poster_download.js 不含 "expansion" 字眼，不匹配 film-expansion.yml 的 paths
+# - runner 提交只改 posters/ + films-data.js，同样不在本工作流 paths 内 → 不会递归
+
+on:
+  push:
+    branches:
+      - expansion
+    paths:
+      - 'tools/_poster_download.js'
+  workflow_dispatch:
+
+jobs:
+  download-posters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: expansion
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 下载 TMDB 海报到 posters/ 并改写相对路径
+        run: node tools/_poster_download.js
+
+      - name: 提交并推送回 expansion 分支
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add posters films-data.js .poster_failed.txt
+          if git diff --staged --quiet; then
+            echo "No poster changes to commit."
+          else
+            git commit -m "Posters: 云端下载 TMDB 海报并本地化路径" && git push origin expansion
+          fi
