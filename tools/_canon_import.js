@@ -25,7 +25,7 @@ function argValue(args, name, def) {
 
 function fetchBuffer(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, res => {
+    const req = https.get(url, {timeout: 30000}, res => {
       if (res.statusCode !== 200) {
         res.resume();
         reject(new Error('HTTP ' + res.statusCode));
@@ -34,7 +34,9 @@ function fetchBuffer(url) {
       const chunks = [];
       res.on('data', c => chunks.push(c));
       res.on('end', () => resolve(Buffer.concat(chunks)));
-    }).on('error', reject);
+    });
+    req.on('timeout', () => req.destroy(new Error('抓取超时(30s): ' + url)));
+    req.on('error', reject);
   });
 }
 
@@ -315,11 +317,13 @@ async function main() {
   console.log('开始 TMDB 解析 (本批次 ' + (limit > 0 ? Math.min(limit, pending.length) : pending.length) + ' 部)...');
 
   let apiCalls = 0;
+  let consecutiveFails = 0;
   for (const c of pending) {
     if (limit > 0 && apiCalls >= limit) break;
     try {
       const movie = await resolveCandidate(c);
       apiCalls++;
+      consecutiveFails = 0;
       if (!movie) {
         c.status = 'notfound';
         progress.stats.notfound++;
@@ -342,8 +346,12 @@ async function main() {
       }
     } catch (e) {
       c.status = 'error';
+      consecutiveFails++;
       console.error('  ! ' + c.title + ' 解析出错: ' + e.message);
-      break;
+      if (consecutiveFails >= 5) {
+        console.error('  连续失败 ' + consecutiveFails + ' 次，中止本批次');
+        break;
+      }
     }
     if (apiCalls % SAVE_EVERY === 0) saveProgress(progress);
     await delay(DELAY_MS);

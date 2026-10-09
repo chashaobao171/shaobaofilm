@@ -59,9 +59,10 @@ async function tmdbRequest(endpoint, params = {}) {
   return new Promise((resolve, reject) => {
     const query = new URLSearchParams({api_key: API_KEY, ...params}).toString();
     const url = `https://api.themoviedb.org/3${endpoint}?${query}`;
-    
-    https.get(url, res => {
+
+    const req = https.get(url, {timeout: 15000}, res => {
       let data = '';
+      res.setEncoding('utf8');
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         if (res.statusCode === 200) {
@@ -74,7 +75,11 @@ async function tmdbRequest(endpoint, params = {}) {
           reject(new Error(`API Error: ${res.statusCode}`));
         }
       });
-    }).on('error', reject);
+    });
+    req.on('timeout', () => {
+      req.destroy(new Error(`TMDB 请求超时(15s): ${endpoint}`));
+    });
+    req.on('error', reject);
   });
 }
 

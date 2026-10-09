@@ -8,6 +8,8 @@ on:
       - 'tools/**_expansion*.js'
       - 'tools/_merge_all_progress.js'
       - 'tools/_verify_data.js'
+      - 'tools/_canon_import.js'
+      - 'tools/_tmdb_top_rated_import.js'
   workflow_dispatch:
 
 jobs:
