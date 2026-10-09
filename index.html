@@ -1140,8 +1140,6 @@ img.ld{opacity:1}
   function isEU(f){return EU.some(function(x){return inC(f,x);});}
   function AW(k,f){var s=AWARDS_SET[k];return !!s&&!!s[f.t+"|"+String(f.y)];}
   var COLLS=[
-    {n:"豆瓣 9.0+ 神作",e:"9.0 and Above",d:"评分天花板区。先看这些，再决定要不要往下走。",f:function(f){return num(f.r)>=9.0;},sort:"rating",lim:30,tag:"口碑"},
-    {n:"作者电影精选",e:"Auteurs",d:"从电影史坐标里手挑的作者电影：长镜头、留白、结构与时间的实验。",f:function(f){return !!f.curated;},sort:"rating",lim:30,tag:"口碑"},
     {n:"华语电影",e:"Chinese-language",d:"大陆、香港、台湾三代人的影像记忆，从市井到史诗。",f:CN,sort:"rating",lim:30,preset:{ctry:"中国大陆"},tag:"地区"},
     {n:"日本电影",e:"Japan",d:"从家庭伦理到动画奇观，日本电影总在极小的日常里放大情绪。",f:function(f){return inC(f,"日本");},sort:"rating",lim:30,preset:{ctry:"日本"},tag:"地区"},
     {n:"韩国现实主义",e:"Korea",d:"类型外壳、社会内脏——韩国电影把愤怒拍成了手艺。",f:function(f){return inC(f,"韩国");},sort:"rating",lim:30,preset:{ctry:"韩国"},tag:"地区"},
