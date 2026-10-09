@@ -29,9 +29,38 @@ function mergeFilms() {
   
   console.log(`Existing films: ${existing.data.films.length}`);
   console.log(`Discovered films: ${discovered.films.length}`);
-  
-  // Merge films
-  const mergedFilms = [...existing.data.films, ...discovered.films];
+
+  // ===== 合并阶段去重防线：id / tmdbId / 片名|年份 =====
+  function filmKey(t, y) {
+    return `${String(t || '').trim().toLowerCase().replace(/\s+/g, ' ')}|${y === null || y === undefined || y === '' ? '' : Number(y)}`;
+  }
+  const seenIds = new Set();
+  const seenTmdbIds = new Set();
+  const seenKeys = new Set();
+  const remember = (f) => {
+    if (f.id) seenIds.add(f.id);
+    if (f.tmdbId !== null && f.tmdbId !== undefined) seenTmdbIds.add(Number(f.tmdbId));
+    if (f.t) seenKeys.add(filmKey(f.t, f.y));
+  };
+  const isDuplicate = (f) => {
+    if (f.id && seenIds.has(f.id)) return true;
+    if (f.tmdbId !== null && f.tmdbId !== undefined && seenTmdbIds.has(Number(f.tmdbId))) return true;
+    const key = filmKey(f.t, f.y);
+    if (key && key !== '|' && seenKeys.has(key)) return true;
+    return false;
+  };
+
+  const mergedFilms = [];
+  existing.data.films.forEach(f => { mergedFilms.push(f); remember(f); });
+
+  let added = 0;
+  let dropped = 0;
+  discovered.films.forEach(f => {
+    if (isDuplicate(f)) { dropped++; return; }
+    mergedFilms.push(f);
+    remember(f);
+    added++;
+  });
   
   // Update metadata
   const updatedData = {
@@ -58,7 +87,7 @@ function mergeFilms() {
   fs.writeFileSync('films-data.js', newContent);
   console.log(`\nMerge complete!`);
   console.log(`Total films: ${mergedFilms.length}`);
-  console.log(`New films added: ${discovered.films.length}`);
+  console.log(`New films added: ${added}${dropped ? `（去重丢弃 ${dropped} 部）` : ''}`);
 }
 
 mergeFilms();

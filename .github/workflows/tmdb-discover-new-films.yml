@@ -21,6 +21,9 @@ jobs:
       - name: Discover new films
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          # 拉取门槛（评分 / 评价人数），可按需调整
+          TMDB_MIN_RATING: '7.0'
+          TMDB_MIN_VOTES: '100'
         run: node tools/_tmdb_discover.js
 
       - name: Merge new films into films-data.js

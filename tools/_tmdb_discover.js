@@ -15,6 +15,24 @@ const API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
+// ===== 拉取门槛（可用环境变量覆盖）=====
+const MIN_RATING = parseFloat(process.env.TMDB_MIN_RATING || '7.0'); // 最低 TMDB 评分
+const MIN_VOTES = parseInt(process.env.TMDB_MIN_VOTES || '100', 10); // 最低评价人数
+
+// 标题归一化 + 去重键（跨来源按 片名|年份 判重）
+function normTitle(t) {
+  return String(t || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+function filmKey(t, y) {
+  return `${normTitle(t)}|${y === null || y === undefined || y === '' ? '' : Number(y)}`;
+}
+// 是否达到拉取门槛（评分 + 票数双达标）
+function passesThreshold(film) {
+  const rating = Number(film.vote_average) || 0;
+  const votes = Number(film.vote_count) || 0;
+  return rating >= MIN_RATING && votes >= MIN_VOTES;
+}
+
 // Load existing films data
 function loadExistingFilms() {
   const content = fs.readFileSync('./films-data.js', 'utf8');
@@ -126,9 +144,39 @@ async function main() {
   console.log('Starting TMDB discovery...');
   
   const existingData = loadExistingFilms();
-  const existingIds = new Set(existingData.films.map(f => f.id));
+
+  // 建立多重去重索引：库内 id / 库内 tmdbId / 库内 片名|年份
+  const existingIds = new Set();
+  const existingTmdbIds = new Set();
+  const existingKeys = new Set();
+  existingData.films.forEach(f => {
+    if (f.id) existingIds.add(f.id);
+    if (f.tmdbId !== null && f.tmdbId !== undefined) existingTmdbIds.add(Number(f.tmdbId));
+    if (f.t) existingKeys.add(filmKey(f.t, f.y));
+  });
+
   const newFilms = [];
+  const newIds = new Set();
+  const newTmdbIds = new Set();
+  const newKeys = new Set();
   const collections = new Set();
+  let skippedDup = 0;
+  let skippedLow = 0;
+
+  // 统一判重：命中「库内已有」或「本次已加入」任一维度即视为重复
+  const isDuplicate = (filmId, tmdbId, title, year) => {
+    if (filmId && (existingIds.has(filmId) || newIds.has(filmId))) return true;
+    if (tmdbId !== null && tmdbId !== undefined &&
+        (existingTmdbIds.has(Number(tmdbId)) || newTmdbIds.has(Number(tmdbId)))) return true;
+    const key = filmKey(title, year);
+    if (key && key !== '|' && (existingKeys.has(key) || newKeys.has(key))) return true;
+    return false;
+  };
+  const remember = (film) => {
+    if (film.id) newIds.add(film.id);
+    if (film.tmdbId !== null && film.tmdbId !== undefined) newTmdbIds.add(Number(film.tmdbId));
+    if (film.t) newKeys.add(filmKey(film.t, film.y));
+  };
   
   // Step 1: Discover trending films
   console.log('Fetching trending films...');
@@ -146,21 +194,30 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 100)); // Rate limiting
     
     const tmdbId = `tmdb${film.id}`;
-    if (existingIds.has(tmdbId)) {
-      console.log(`Skip existing: ${film.title}`);
+    const year = film.release_date ? parseInt(film.release_date.split('-')[0]) : null;
+
+    if (isDuplicate(tmdbId, film.id, film.title, year)) {
+      console.log(`Skip duplicate: ${film.title}`);
+      skippedDup++;
       continue;
     }
-    
+    if (!passesThreshold(film)) {
+      console.log(`Skip low-quality: ${film.title} (rating=${(Number(film.vote_average) || 0).toFixed(1)}, votes=${film.vote_count || 0})`);
+      skippedLow++;
+      continue;
+    }
+
     try {
       const details = await getFilmDetails(film.id);
       const converted = convertTMDBFilm(film, details);
       newFilms.push(converted);
+      remember(converted);
       
       if (converted.collection) {
         collections.add(converted.collection);
       }
       
-      console.log(`Added: ${film.title} (${film.release_date?.split('-')[0] || 'N/A'})`);
+      console.log(`Added: ${film.title} (${year || 'N/A'})`);
     } catch (e) {
       console.error(`Failed to fetch details for ${film.title}:`, e.message);
     }
@@ -182,21 +239,30 @@ async function main() {
     await new Promise(resolve => setTimeout(resolve, 100)); // Rate limiting
     
     const tmdbId = `tmdb${film.id}`;
-    if (existingIds.has(tmdbId)) {
-      console.log(`Skip existing: ${film.title}`);
+    const year = film.release_date ? parseInt(film.release_date.split('-')[0]) : null;
+
+    if (isDuplicate(tmdbId, film.id, film.title, year)) {
+      console.log(`Skip duplicate: ${film.title}`);
+      skippedDup++;
       continue;
     }
-    
+    if (!passesThreshold(film)) {
+      console.log(`Skip low-quality: ${film.title} (rating=${(Number(film.vote_average) || 0).toFixed(1)}, votes=${film.vote_count || 0})`);
+      skippedLow++;
+      continue;
+    }
+
     try {
       const details = await getFilmDetails(film.id);
       const converted = convertTMDBFilm(film, details);
       newFilms.push(converted);
+      remember(converted);
       
       if (converted.collection) {
         collections.add(converted.collection);
       }
       
-      console.log(`Added: ${film.title} (${film.release_date?.split('-')[0] || 'N/A'})`);
+      console.log(`Added: ${film.title} (${year || 'N/A'})`);
     } catch (e) {
       console.error(`Failed to fetch details for ${film.title}:`, e.message);
     }
@@ -214,7 +280,11 @@ async function main() {
       
       for (const film of collection.parts) {
         const tmdbId = `tmdb${film.id}`;
-        if (existingIds.has(tmdbId) || newFilms.some(f => f.id === tmdbId)) {
+        const year = film.release_date ? parseInt(film.release_date.split('-')[0]) : null;
+
+        // 系列补全不做质量门槛，以保证系列完整；但仍严格去重
+        if (isDuplicate(tmdbId, film.id, film.title, year)) {
+          skippedDup++;
           continue;
         }
         
@@ -222,8 +292,9 @@ async function main() {
         const details = await getFilmDetails(film.id);
         const converted = convertTMDBFilm(film, details);
         newFilms.push(converted);
+        remember(converted);
         
-        console.log(`  + ${film.title} (${film.release_date?.split('-')[0] || 'N/A'})`);
+        console.log(`  + ${film.title} (${year || 'N/A'})`);
       }
     } catch (e) {
       console.error(`Failed to fetch collection ${collectionId}:`, e.message);
@@ -232,7 +303,10 @@ async function main() {
   
   // Step 3: Save discovered films
   console.log(`\n=== Summary ===`);
+  console.log(`Threshold: rating >= ${MIN_RATING}, votes >= ${MIN_VOTES}`);
   console.log(`New films discovered: ${newFilms.length}`);
+  console.log(`Skipped (duplicate): ${skippedDup}`);
+  console.log(`Skipped (low-quality): ${skippedLow}`);
   console.log(`Collections completed: ${collections.size}`);
   
   if (newFilms.length > 0) {

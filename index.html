@@ -189,6 +189,20 @@ select.sel:focus{border-color:var(--brand)}
 .more:hover{border-color:var(--brand);color:var(--brand)}
 .more[hidden]{display:none}
 .empty{padding:70px 0;text-align:center;color:var(--ink3)}
+/* ---------- 搜索无结果 → 片源直达 ---------- */
+.empty-src{grid-column:1/-1;padding:56px 0 12px;text-align:center}
+.empty-src .es-t{margin:0 0 20px;font-size:15px;color:var(--ink2)}
+.empty-src .es-t b{color:var(--ink);font-weight:650}
+.empty-src .es-list{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.empty-src .es-btn{
+  display:flex;flex-direction:column;gap:3px;min-width:154px;padding:14px 22px;
+  border:1px solid var(--line);border-radius:10px;background:var(--surface);transition:all .16s;
+}
+.empty-src .es-btn:hover{border-color:var(--brand);background:var(--surface2);transform:translateY(-2px)}
+.empty-src .es-n{font-size:14.5px;font-weight:650;color:var(--ink)}
+.empty-src .es-btn:hover .es-n{color:var(--brand)}
+.empty-src .es-h{font-size:11.5px;color:var(--ink3)}
+.empty-src .es-tip{margin:20px 0 0;font-size:12.5px;color:var(--ink3)}
 
 /* ---------- generic section (other views) ---------- */
 .vhead{padding:52px 0 6px}
@@ -385,6 +399,27 @@ select.sel:focus{border-color:var(--brand)}
 .simrow{display:grid;grid-auto-flow:column;grid-auto-columns:96px;gap:11px;overflow-x:auto;padding-bottom:6px}
 .simrow::-webkit-scrollbar{height:7px}
 .simrow::-webkit-scrollbar-thumb{background:#2c2c39;border-radius:5px}
+
+/* ---------- 进入提示 ---------- */
+.notice{position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center;padding:26px}
+.notice.on{display:flex}
+.notice-bd{position:absolute;inset:0;background:rgba(6,6,9,.82);backdrop-filter:blur(6px);animation:fade .2s ease}
+.notice-card{
+  position:relative;z-index:2;width:100%;max-width:520px;
+  background:var(--pop);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--sh3);
+  padding:30px 30px 22px;animation:rise .26s cubic-bezier(.2,.8,.3,1);
+}
+.notice-card h3{font-family:var(--serif);font-size:24px;font-weight:700;color:var(--brand);margin:0 0 16px;letter-spacing:.02em}
+.notice-card p{font-size:15.5px;line-height:1.9;color:var(--ink2);margin:0 0 13px}
+.notice-card p:last-of-type{margin-bottom:0}
+.notice-card p b{color:var(--ink);font-weight:600}
+.notice-card .hl{color:var(--brand);font-weight:600}
+.notice-x{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(10,10,14,.66);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:all .16s}
+.notice-x:hover{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.notice-x svg{width:15px;height:15px}
+.notice-ft{display:flex;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.notice-ok{flex:1;height:44px;border-radius:8px;background:var(--brand);color:var(--brand-ink);font-size:15px;font-weight:600;transition:filter .16s}
+.notice-ok:hover{filter:brightness(1.08)}
 
 /* ---------- footer / backtop ---------- */
 .ftr{margin-top:70px;border-top:1px solid var(--line);padding:38px 0 60px;color:var(--ink3);font-size:12.5px;line-height:1.85}
@@ -772,6 +807,23 @@ img.ld{opacity:1}
   </div>
 </div>
 
+<div class="notice" id="notice" aria-hidden="true">
+  <div class="notice-bd" id="noticeBd"></div>
+  <div class="notice-card" role="dialog" aria-modal="true" aria-labelledby="noticeT">
+    <button class="notice-x" id="noticeX" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <h3 id="noticeT">叉烧包说：</h3>
+    <p>本站的初衷，是帮<b>选择困难症</b>的朋友快速挑片。</p>
+    <p>站内所有<b>片源均为外链跳转</b>，本站<span class="hl">不提供、也不收录任何枪版/盗摄资源</span>；影片资料与海报仅作检索与介绍之用。</p>
+    <p>找片时建议<b>优先使用「找片源」</b>，其次再用「在线观看」——<b>网盘资源的画质一般比在线播放高很多</b>。</p>
+    <p>使用过程中有何建议，都可以联系我。</p>
+    <div class="notice-ft">
+      <button class="notice-ok" id="noticeOk" type="button">我知道了</button>
+    </div>
+  </div>
+</div>
+
 <button class="top" id="top" aria-label="回到顶部">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
 </button>
@@ -1011,7 +1063,22 @@ img.ld{opacity:1}
     var a=sorted();
     $("#fcount").innerHTML='共 <b>'+a.length+'</b> 部'+(state.award?' · 奖项「'+esc(state.award)+'」':'')+(state.fest?' · 电影节「'+esc(state.fest)+'」':'')+(state.rank?' · 榜单「'+esc(state.rank)+'」':'')+(state.studio?' · 公司「'+esc(state.studio)+'」':'')+(state.glabel?' · 类型「'+esc(state.glabel)+'」':(state.g?' · 类型「'+esc(state.g)+'」':''))+(state.ctry?' · '+esc(state.ctry):'')+(state.dec?' · '+state.dec+'s':'')+(state.q?' · 搜索「'+esc(state.q)+'」':'');
     $("#reset").hidden=!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.q||state.award||state.fest||state.rank||state.studio);
-    if(!a.length){g.innerHTML='<p class="empty" style="grid-column:1/-1">没有匹配的影片，换个关键词或清除筛选试试。</p>';$("#moreBtn").hidden=true;return;}
+    if(!a.length){
+      var kw=$("#q").value.trim();
+      if(state.q&&kw){
+        g.innerHTML='<div class="empty-src">'
+          +'<p class="es-t">站内没有找到「<b>'+esc(kw)+'</b>」，可直接去下列片源站搜索：</p>'
+          +'<div class="es-list">'+SOURCES.map(function(s){
+            return '<a class="es-btn" href="'+s.s.replace("{q}",encodeURIComponent(kw))+'" target="_blank" rel="noopener">'
+              +'<span class="es-n">'+esc(s.n)+'</span><span class="es-h">'+esc(s.h)+'</span></a>';
+          }).join("")+'</div>'
+          +'<p class="es-tip">找不到时建议优先试「维C搜搜 / KK122」——网盘资源画质通常更高</p>'
+          +'</div>';
+      } else {
+        g.innerHTML='<p class="empty" style="grid-column:1/-1">没有匹配的影片，换个关键词或清除筛选试试。</p>';
+      }
+      $("#moreBtn").hidden=true;return;
+    }
     g.innerHTML=a.slice(0,shown).map(function(f,i){return fcard(f,i);}).join("");
     $("#moreBtn").hidden=shown>=a.length;
     $("#moreBtn").textContent="加载更多（还有 "+(a.length-shown)+" 部）";
@@ -1224,10 +1291,10 @@ img.ld{opacity:1}
 
   /* ============ 片源查找 ============ */
   var SOURCES=[
-    {n:"爱看机器人",h:"ikanbot.com",u:"https://www.ikanbot.com/",d:"聚合多家线路的在线播放站，站内直接搜片名，多线路可切换，免登录。"},
-    {n:"低端影视",h:"ddys.io",u:"https://ddys.io/",d:"高质量影视站，提供在线播放与网盘资源，画质与字幕质量高。"},
-    {n:"维C搜搜",h:"vcsoso.com",u:"https://vcsoso.com/",d:"网盘资源搜索，免登录、无广告，主打 1080P / 4K 原盘。"},
-    {n:"KK122",h:"kk122.seesee.sbs",u:"https://kk122.seesee.sbs/",d:"网盘资源站，站内搜索片名即可，更新较快。"}
+    {n:"爱看机器人",h:"ikanbot.com",u:"https://www.ikanbot.com/",s:"https://www.ikanbot.com/search?q={q}",d:"聚合多家线路的在线播放站，站内直接搜片名，多线路可切换，免登录。"},
+    {n:"低端影视",h:"ddys.io",u:"https://ddys.io/",s:"https://ddys.io/search?q={q}",d:"高质量影视站，提供在线播放与网盘资源，画质与字幕质量高。"},
+    {n:"维C搜搜",h:"vcsoso.com",u:"https://vcsoso.com/",s:"https://vcsoso.com/s/{q}",d:"网盘资源搜索，免登录、无广告，主打 1080P / 4K 原盘。"},
+    {n:"KK122",h:"kk122.seesee.sbs",u:"https://kk122.seesee.sbs/",s:"https://kk122.seesee.sbs/vodsearch/-------------.html?wd={q}",d:"网盘资源站，站内搜索片名即可，更新较快。"}
   ];
   $("#sourcesBox").innerHTML='<div class="sgrid rv-kids">'+SOURCES.map(function(s,i){
     return '<a class="srccard" href="'+s.u+'" target="_blank" rel="noopener" aria-label="在新窗口打开 '+esc(s.n)+'">'
@@ -1556,6 +1623,23 @@ img.ld{opacity:1}
   
   // 应用URL参数筛选（如果有）
   applyFiltersFromURL();
+
+  /* ============ 进入提示弹窗 ============ */
+  (function(){
+    var box=$("#notice");
+    box.classList.add("on");
+    box.setAttribute("aria-hidden","false");
+    var close=function(){
+      box.classList.remove("on");
+      box.setAttribute("aria-hidden","true");
+    };
+    $("#noticeOk").addEventListener("click",close);
+    $("#noticeX").addEventListener("click",close);
+    $("#noticeBd").addEventListener("click",close);
+    document.addEventListener("keydown",function(e){
+      if(e.key==="Escape"&&box.classList.contains("on"))close();
+    });
+  })();
 })();
 </script>
 </body>
