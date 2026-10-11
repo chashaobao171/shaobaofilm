@@ -7,7 +7,7 @@ const taxonomyTree = {
     "icon": "🎭",
     "color": "#F87171",
     "description": "人性、情感与命运的长卷",
-    "count": 6567,
+    "count": 6379,
     "children": {
       "drama": {
         "id": "drama",
@@ -20,9 +20,9 @@ const taxonomyTree = {
           "生活"
         ],
         "mode": "any",
-        "count": 5138,
+        "count": 4970,
         "tagCounts": {
-          "剧情": 5135,
+          "剧情": 4967,
           "社会": 1,
           "青春": 1,
           "治愈": 1,
@@ -36,9 +36,9 @@ const taxonomyTree = {
           "爱情"
         ],
         "mode": "one",
-        "count": 1708,
+        "count": 1664,
         "tagCounts": {
-          "爱情": 1708
+          "爱情": 1664
         }
       },
       "crime": {
@@ -50,9 +50,9 @@ const taxonomyTree = {
           "复仇"
         ],
         "mode": "any",
-        "count": 1239,
+        "count": 1195,
         "tagCounts": {
-          "犯罪": 1237,
+          "犯罪": 1193,
           "黑帮": 1,
           "复仇": 1
         }
@@ -76,9 +76,9 @@ const taxonomyTree = {
           "家庭"
         ],
         "mode": "one",
-        "count": 563,
+        "count": 556,
         "tagCounts": {
-          "家庭": 563
+          "家庭": 556
         }
       },
       "bio": {
@@ -102,9 +102,9 @@ const taxonomyTree = {
           "历史"
         ],
         "mode": "one",
-        "count": 389,
+        "count": 371,
         "tagCounts": {
-          "历史": 389
+          "历史": 371
         }
       },
       "war": {
@@ -114,9 +114,9 @@ const taxonomyTree = {
           "战争"
         ],
         "mode": "one",
-        "count": 313,
+        "count": 301,
         "tagCounts": {
-          "战争": 313
+          "战争": 301
         }
       },
       "gay": {
@@ -178,7 +178,7 @@ const taxonomyTree = {
     "icon": "👻",
     "color": "#A78BFA",
     "description": "悬念、恐惧与心跳的极限",
-    "count": 1949,
+    "count": 1891,
     "children": {
       "susp": {
         "id": "susp",
@@ -188,9 +188,9 @@ const taxonomyTree = {
           "心理"
         ],
         "mode": "any",
-        "count": 732,
+        "count": 713,
         "tagCounts": {
-          "悬疑": 730,
+          "悬疑": 711,
           "心理": 2
         }
       },
@@ -201,9 +201,9 @@ const taxonomyTree = {
           "惊悚"
         ],
         "mode": "one",
-        "count": 1234,
+        "count": 1186,
         "tagCounts": {
-          "惊悚": 1234
+          "惊悚": 1186
         }
       },
       "fear": {
@@ -213,9 +213,9 @@ const taxonomyTree = {
           "恐怖"
         ],
         "mode": "one",
-        "count": 546,
+        "count": 537,
         "tagCounts": {
-          "恐怖": 546
+          "恐怖": 537
         }
       },
       "disaster": {
@@ -239,7 +239,7 @@ const taxonomyTree = {
     "icon": "💥",
     "color": "#FBBF24",
     "description": "肾上腺素飙升的冒险",
-    "count": 2073,
+    "count": 2022,
     "children": {
       "act": {
         "id": "act",
@@ -248,9 +248,9 @@ const taxonomyTree = {
           "动作"
         ],
         "mode": "one",
-        "count": 1486,
+        "count": 1447,
         "tagCounts": {
-          "动作": 1486
+          "动作": 1447
         }
       },
       "adv": {
@@ -261,9 +261,9 @@ const taxonomyTree = {
           "公路"
         ],
         "mode": "any",
-        "count": 910,
+        "count": 888,
         "tagCounts": {
-          "冒险": 909,
+          "冒险": 887,
           "公路": 1
         }
       },
@@ -286,9 +286,9 @@ const taxonomyTree = {
           "西部"
         ],
         "mode": "one",
-        "count": 88,
+        "count": 85,
         "tagCounts": {
-          "西部": 88
+          "西部": 85
         }
       }
     }
@@ -300,7 +300,7 @@ const taxonomyTree = {
     "icon": "🚀",
     "color": "#5B8CFF",
     "description": "超越现实的想象世界",
-    "count": 1341,
+    "count": 1315,
     "children": {
       "scifi": {
         "id": "scifi",
@@ -310,9 +310,9 @@ const taxonomyTree = {
           "废土"
         ],
         "mode": "any",
-        "count": 646,
+        "count": 632,
         "tagCounts": {
-          "科幻": 645,
+          "科幻": 631,
           "废土": 1
         }
       },
@@ -324,9 +324,9 @@ const taxonomyTree = {
           "梦境"
         ],
         "mode": "any",
-        "count": 733,
+        "count": 721,
         "tagCounts": {
-          "奇幻": 732,
+          "奇幻": 720,
           "梦境": 1
         }
       },
@@ -338,10 +338,10 @@ const taxonomyTree = {
           "动作"
         ],
         "mode": "all",
-        "count": 302,
+        "count": 295,
         "tagCounts": {
-          "科幻": 645,
-          "动作": 1486
+          "科幻": 631,
+          "动作": 1447
         }
       },
       "scifi-thr": {
@@ -352,10 +352,10 @@ const taxonomyTree = {
           "惊悚"
         ],
         "mode": "all",
-        "count": 147,
+        "count": 144,
         "tagCounts": {
-          "科幻": 645,
-          "惊悚": 1234
+          "科幻": 631,
+          "惊悚": 1186
         }
       },
       "fant-adv": {
@@ -366,10 +366,10 @@ const taxonomyTree = {
           "冒险"
         ],
         "mode": "all",
-        "count": 231,
+        "count": 226,
         "tagCounts": {
-          "奇幻": 732,
-          "冒险": 909
+          "奇幻": 720,
+          "冒险": 887
         }
       },
       "fant-anim": {
@@ -380,10 +380,10 @@ const taxonomyTree = {
           "动画"
         ],
         "mode": "all",
-        "count": 234,
+        "count": 229,
         "tagCounts": {
-          "奇幻": 732,
-          "动画": 808
+          "奇幻": 720,
+          "动画": 798
         }
       }
     }
@@ -395,7 +395,7 @@ const taxonomyTree = {
     "icon": "😄",
     "color": "#34D399",
     "description": "欢笑与讽刺的艺术",
-    "count": 2352,
+    "count": 2302,
     "children": {
       "comedy": {
         "id": "comedy",
@@ -404,9 +404,9 @@ const taxonomyTree = {
           "喜剧"
         ],
         "mode": "one",
-        "count": 2352,
+        "count": 2302,
         "tagCounts": {
-          "喜剧": 2352
+          "喜剧": 2302
         }
       },
       "romcom": {
@@ -417,10 +417,10 @@ const taxonomyTree = {
           "爱情"
         ],
         "mode": "all",
-        "count": 635,
+        "count": 620,
         "tagCounts": {
-          "喜剧": 2352,
-          "爱情": 1708
+          "喜剧": 2302,
+          "爱情": 1664
         }
       },
       "anim-com": {
@@ -431,10 +431,10 @@ const taxonomyTree = {
           "动画"
         ],
         "mode": "all",
-        "count": 299,
+        "count": 297,
         "tagCounts": {
-          "喜剧": 2352,
-          "动画": 808
+          "喜剧": 2302,
+          "动画": 798
         }
       },
       "act-com": {
@@ -445,10 +445,10 @@ const taxonomyTree = {
           "动作"
         ],
         "mode": "all",
-        "count": 322,
+        "count": 314,
         "tagCounts": {
-          "喜剧": 2352,
-          "动作": 1486
+          "喜剧": 2302,
+          "动作": 1447
         }
       },
       "dramedy": {
@@ -459,10 +459,10 @@ const taxonomyTree = {
           "剧情"
         ],
         "mode": "all",
-        "count": 912,
+        "count": 876,
         "tagCounts": {
-          "喜剧": 2352,
-          "剧情": 5135
+          "喜剧": 2302,
+          "剧情": 4967
         }
       }
     }
@@ -474,7 +474,7 @@ const taxonomyTree = {
     "icon": "🎬",
     "color": "#FB923C",
     "description": "动画的无限可能",
-    "count": 808,
+    "count": 798,
     "children": {
       "anim": {
         "id": "anim",
@@ -483,9 +483,9 @@ const taxonomyTree = {
           "动画"
         ],
         "mode": "one",
-        "count": 808,
+        "count": 798,
         "tagCounts": {
-          "动画": 808
+          "动画": 798
         }
       },
       "fant-anim": {
@@ -496,10 +496,10 @@ const taxonomyTree = {
           "奇幻"
         ],
         "mode": "all",
-        "count": 234,
+        "count": 229,
         "tagCounts": {
-          "动画": 808,
-          "奇幻": 732
+          "动画": 798,
+          "奇幻": 720
         }
       },
       "adv-anim": {
@@ -510,10 +510,10 @@ const taxonomyTree = {
           "冒险"
         ],
         "mode": "all",
-        "count": 296,
+        "count": 291,
         "tagCounts": {
-          "动画": 808,
-          "冒险": 909
+          "动画": 798,
+          "冒险": 887
         }
       },
       "com-anim": {
@@ -524,10 +524,10 @@ const taxonomyTree = {
           "喜剧"
         ],
         "mode": "all",
-        "count": 299,
+        "count": 297,
         "tagCounts": {
-          "动画": 808,
-          "喜剧": 2352
+          "动画": 798,
+          "喜剧": 2302
         }
       },
       "fam-anim": {
@@ -538,10 +538,10 @@ const taxonomyTree = {
           "家庭"
         ],
         "mode": "all",
-        "count": 217,
+        "count": 214,
         "tagCounts": {
-          "动画": 808,
-          "家庭": 563
+          "动画": 798,
+          "家庭": 556
         }
       },
       "kid-anim": {
@@ -554,7 +554,7 @@ const taxonomyTree = {
         "mode": "all",
         "count": 12,
         "tagCounts": {
-          "动画": 808,
+          "动画": 798,
           "儿童": 42
         }
       }
@@ -567,7 +567,7 @@ const taxonomyTree = {
     "icon": "🎵",
     "color": "#F472B6",
     "description": "旋律、舞台与竞技场",
-    "count": 372,
+    "count": 369,
     "children": {
       "music": {
         "id": "music",
@@ -576,9 +576,9 @@ const taxonomyTree = {
           "音乐"
         ],
         "mode": "one",
-        "count": 245,
+        "count": 242,
         "tagCounts": {
-          "音乐": 245
+          "音乐": 242
         }
       },
       "musical": {
@@ -588,9 +588,9 @@ const taxonomyTree = {
           "歌舞"
         ],
         "mode": "one",
-        "count": 58,
+        "count": 57,
         "tagCounts": {
-          "歌舞": 58
+          "歌舞": 57
         }
       },
       "sport": {
@@ -614,7 +614,7 @@ const taxonomyTree = {
     "icon": "🎨",
     "color": "#22D3EE",
     "description": "作者电影与实验先锋",
-    "count": 116,
+    "count": 114,
     "children": {
       "short": {
         "id": "short",
@@ -658,12 +658,12 @@ const taxonomyTree = {
           "电视电影"
         ],
         "mode": "any",
-        "count": 79,
+        "count": 77,
         "tagCounts": {
           "实验": 1,
           "默片": 1,
           "蒙太奇": 1,
-          "电视电影": 77
+          "电视电影": 75
         }
       }
     }
@@ -675,7 +675,7 @@ const taxonomyTree = {
     "icon": "📹",
     "color": "#94A3B8",
     "description": "真实世界的影像记录",
-    "count": 356,
+    "count": 343,
     "children": {
       "doc": {
         "id": "doc",
@@ -684,9 +684,9 @@ const taxonomyTree = {
           "纪录片"
         ],
         "mode": "one",
-        "count": 356,
+        "count": 343,
         "tagCounts": {
-          "纪录片": 356
+          "纪录片": 343
         }
       }
     }
@@ -694,10 +694,10 @@ const taxonomyTree = {
 };
 
 const taxonomyMeta = {
-  "films": 8795,
+  "films": 8566,
   "categories": 9,
   "subcategories": 44,
-  "updated": "2026-10-09"
+  "updated": "2026-10-11"
 };
 
 // 导出

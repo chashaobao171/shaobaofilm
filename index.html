@@ -2127,6 +2127,9 @@ img.ld{opacity:1}
       if(en.isIntersecting){en.target.classList.add("vis");io.unobserve(en.target);}
     });
   },{threshold:.06,rootMargin:"0px 0px -36px 0px"}):null;
+  /* 注意：这里只观察「初始化时就存在」的 [data-rv] / .rv-kids。
+     之后动态插入的区块不会被观察，会一直是 opacity:0（黑屏）——
+     新增动态区块时请手动 io.observe(el)，或给元素直接加 .vis。 */
   $$("[data-rv],.rv-kids").forEach(function(el){
     if(io)io.observe(el); else el.classList.add("vis");
   });
