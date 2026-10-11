@@ -1747,6 +1747,38 @@ img.ld{opacity:1}
   }).join("")+'</div>';
 
   /* ============ 详情弹层 ============ */
+  /* 弹层里的小海报条（猜你喜欢 / 同系列 / 同导演共用） */
+  function miniStrip(title,list){
+    if(!list||!list.length)return "";
+    return '<div class="sim"><h4>'+esc(title)+'</h4><div class="simrow">'+list.map(function(x){
+      var cover=x.p?'<img src="'+esc(x.p)+'" alt="'+esc(x.t)+'" loading="lazy" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px" onload="this.classList.add(\'ld\')">':'<span style="display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:2/3;background:#0a0a0e;border-radius:6px;color:#3a3a46;font-family:var(--serif)">'+esc(String(x.t).slice(0,1))+'</span>';
+      return '<button class="mc" data-i="'+x._i+'" style="background:none;border:0;padding:0;cursor:pointer;text-align:left">'+cover
+        +'<div class="mc-t" style="font-size:11.5px">'+esc(x.t)+'<i style="font-style:normal;color:var(--ink3)"> '+esc(x.y||"")+'</i></div></button>';
+    }).join("")+'</div></div>';
+  }
+  /* 同系列：按片名归一化归组（与精选片单同口径），同一年只留热度最高的一部，按年份排 */
+  function seriesList(f){
+    var g=_sm[baseTitle(f.t)];
+    if(!g||g.length<2)return [];
+    var byY={};
+    g.forEach(function(x){
+      if(x._i===f._i)return;
+      var y=+x.y||0;
+      if(!byY[y]||(x.votes||0)>(byY[y].votes||0))byY[y]=x;
+    });
+    return Object.keys(byY).map(function(y){return byY[y];}).sort(function(a,b){return (+a.y||0)-(+b.y||0);}).slice(0,10);
+  }
+  /* 该导演其他作品：f.d 可能是「A / B」，按导演名精确分段匹配 */
+  function dirList(f){
+    if(!f.d)return [];
+    var names=String(f.d).split("/").map(function(s){return s.trim();}).filter(Boolean);
+    if(!names.length)return [];
+    return FILMS.filter(function(x){
+      if(x._i===f._i||!x.d)return false;
+      var xs=String(x.d).split("/").map(function(s){return s.trim();});
+      return names.some(function(n){return xs.indexOf(n)>=0;});
+    }).sort(function(a,b){return num(b.r)-num(a.r)||(b.votes||0)-(a.votes||0);}).slice(0,10);
+  }
   function simList(f){
     var others=FILMS.filter(function(x){
       if(x._i===f._i)return false;
@@ -1755,12 +1787,7 @@ img.ld{opacity:1}
       if(f.c&&x.c&&x.c.split("/").map(function(s){return s.trim();}).some(function(c){return f.c.indexOf(c)>=0;}))n+=0.5;
       return n>=2;
     }).sort(function(a,b){return num(b.r)-num(a.r);}).slice(0,10);
-    if(!others.length)return "";
-    return '<div class="sim"><h4>猜你喜欢</h4><div class="simrow">'+others.map(function(x){
-      var cover=x.p?'<img src="'+esc(x.p)+'" alt="'+esc(x.t)+'" loading="lazy" style="width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:6px" onload="this.classList.add(\'ld\')">':'<span style="display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:2/3;background:#0a0a0e;border-radius:6px;color:#3a3a46;font-family:var(--serif)">'+esc(String(x.t).slice(0,1))+'</span>';
-      return '<button class="mc" data-i="'+x._i+'" style="background:none;border:0;padding:0;cursor:pointer;text-align:left">'+cover
-        +'<div class="mc-t" style="font-size:11.5px">'+esc(x.t)+'</div></button>';
-    }).join("")+'</div></div>';
+    return miniStrip("猜你喜欢",others);
   }
   var curIdx=-1;
   function nextRandom(){
@@ -1818,6 +1845,8 @@ img.ld{opacity:1}
       +'<a class="mod-a" href="https://vcsoso.com/s/'+encodeURIComponent(f.t)+'" target="_blank" rel="noopener" title="在维C搜搜搜索《'+esc(f.t)+'》的片源">'+IC.play+'找片源</a>'
       +'<a class="mod-a" href="https://www.ikanbot.com/search?q='+encodeURIComponent(f.t)+'" target="_blank" rel="noopener" title="在爱看机器人搜索《'+esc(f.t)+'》的在线播放线路">'+IC.tv+'在线观看</a>'
       +'</div>'
+      +miniStrip("同系列",seriesList(f))
+      +(f.d?miniStrip("该导演其他作品 · "+String(f.d).split("/")[0].trim(),dirList(f)):"")
       +simList(f)
       +'</div></div>';
     $("#mod").classList.add("on");
