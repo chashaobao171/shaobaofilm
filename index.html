@@ -1106,7 +1106,7 @@ img.ld{opacity:1}
 
   /* ============ 名片渲染 ============ */
   var PAGE=72,shown=PAGE;
-  var state={g:"",gs:[],go:[],glabel:"",dec:"",ctry:"",rate:"",sort:"rating",q:"",award:"",fest:"",rank:"",studio:""};
+  var state={g:"",gs:[],go:[],glabel:"",dec:"",ctry:"",rate:"",sort:"rating",q:"",award:"",fest:"",rank:"",studio:"",ids:null,pname:""};
   var AWARDS_SET={};
   if(D.awardLinks){
     Object.keys(D.awardLinks).forEach(function(n){
@@ -1161,6 +1161,7 @@ img.ld{opacity:1}
   var SKIP={g:{g:1},dec:{dec:1},ctry:{ctry:1},rate:{rate:1},award:{award:1},fest:{fest:1},rank:{rank:1},studio:{studio:1}};
   function match(f,skip){
     var sk=skip||NO_SKIP;
+    if(state.ids&&!state.ids[f._i])return false;   /* 临时片单筛选（系列 / 主题 / 复合条件片单） */
     if(!sk.g){
       if(state.g&&(f.g||[]).indexOf(state.g)<0)return false;
       if(state.gs&&state.gs.length){
@@ -1279,8 +1280,8 @@ img.ld{opacity:1}
     var g=$("#filmGrid");
     g.classList.toggle("noanim",anim===false);
     var a=sorted();
-    $("#fcount").innerHTML='共 <b>'+a.length+'</b> 部'+(state.award?' · 奖项「'+esc(state.award)+'」':'')+(state.fest?' · 电影节「'+esc(state.fest)+'」':'')+(state.rank?' · 榜单「'+esc(state.rank)+'」':'')+(state.studio?' · 公司「'+esc(state.studio)+'」':'')+(state.glabel?' · 类型「'+esc(state.glabel)+'」':(state.g?' · 类型「'+esc(state.g)+'」':''))+(state.ctry?' · '+esc(state.ctry):'')+(state.dec?' · '+state.dec+'s':'')+(state.rate?' · 评分 '+esc(state.rate)+' 以上':'')+(state.q?' · 搜索「'+esc(state.q)+'」':'');
-    $("#reset").hidden=!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.rate||state.q||state.award||state.fest||state.rank||state.studio);
+    $("#fcount").innerHTML='共 <b>'+a.length+'</b> 部'+(state.pname?' · 片单「'+esc(state.pname)+'」':'')+(state.award?' · 奖项「'+esc(state.award)+'」':'')+(state.fest?' · 电影节「'+esc(state.fest)+'」':'')+(state.rank?' · 榜单「'+esc(state.rank)+'」':'')+(state.studio?' · 公司「'+esc(state.studio)+'」':'')+(state.glabel?' · 类型「'+esc(state.glabel)+'」':(state.g?' · 类型「'+esc(state.g)+'」':''))+(state.ctry?' · '+esc(state.ctry):'')+(state.dec?' · '+state.dec+'s':'')+(state.rate?' · 评分 '+esc(state.rate)+' 以上':'')+(state.q?' · 搜索「'+esc(state.q)+'」':'');
+    $("#reset").hidden=!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.rate||state.q||state.award||state.fest||state.rank||state.studio||state.ids);
     updateDynCounts();
     if(!a.length){
       var kw=$("#q").value.trim();
@@ -1294,7 +1295,7 @@ img.ld{opacity:1}
           +'<p class="es-tip">找不到时建议优先试「维C搜搜 / KK122」——网盘资源画质通常更高</p>'
           +'</div>';
       } else {
-        var hasFilter=!!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.rate||state.award||state.fest||state.rank||state.studio);
+        var hasFilter=!!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.rate||state.award||state.fest||state.rank||state.studio||state.ids);
         g.innerHTML='<div class="empty-box">'
           +'<div class="eb-i">🎞️</div>'
           +'<p class="eb-t">'+(hasFilter?"没有符合当前筛选条件的影片":"暂时没有可展示的影片")+'</p>'
@@ -1325,7 +1326,7 @@ img.ld{opacity:1}
   $("#ctry").addEventListener("change",function(){state.ctry=this.value;shown=PAGE;renderFilms();});
   $("#q").addEventListener("input",function(){state.q=this.value.trim().toLowerCase();shown=PAGE;renderFilms();});
   $("#reset").addEventListener("click",function(){
-    state.g="";state.gs=[];state.go=[];state.glabel="";state.dec="";state.ctry="";state.rate="";state.q="";state.award="";state.fest="";state.rank="";state.studio="";$("#q").value="";$("#decade").value="";$("#ctry").value="";$("#rate").value="";
+    state.g="";state.gs=[];state.go=[];state.glabel="";state.dec="";state.ctry="";state.rate="";state.q="";state.award="";state.fest="";state.rank="";state.studio="";state.ids=null;state.pname="";$("#q").value="";$("#decade").value="";$("#ctry").value="";$("#rate").value="";
     $$("#chips .chip").forEach(function(x){x.classList.remove("on");});
     closeDim();
     shown=PAGE;renderFilms();renderActiveChips();
@@ -1377,6 +1378,14 @@ img.ld{opacity:1}
   function renderActiveChips(){
     var box=$("#activeChips");
     box.innerHTML="";
+    if(state.ids){
+      var pb=document.createElement("button");
+      pb.className="active-chip";pb.type="button";
+      pb.innerHTML='片单「'+esc(state.pname||"筛选结果")+'」<span class="x">✕</span>';
+      pb.title="点击移除片单筛选";
+      pb.addEventListener("click",function(e){e.stopPropagation();state.ids=null;state.pname="";shown=PAGE;renderFilms();renderActiveChips();});
+      box.appendChild(pb);
+    }
     [["fest","电影节"],["award","奖项"],["rank","榜单"],["studio","公司"]].forEach(function(dm){
       var val=state[dm[0]];
       if(!val)return;
@@ -1392,6 +1401,8 @@ img.ld{opacity:1}
   function setFilter(o){
     state.g=o.g||"";state.gs=o.gs||[];state.go=o.go||[];state.glabel=o.label||"";
     state.ctry=o.ctry||"";state.dec=o.dec||"";state.rate=o.rate||"";state.q=o.q||"";state.award=o.award||"";state.fest=o.fest||"";state.rank=o.rank||"";state.studio=o.studio||"";
+    state.ids=null;state.pname="";
+    if(o.ids){ var _m={}; o.ids.forEach(function(i){_m[i]=1;}); state.ids=_m; state.pname=o.pname||""; }
     $("#q").value=state.q;$("#ctry").value=state.ctry;$("#decade").value=state.dec;$("#rate").value=state.rate;
     $$("#chips .chip").forEach(function(x){x.classList.toggle("on",x.dataset.g===state.g);});
     shown=PAGE;renderFilms();renderActiveChips();updateDimBtns();go("films");
@@ -1473,12 +1484,12 @@ img.ld{opacity:1}
   function isEU(f){return EU.some(function(x){return inC(f,x);});}
   function AW(k,f){var s=AWARDS_SET[k];return !!s&&!!s[f.t+"|"+String(f.y)];}
   var COLLS=[
-    {n:"华语电影",e:"Chinese-language",d:"大陆、香港、台湾三代人的影像记忆，从市井到史诗。",f:CN,sort:"rating",lim:30,preset:{ctry:"中国大陆"},tag:"地区"},
+    {n:"华语电影",e:"Chinese-language",d:"大陆、香港、台湾三代人的影像记忆，从市井到史诗。",f:CN,sort:"rating",lim:30,tag:"地区"},
     {n:"日本电影",e:"Japan",d:"从家庭伦理到动画奇观，日本电影总在极小的日常里放大情绪。",f:function(f){return inC(f,"日本");},sort:"rating",lim:30,preset:{ctry:"日本"},tag:"地区"},
     {n:"韩国现实主义",e:"Korea",d:"类型外壳、社会内脏——韩国电影把愤怒拍成了手艺。",f:function(f){return inC(f,"韩国");},sort:"rating",lim:30,preset:{ctry:"韩国"},tag:"地区"},
     {n:"好莱坞经典",e:"Hollywood",d:"工业流水线的黄金产物：明星、类型、叙事模板，以及被反复致敬的镜头。",f:function(f){return inC(f,"美国")&&+f.y>0&&+f.y<1980;},sort:"rating",lim:30,tag:"地区"},
     {n:"欧洲作者电影",e:"European Art Cinema",d:"电影节常客与电影语言革命者，慢、晦涩、但值得。",f:isEU,sort:"rating",lim:30,tag:"地区"},
-    {n:"21 世纪最佳",e:"21st Century",d:"2000 年以后的高分片，兼顾口碑与当代性。",f:function(f){return +f.y>=2000&&num(f.r)>=8.3;},sort:"rating",lim:30,preset:{dec:"2000"},tag:"口碑"},
+    {n:"21 世纪最佳",e:"21st Century",d:"2000 年以后的高分片，兼顾口碑与当代性。",f:function(f){return +f.y>=2000&&num(f.r)>=8.3;},sort:"rating",lim:30,tag:"口碑"},
     {n:"世纪之交",e:"1990s",d:"90 年代：独立电影爆发、类型融合、全球化叙事的开端。",f:function(f){return +f.y>=1990&&+f.y<2000&&num(f.r)>=8.3;},sort:"rating",lim:30,preset:{dec:"1990"},tag:"口碑"},
     {n:"奥斯卡获奖",e:"Oscar Winners",d:"好莱坞的至高荣誉。从最佳影片到最佳外语片，好莱坞每年把聚光灯打给谁，就是最重要的选片坐标。",f:function(f){return AW("奥斯卡金像奖",f);},sort:"rating",lim:24,preset:{award:"奥斯卡金像奖"},tag:"奖项"},
     {n:"金球奖",e:"Golden Globes",d:"好莱坞颁奖季的前哨战，兼容商业与艺术口味，得奖片往往既有口碑又不难啃。",f:function(f){return AW("金球奖",f);},sort:"rating",lim:24,preset:{award:"金球奖"},tag:"奖项"},
@@ -1582,9 +1593,11 @@ img.ld{opacity:1}
     ["东欧电影","Eastern Europe",'波兰、捷克、匈牙利、罗马尼亚——被低估的作者电影重镇。',["波兰","捷克","匈牙利","罗马尼亚","苏联","俄罗斯","南斯拉夫"]],
     ["拉美电影","Latin America",'魔幻现实主义与现实政治交织的大陆影像。',["巴西","墨西哥","阿根廷","智利","哥伦比亚","秘鲁","古巴"]]
   ].forEach(function(r){
-    COLLS.push({n:r[0],e:r[1],d:r[2],sort:"rating",lim:30,tag:"地区",preset:{ctry:r[3][0]},f:function(f){
+    var o={n:r[0],e:r[1],d:r[2],sort:"rating",lim:30,tag:"地区",f:function(f){
       for(var i=0;i<r[3].length;i++)if(inC(f,r[3][i]))return true; return false;
-    }});
+    }};
+    if(r[3].length===1)o.preset={ctry:r[3][0]};   /* 单国可直接用地区维度，多国聚合走临时片单筛选 */
+    COLLS.push(o);
   });
   COLLS.sort(function(a,b){return COLL_TAG_ORDER.indexOf(a.tag||"")-COLL_TAG_ORDER.indexOf(b.tag||"");});
 
@@ -1609,7 +1622,7 @@ img.ld{opacity:1}
     return '<div class="coll" data-rv data-name="'+esc(c.n)+'" data-tag="'+esc(tag)+'" data-hay="'+esc((c.n+" "+(c.e||"")+" "+c.d).toLowerCase())+'">'
       +'<div class="coll-hd"><div><h3>'+esc(c.n)+' <span class="ce">'+esc(c.e)+'</span></h3>'
       +'<p class="cd">'+esc(c.d)+' · 共 '+list.length+' 部</p></div>'
-      +(c.preset?'<a href="#" class="coll-more" data-c="'+ci+'">在名片中筛选 →</a>':'')
+      +(c.preset||c.f?'<a href="#" class="coll-more" data-c="'+ci+'">在名片中筛选 →</a>':'')
       +'</div>'
       +'<div class="cstrip rv-kids">'+shownList.map(miniCard).join("")+'</div></div>';
   }).join("");
@@ -1685,7 +1698,18 @@ img.ld{opacity:1}
   applyCollFilter();
   $("#collsBox").addEventListener("click",function(e){
     var m=e.target.closest(".mc"); if(m){openFilm(+m.dataset.i);return;}
-    var a=e.target.closest(".coll-more"); if(a){e.preventDefault();setFilter(COLLS[+a.dataset.c].preset);}
+    var a=e.target.closest(".coll-more"); if(!a)return;
+    e.preventDefault();
+    var c=COLLS[+a.dataset.c]; if(!c)return;
+    if(c.preset){
+      setFilter(c.preset);
+    } else {
+      /* 无简单 preset 的片单（系列 / 主题 / 复合条件）：把结果集作为临时片单筛选 */
+      var ids=[];
+      FILMS.forEach(function(f){ if(c.f(f))ids.push(f._i); });
+      setFilter({ids:ids,pname:c.n});
+    }
+    showFilterNotice('已按「'+c.n+'」筛选影片');
   });
 
   /* ============ 片源查找 ============ */
@@ -2033,7 +2057,12 @@ img.ld{opacity:1}
   var UI_KEY="shaofilm.ui.v1";
   var CUR_VIEW="films";
   function saveUI(){
-    try{ sessionStorage.setItem(UI_KEY,JSON.stringify({v:CUR_VIEW,s:state,m:MINE_FILTER})); }catch(e){}
+    try{
+      /* ids 是临时片单的影片 ID 集合，体积大不入库；只存片单名，恢复时按名重建 */
+      var s={};
+      Object.keys(state).forEach(function(k){ if(k!=="ids")s[k]=state[k]; });
+      sessionStorage.setItem(UI_KEY,JSON.stringify({v:CUR_VIEW,s:s,m:MINE_FILTER}));
+    }catch(e){}
   }
   function readUI(){
     try{ var r=sessionStorage.getItem(UI_KEY); return r?JSON.parse(r):null; }catch(e){ return null; }
@@ -2041,10 +2070,16 @@ img.ld{opacity:1}
   function restoreUI(){
     var sv=readUI();
     if(sv&&sv.s){
-      ["g","gs","go","glabel","dec","ctry","rate","q","sort","award","fest","rank","studio"].forEach(function(k){
+      ["g","gs","go","glabel","dec","ctry","rate","q","sort","award","fest","rank","studio","pname"].forEach(function(k){
         if(sv.s[k]!=null)state[k]=sv.s[k];
       });
       if(typeof sv.m==="string")MINE_FILTER=sv.m;
+      if(state.pname){
+        var c=null;
+        COLLS.forEach(function(x){ if(!c&&x.n===state.pname)c=x; });
+        if(c){ var m={}; FILMS.forEach(function(f){ if(c.f(f))m[f._i]=1; }); state.ids=m; }
+        else state.pname="";
+      }
       if($("#q"))$("#q").value=state.q||"";
       if($("#ctry"))$("#ctry").value=state.ctry||"";
       if($("#decade"))$("#decade").value=state.dec||"";
