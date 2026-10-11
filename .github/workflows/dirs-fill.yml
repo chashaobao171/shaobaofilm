@@ -39,7 +39,7 @@ jobs:
           node tools/_recount_taxonomy.js
           node tools/_verify_data.js
 
-      - name: Commit (collect: 清单 / apply: 数据)
+      - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
