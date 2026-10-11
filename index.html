@@ -2149,6 +2149,7 @@ img.ld{opacity:1}
   /* 排序：默认 / 作品数 / 平均分 / 英文名 A→Z（在各地区分组内重排） */
   function sortDirCards(){
     $$("#dirsBox .dgrp").forEach(function(g){
+      var grid=g.querySelector(".dgrid")||g;   // 卡片必须挂回网格容器，否则会脱离 .dgrid 变成整行宽（海报被撑巨大）
       var arr=Array.prototype.slice.call($$(".dwf",g));
       arr.sort(function(a,b){
         var da=DIR_BY_NAME[a.dataset.d], db=DIR_BY_NAME[b.dataset.d];
@@ -2158,7 +2159,7 @@ img.ld{opacity:1}
         if(dirSort==="az")return String(da.e||da.n).localeCompare(String(db.e||db.n));
         return (+a.dataset.o||0)-(+b.dataset.o||0);   /* 默认：保持录入顺序 */
       });
-      arr.forEach(function(c){ g.appendChild(c); });
+      arr.forEach(function(c){ grid.appendChild(c); });
     });
   }
   function applyDirFilter(){
