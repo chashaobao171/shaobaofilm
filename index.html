@@ -431,6 +431,7 @@ select.sel:focus{border-color:var(--brand)}
   opacity:0;visibility:hidden;transition:all .2s;box-shadow:var(--sh2);
 }
 .top.on{opacity:1;visibility:visible}
+.top svg{width:18px;height:18px}
 .top:hover{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 
 /* ============================================================
@@ -567,6 +568,17 @@ img.ld{opacity:1}
 .colltools{display:flex;align-items:center;gap:14px;margin:18px 0 2px;flex-wrap:wrap}
 .colltools .chips{flex:1}
 .colltools .dirtool-c{white-space:nowrap}
+/* ---------- 片单索引（总览 + 一键跳转） ---------- */
+.collidx{margin:14px 0 0;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px 14px}
+.ci-row{display:flex;gap:10px;align-items:flex-start;padding:6px 0;flex-wrap:wrap}
+.ci-row+.ci-row{border-top:1px dashed var(--line)}
+.ci-lb{flex:0 0 62px;font-size:12px;font-weight:600;color:var(--ink3);padding-top:4px;letter-spacing:.05em}
+.ci-list{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
+.ci-i{font-size:12px;color:var(--ink2);border:1px solid var(--line);background:transparent;border-radius:999px;padding:3px 9px;transition:all .14s;white-space:nowrap;cursor:pointer}
+.ci-i:hover{border-color:var(--brand-line);color:var(--brand)}
+.ci-i i{font-style:normal;font-size:10px;color:var(--ink3);margin-left:4px;font-variant-numeric:tabular-nums}
+.ci-i:hover i{color:var(--brand)}
+.coll.flash{background:rgba(212,168,67,.05);box-shadow:inset 3px 0 0 var(--brand);border-radius:8px}
 
 /* ---- 详情弹层动作行（换一部） ---- */
 .mod-acts{display:flex;gap:10px;flex-wrap:wrap;margin:-4px 0 22px}
@@ -789,7 +801,7 @@ img.ld{opacity:1}
     <div class="wrap">
       <div class="vhead" data-rv>
         <h2>精选片单 <span>Collections</span></h2>
-        <p>按口碑、地区、类型与奖项自动编排的 <b id="collCount">—</b> 组片单，每组都配一段挑选逻辑。用下方工具条按分组筛选或搜索片单名，横向滑动浏览，点任意一张海报直接读简介。</p>
+        <p>按口碑、地区、榜单、奖项、类型、系列与主题自动编排的 <b id="collCount">—</b> 组片单，每组都配一段挑选逻辑。用工具条按分组筛选或搜索片单名；选中片单数 5 组以上的分组时，上方会展开该分组的全景总览，可一键跳到任意一组。</p>
       </div>
       <div class="colltools" data-rv>
         <div class="hsearch" style="flex:0 0 300px">
@@ -799,6 +811,7 @@ img.ld{opacity:1}
         <div class="chips" id="collChips" style="flex:1"></div>
         <span class="dirtool-c" id="collShown">—</span>
       </div>
+      <div class="collidx" id="collIdx" data-rv hidden></div>
       <div id="collsBox"></div>
     </div>
   </section>
@@ -1485,6 +1498,96 @@ img.ld{opacity:1}
     {n:"高分纪录片",e:"Documentary",d:"真实比虚构更离奇——纪录片里的人和世界。",f:function(f){return has(f,"纪录片");},sort:"rating",lim:30,preset:{g:"纪录片"},tag:"类型"}
   ];
 
+  /* ---- 分类扩展：系列宇宙 / 主题标签 / 华语聚合 / 长尾类型 / 冷门佳片 ---- */
+  var COLL_TAG_ORDER=["地区","口碑","榜单","奖项","类型","系列","主题","小众类型","冷门"];
+  // 系列识别：片名归一化（去副标题·括号·序号），同一年只保留热度最高的一部，避免重复收录
+  function baseTitle(t){
+    var s=String(t||"").trim();
+    s=s.replace(/[:：].*$/,"");
+    s=s.replace(/[（(].*?[)）]/g,"");
+    s=s.replace(/\s+/g,"");
+    s=s.replace(/(第[一二三四五六七八九十\d]+[部季集章])$/,"");
+    s=s.replace(/(\d{1,2}|[IVX]{1,4})$/,"");
+    s=s.replace(/[：:·\-—\s]+$/,"");
+    return s;
+  }
+  var SERIES_BLOCK={"新世界":1,"完美陌生人":1,"嫌疑人X的献身":1,"悲惨世界":1,"笑傲江湖":1,"侏罗纪公园":1};
+  var _sm={};
+  FILMS.forEach(function(f){ var b=baseTitle(f.t); if(b.length<2)return; (_sm[b]=_sm[b]||[]).push(f); });
+  var SERIES=[];
+  Object.keys(_sm).forEach(function(k){
+    var g=_sm[k]; if(g.length<3)return;
+    if(/^\d+$/.test(k)||SERIES_BLOCK[k])return;   // 排除纯数字与同名不同片
+    var byY={};
+    g.forEach(function(f){ var y=+f.y||0; if(!byY[y]||(f.votes||0)>(byY[y].votes||0))byY[y]=f; });
+    var list=Object.keys(byY).map(function(y){return byY[y];}).sort(function(a,b){return (+a.y||0)-(+b.y||0);});
+    if(list.length<3)return;
+    var tv=0; list.forEach(function(f){ tv+=(f.votes||0); });
+    if(tv<500000)return;
+    SERIES.push({k:k,list:list,tv:tv});
+  });
+  SERIES.sort(function(a,b){return b.tv-a.tv;});
+  SERIES.slice(0,30).forEach(function(s){
+    var ids={}; s.list.forEach(function(f){ ids[f._i]=1; });
+    COLLS.push({n:s.k+" 系列",e:"Series",d:"同一系列共 "+s.list.length+" 部，按上映时间排列。",f:function(f){return !!ids[f._i];},sort:"yearAsc",lim:20,tag:"系列"});
+  });
+  // 主题标签：片名+英文名+简介关键词匹配（TMDB keywords 覆盖率过低，改用简介文本口径）
+  var T_HAY=FILMS.map(function(f){ return ((f.t||"")+" "+(f.e||"")+" "+(f.s||"")).toLowerCase(); });
+  [ {n:"二战与纳粹",e:"World War II",d:"战争、集中营与人性抉择，二十世纪最沉重的一页。",k:["二战","纳粹","集中营","犹太"]},
+    {n:"太空与探索",e:"Space",d:"从近地轨道到深空，人类的想象总在星海之外。",k:["太空","宇航员","星际"]},
+    {n:"间谍与特工",e:"Spy",d:"卧底、情报与双重身份——信任最贵的类型。",k:["间谍","卧底","情报战"]},
+    {n:"越狱与逃亡",e:"Escape",d:"高墙、追捕与自由：逃跑本身就是叙事。",k:["越狱","逃亡"]},
+    {n:"吸血鬼与永生",e:"Vampire",d:"不死之身与夜色中的欲望谱系。",k:["吸血鬼","不死之身"]},
+    {n:"摇滚与现场",e:"Rock",d:"摇滚、朋克与演唱会——被记录下来的音量。",k:["摇滚","朋克","重金属","演唱会"]},
+    {n:"法庭与审判",e:"Courtroom",d:"法庭上的攻防与人性的审判，台词最锋利的类型。",k:["法庭","审判","辩护","陪审"]},
+    {n:"童年与成长",e:"Coming of Age",d:"长大这件事，电影永远讲不完。",k:["童年","少年时代","成长"]},
+    {n:"复仇与伸冤",e:"Revenge",d:"以牙还牙的叙事快感，以及它的代价。",k:["复仇"]},
+    {n:"美食与料理",e:"Food",d:"厨房里的人情、烟火与治愈。",k:["料理","美食","厨师","餐厅"]},
+    {n:"黑客与网络",e:"Hacking",d:"代码、数据与虚拟世界的失控。",k:["黑客","程序员","互联网","网络"]},
+    {n:"时间与循环",e:"Time Loop",d:"时间旅行、循环与不可逆的命运。",k:["时间循环","时间旅行","穿越时空"]}
+  ].forEach(function(t){
+    var kw=t.k;
+    COLLS.push({n:t.n,e:t.e,d:t.d,sort:"rating",lim:24,tag:"主题",f:function(f){
+      var h=T_HAY[f._i]; for(var i=0;i<kw.length;i++)if(h.indexOf(kw[i])>=0)return true; return false;
+    }});
+  });
+  // 华语聚合 / 长尾类型 / 冷门佳片
+  COLLS.push(
+    {n:"香港电影黄金年代",e:"HK Golden Age",d:"1980–1999 年的香港电影：枪战、喜剧、武侠与市井烟火。",f:function(f){return inC(f,"中国香港")&&+f.y>=1980&&+f.y<2000;},sort:"rating",lim:30,tag:"地区"},
+    {n:"台湾电影",e:"Taiwan Cinema",d:"从新电影运动到当代，台湾电影总在处理记忆、家庭与时代。",f:function(f){return inC(f,"中国台湾");},sort:"rating",lim:30,tag:"地区"},
+    {n:"冷门佳片",e:"Hidden Gems",d:"评分 8.3 以上、看过的人还不多——避开热门大片的高分遗珠。",f:function(f){var g=f.g||[];return num(f.r)>=8.3&&(f.votes||0)>=3000&&(f.votes||0)<30000&&g.indexOf("电视电影")<0&&g.indexOf("短片")<0&&!/总集篇|特别集|特别篇|剧场版/.test(f.t);},sort:"rating",lim:30,tag:"冷门"},
+    {n:"西部片",e:"Western",d:"荒野、决斗、法外之地——美国最本土的类型血脉。",f:function(f){return has(f,"西部");},sort:"rating",lim:24,preset:{g:"西部"},tag:"小众类型"},
+    {n:"同性电影",e:"LGBTQ+",d:"关于爱、身份与自我认同的另一种叙事。",f:function(f){return has(f,"同性");},sort:"rating",lim:30,preset:{g:"同性"},tag:"小众类型"},
+    {n:"运动电影",e:"Sports",d:"拳台、球场、赛道——身体极限背后的意志故事。",f:function(f){return has(f,"运动");},sort:"rating",lim:24,preset:{g:"运动"},tag:"小众类型"},
+    {n:"灾难片",e:"Disaster",d:"末日景观与人类渺小：灾难片是最诚实的类型之一。",f:function(f){return has(f,"灾难");},sort:"rating",lim:24,preset:{g:"灾难"},tag:"小众类型"}
+  );
+  // 榜单（依托库内榜单维度，可一键跳到名片筛选）
+  [ ["豆瓣 Top 250","Douban Top 250",'豆瓣用户选出的 250 部最佳，中文世界最有影响力的片单。',"豆瓣 Top 250"],
+    ["视与听 · 影史百佳","Sight & Sound",'英国《视与听》十年一度的影评人票选，影史坐标本身。',"视与听 2022 影史百佳"],
+    ["TSPDT 影史千佳","They Shoot Pictures",'综合全球影评榜单的影史千佳，影迷硬通货。',"TSPDT 影史千佳"],
+    ["BBC 21 世纪百大","BBC 100",'BBC 邀全球影评人选出的 21 世纪最佳，新世纪的坐标。',"BBC 21世纪百大"],
+    ["华语影史百佳","Chinese Top 100",'华语电影百年，谁在影史里留名。',"华语影史百佳"],
+    ["AFI 百年百大","AFI 100",'美国电影学院评选的美国影史百大经典，好莱坞的正典。',"AFI 百年百大"]
+  ].forEach(function(r){
+    COLLS.push({n:r[0],e:r[1],d:r[2],sort:"rating",lim:30,preset:{rank:r[3]},tag:"榜单",f:function(f){
+      var s=RANK_SET[r[3]]; return !!s&&!!s[f.t+"|"+String(f.y)];
+    }});
+  });
+  // 地区扩展（按国家 / 区域聚合）
+  [ ["法国电影","French Cinema",'新浪潮与作者电影的原产地。',["法国"]],
+    ["意大利电影","Italian Cinema",'新现实主义到莫里康内的旋律，意大利塑造了电影语法本身。',["意大利"]],
+    ["德国电影","German Cinema",'表现主义、新德国电影与冷峻的当代叙事。',["德国"]],
+    ["印度电影","Indian Cinema",'宝莱坞的歌舞与南印类型工业，世界上最庞大的电影国度。',["印度"]],
+    ["北欧电影","Nordic Cinema",'冷冽、克制、锋利——北欧电影自成一派。',["瑞典","丹麦","挪威","芬兰","冰岛"]],
+    ["东欧电影","Eastern Europe",'波兰、捷克、匈牙利、罗马尼亚——被低估的作者电影重镇。',["波兰","捷克","匈牙利","罗马尼亚","苏联","俄罗斯","南斯拉夫"]],
+    ["拉美电影","Latin America",'魔幻现实主义与现实政治交织的大陆影像。',["巴西","墨西哥","阿根廷","智利","哥伦比亚","秘鲁","古巴"]]
+  ].forEach(function(r){
+    COLLS.push({n:r[0],e:r[1],d:r[2],sort:"rating",lim:30,tag:"地区",preset:{ctry:r[3][0]},f:function(f){
+      for(var i=0;i<r[3].length;i++)if(inC(f,r[3][i]))return true; return false;
+    }});
+  });
+  COLLS.sort(function(a,b){return COLL_TAG_ORDER.indexOf(a.tag||"")-COLL_TAG_ORDER.indexOf(b.tag||"");});
+
   function miniCard(f){
     var cover=f.p?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+'" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">':'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
     return '<button class="mc" data-i="'+f._i+'" aria-label="'+esc(f.t)+'">'
@@ -1492,16 +1595,18 @@ img.ld{opacity:1}
       +'<div class="mc-t">'+esc(f.t)+'</div>'
       +'<div class="mc-s">'+esc([f.y,f.c].filter(Boolean).join(" · "))+'</div></button>';
   }
-  var built=0,builtTags={};
+  var built=0,builtTags={},collMeta=[];
   $("#collsBox").innerHTML=COLLS.map(function(c,ci){
     var list=FILMS.filter(c.f);
     if(c.sort==="rating")list.sort(function(a,b){return num(b.r)-num(a.r)||(b.votes||0)-(a.votes||0);});
-    if(list.length<4)return "";
+    else if(c.sort==="yearAsc")list.sort(function(a,b){return (+a.y||0)-(+b.y||0)||num(b.r)-num(a.r);});
+    if(list.length<(c.tag==="系列"?3:4))return "";
     built++;
     var tag=c.tag||"其他";
     builtTags[tag]=(builtTags[tag]||0)+1;
+    collMeta.push({n:c.n,tag:tag,cnt:list.length});
     var shownList=list.slice(0,c.lim||24);
-    return '<div class="coll" data-rv data-tag="'+esc(tag)+'" data-hay="'+esc((c.n+" "+(c.e||"")+" "+c.d).toLowerCase())+'">'
+    return '<div class="coll" data-rv data-name="'+esc(c.n)+'" data-tag="'+esc(tag)+'" data-hay="'+esc((c.n+" "+(c.e||"")+" "+c.d).toLowerCase())+'">'
       +'<div class="coll-hd"><div><h3>'+esc(c.n)+' <span class="ce">'+esc(c.e)+'</span></h3>'
       +'<p class="cd">'+esc(c.d)+' · 共 '+list.length+' 部</p></div>'
       +(c.preset?'<a href="#" class="coll-more" data-c="'+ci+'">在名片中筛选 →</a>':'')
@@ -1510,7 +1615,6 @@ img.ld{opacity:1}
   }).join("");
   $("#collCount").textContent=built;
   var TABS2=$("#nav button[data-v=colls] .c"); if(TABS2)TABS2.textContent=built;
-  var COLL_TAG_ORDER=["口碑","地区","奖项","类型"];
   $("#collChips").innerHTML='<button class="chip on" data-tag="全部">全部<span class="n">'+built+'</span></button>'
     +COLL_TAG_ORDER.filter(function(t){return builtTags[t];}).map(function(t){
       return '<button class="chip" data-tag="'+t+'">'+t+'<span class="n">'+builtTags[t]+'</span></button>';
@@ -1525,6 +1629,15 @@ img.ld{opacity:1}
       if(ok)shown++;
     });
     $("#collShown").textContent=shown+" 组"+(collState.q?" 匹配":"");
+    syncCollIdx();
+  }
+  /* 索引只在查看片单数 ≥5 的分组时出现，作为该分组的全景总览（「全部」与不足 5 个的分组不显示） */
+  var IDX_MIN=5;
+  function syncCollIdx(){
+    var items=IDX_GROUPS[collState.tag];
+    var show=!!(collState.tag!=="全部"&&items&&items.length>=IDX_MIN);
+    $$("#collIdx .ci-row").forEach(function(r){ r.style.display=(show&&r.dataset.tag===collState.tag)?"":"none"; });
+    $("#collIdx").hidden=!show;
   }
   $("#collChips").addEventListener("click",function(e){
     var b=e.target.closest(".chip"); if(!b)return;
@@ -1536,6 +1649,39 @@ img.ld{opacity:1}
     collState.q=this.value.trim().toLowerCase();
     applyCollFilter();
   });
+  /* ============ 片单索引：选中片单数 ≥5 的分组时，展开该分组的全景总览（可一键跳转） ============ */
+  var IDX_GROUPS={};
+  collMeta.forEach(function(m){ (IDX_GROUPS[m.tag]=IDX_GROUPS[m.tag]||[]).push(m); });
+  $("#collIdx").innerHTML=COLL_TAG_ORDER.map(function(t){
+    var items=IDX_GROUPS[t];
+    if(!items||items.length<IDX_MIN)return "";
+    return '<div class="ci-row" data-tag="'+t+'"><span class="ci-lb">'+t+'</span><span class="ci-list">'
+      +items.map(function(m){
+        return '<button class="ci-i" type="button" data-n="'+esc(m.n)+'">'+esc(m.n)+'<i>'+m.cnt+'</i></button>';
+      }).join("")+'</span></div>';
+  }).join("");
+  $("#collIdx").addEventListener("click",function(e){
+    var b=e.target.closest(".ci-i"); if(!b)return;
+    var name=b.dataset.n,target=null;
+    $$("#collsBox .coll").forEach(function(el){ if(!target&&el.dataset.name===name)target=el; });
+    if(!target)return;
+    target.classList.add("vis");
+    scrollToColl(target);
+    target.classList.add("flash");
+    setTimeout(function(){target.classList.remove("flash");},2200);
+  });
+  /* 滚动定位：顶栏高度补偿 + 精确落点（避免 scrollIntoView 与 scrollBy 相互打断） */
+  var HDR_OFF=84;
+  function scrollToColl(el){
+    if(!el)return;
+    var y=el.getBoundingClientRect().top+window.scrollY-HDR_OFF;
+    y=y>0?y:0;
+    window.scrollTo({top:y,behavior:"smooth"});
+    /* 兜底：平滑滚动若被中断/未生效，900ms 后按最终位置校准（instant 可覆盖全局 scroll-behavior:smooth） */
+    setTimeout(function(){
+      if(Math.abs(window.scrollY-y)>60)window.scrollTo({top:y,behavior:"instant"});
+    },900);
+  }
   applyCollFilter();
   $("#collsBox").addEventListener("click",function(e){
     var m=e.target.closest(".mc"); if(m){openFilm(+m.dataset.i);return;}
@@ -1848,9 +1994,9 @@ img.ld{opacity:1}
     applyDirFilter();
   });
 
-  /* ============ 回到顶部 ============ */
+  /* ============ 回到顶部（往下翻过一屏后出现，全站各视图通用） ============ */
   var bt=$("#top");
-  window.addEventListener("scroll",function(){bt.classList.toggle("on",window.scrollY>720);},{passive:true});
+  window.addEventListener("scroll",function(){bt.classList.toggle("on",window.scrollY>window.innerHeight);},{passive:true});
   bt.addEventListener("click",function(){window.scrollTo({top:0,behavior:"smooth"});});
 
   /* ============ 滚动渐入 / 磁吸按钮 / 快捷键 ============ */
