@@ -7,13 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'collect = 生成待审清单；apply = 按清单合并入库'
+        description: 'collect = 生成待审清单；apply = 按清单合并入库；posters = 把远程海报下载到本地'
         required: true
         default: collect
         type: choice
         options:
           - collect
           - apply
+          - posters
 
 permissions:
   contents: write
@@ -46,6 +47,10 @@ jobs:
           if [ "${{ inputs.mode }}" = "apply" ]; then
             git add films-data.js taxonomy-data.js .last_merge_count.txt dirs-fill-candidates.json
             MSG="导演作品补全：按待审清单合并 TMDB 数据（院线长片 / 6.5+）"
+          elif [ "${{ inputs.mode }}" = "posters" ]; then
+            git add films-data.js posters
+            if [ -f .poster_failed.txt ]; then git add .poster_failed.txt; fi
+            MSG="导演作品补全：海报本地化（TMDB 远程地址下载到 posters/）"
           else
             git add dirs-fill-candidates.json
             COUNT=$(node -e 'const d=require("./dirs-fill-candidates.json");console.log(d.films.length)')

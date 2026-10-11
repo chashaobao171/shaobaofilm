@@ -108,12 +108,54 @@ function buildRecord(mv, dirName) {
     e: mv.original_title || '',
     votes: mv.vote_count || 0,
     tmdbId: mv.id,
+    id: 'tmdb' + mv.id,          // 与库内既有约定一致：TMDB 来源片 id = tmdb<id>
     source: 'dirs',
     links: {
       primary: 'https://www.themoviedb.org/movie/' + mv.id,
       secondary: 'https://www.douban.com/search?q=' + encodeURIComponent(mv.title || mv.original_title || '')
     }
   };
+}
+
+/* 海报本地化：把仍是远程 TMDB 地址的 p 下载到 posters/ 并改写为相对路径
+   （本地 TMDB 图片被墙，必须在 Actions 里跑） */
+function downloadImage(file, url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, res => {
+      if (res.statusCode !== 200) { res.resume(); return reject(new Error('HTTP ' + res.statusCode)); }
+      const chunks = [];
+      res.on('data', c => chunks.push(c));
+      res.on('end', () => {
+        fs.writeFileSync('posters/' + file, Buffer.concat(chunks));
+        resolve();
+      });
+    }).on('error', reject);
+  });
+}
+
+async function posters() {
+  const cine = loadCine();
+  const films = cine.films || [];
+  const targets = films.filter(f => f.p && /^https?:\/\//.test(f.p));
+  console.log('远程海报待本地化：' + targets.length + ' 张');
+  let ok = 0, fail = 0;
+  const failed = [];
+  for (let i = 0; i < targets.length; i += 8) {
+    const batch = targets.slice(i, i + 8);
+    await Promise.all(batch.map(async f => {
+      const file = String(f.p).split('/').pop();
+      const rel = 'posters/' + file;
+      try {
+        if (!fs.existsSync(rel)) await downloadImage(file, 'https://image.tmdb.org/t/p/w342/' + file);
+        f.p = rel; ok++;
+      } catch (e) { fail++; failed.push(file); }
+    }));
+    await delay(DELAY_MS);
+    if (i % 80 === 0) console.log('  进度 ' + Math.min(i + 8, targets.length) + '/' + targets.length);
+  }
+  saveCine(cine);
+  if (failed.length) fs.writeFileSync('.poster_failed.txt', failed.join('\n'), 'utf8');
+  console.log('海报本地化完成：成功 ' + ok + '，失败 ' + fail + (fail ? '（见 .poster_failed.txt）' : ''));
 }
 
 async function collect() {
@@ -213,6 +255,7 @@ function apply() {
   if (!API_KEY) { console.error('缺少 TMDB_API_KEY 环境变量（本地可写入 .env 后 export，或走 GitHub Actions）'); process.exit(1); }
   try {
     if (MODE === 'apply') apply();
+    else if (MODE === 'posters') await posters();
     else await collect();
   } catch (e) {
     console.error('执行失败: ' + e.message);

@@ -143,6 +143,7 @@ function checkInvariants(films) {
   const posterSample = [];
   for (const f of films) {
     if (!f.p) continue;
+    if (/^https?:\/\//.test(f.p)) continue;   // 远程海报（尚未落地）由 Poster Download 工作流负责下载
     if (!fs.existsSync(f.p)) { missPoster++; if (posterSample.length < 5) posterSample.push(f.p); }
   }
   if (missPoster) warn.push('海报文件缺失 ' + missPoster + ' 张（页面会走字母兜底）');
