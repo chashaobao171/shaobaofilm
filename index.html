@@ -66,7 +66,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .nav button.on{color:var(--brand);background:var(--brand-dim)}
 .nav button .c{font-size:10.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
 .nav button.on .c{color:var(--brand);opacity:.7}
-.hsearch{position:relative;flex:0 0 250px;max-width:250px}
+.hsearch{position:relative;flex:0 0 clamp(256px,24vw,336px);max-width:336px}
 .hsearch svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--ink3)}
 .hsearch input{
   width:100%;height:38px;padding:0 12px 0 34px;background:var(--surface);border:1px solid var(--line);
@@ -116,7 +116,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---------- filter bar ---------- */
 .fbar{padding:26px 0 4px}
 .fbar-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-.chips{display:flex;gap:7px;flex-wrap:wrap;flex:1}
+.chips{display:flex;gap:7px;flex-wrap:wrap;flex:1 1 300px;min-width:0}
+.ftools{display:flex;align-items:center;gap:14px;flex:0 0 auto;flex-wrap:wrap}
 .chip{
   padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
   font-size:12.5px;color:var(--ink2);transition:all .14s;white-space:nowrap;
@@ -125,13 +126,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .chip.on{background:var(--brand-dim);border-color:var(--brand-line);color:var(--brand);font-weight:600}
 .chip .n{font-size:10px;color:var(--ink3);margin-left:5px;font-variant-numeric:tabular-nums}
 .chip.on .n{color:var(--brand);opacity:.75}
-.segs{display:flex;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:3px}
+.segs{display:flex;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:3px;flex:0 0 auto}
 .segs button{padding:5px 11px;border-radius:6px;font-size:12.5px;color:var(--ink2);transition:all .14s;white-space:nowrap}
 .segs button:hover{color:var(--ink)}
 .segs button.on{background:var(--brand);color:var(--brand-ink);font-weight:600}
 select.sel{
   height:33px;padding:0 10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;
-  color:var(--ink2);font-size:12.5px;outline:none;cursor:pointer;max-width:190px;
+  color:var(--ink2);font-size:12.5px;outline:none;cursor:pointer;max-width:220px;flex:0 0 auto;
 }
 select.sel:focus{border-color:var(--brand)}
 .fcount{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:6px 0 18px;font-size:12.5px;color:var(--ink3);flex-wrap:wrap}
@@ -579,7 +580,8 @@ img.ld{opacity:1}
 }
 
 @media (max-width:1080px){
-  .hsearch{flex:0 0 190px;max-width:190px}
+  .hsearch{flex:0 0 250px;max-width:250px}
+  .hdr-in{gap:14px}
   .hero-bg{grid-template-columns:repeat(8,1fr)}
   .mod-in{grid-template-columns:auto minmax(0,1fr)}
   .mod-l img,.mod-l .ph{height:min(70vh,640px)}
@@ -682,7 +684,7 @@ img.ld{opacity:1}
   .segs{flex-wrap:wrap}
   .colltools .hsearch,.dirtools .hsearch{flex:1 1 100%!important;max-width:none!important}
   select.sel{max-width:none}
-  .fbar-row{gap:9px}
+  .fbar-row,.ftools{gap:9px}
   .vhead{padding:36px 0 4px}
 }
 @media (hover:none){
@@ -703,7 +705,7 @@ img.ld{opacity:1}
     <nav class="nav" id="nav"></nav>
     <div class="hsearch">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>
-      <input type="search" id="q" placeholder="搜索片名 / 导演 / 类型 / 年份" autocomplete="off">
+      <input type="search" id="q" placeholder="搜索片名 / 导演 / 主演 / 类型 / 年份" autocomplete="off">
     </div>
   </div>
 </header>
@@ -749,9 +751,12 @@ img.ld{opacity:1}
       <div class="fbar">
         <div class="fbar-row">
           <div class="chips" id="chips"></div>
-          <div class="segs" id="segs"></div>
-          <select class="sel" id="ctry"><option value="">全部地区</option></select>
-          <select class="sel" id="decade"><option value="">全部年代</option></select>
+          <div class="ftools">
+            <div class="segs" id="segs"></div>
+            <select class="sel" id="ctry"><option value="">全部地区</option></select>
+            <select class="sel" id="decade"><option value="">全部年代</option></select>
+            <select class="sel" id="rate"><option value="">全部评分</option></select>
+          </div>
         </div>
         <div class="dimbar" id="dimbar">
           <button class="dimbtn" data-dim="fest" id="dimFest">🎬 电影节</button>
@@ -1088,7 +1093,7 @@ img.ld{opacity:1}
 
   /* ============ 名片渲染 ============ */
   var PAGE=72,shown=PAGE;
-  var state={g:"",gs:[],go:[],glabel:"",dec:"",ctry:"",sort:"rating",q:"",award:"",fest:"",rank:"",studio:""};
+  var state={g:"",gs:[],go:[],glabel:"",dec:"",ctry:"",rate:"",sort:"rating",q:"",award:"",fest:"",rank:"",studio:""};
   var AWARDS_SET={};
   if(D.awardLinks){
     Object.keys(D.awardLinks).forEach(function(n){
@@ -1123,9 +1128,9 @@ img.ld{opacity:1}
   $("#chips").innerHTML=topGenres.map(function(g){
     return '<button class="chip" data-g="'+esc(g)+'">'+esc(g)+'<span class="n">'+GEN[g]+'</span></button>';
   }).join("");
-  var SORTS=[["rating","评分"],["hot","热度"],["year","年代新→旧"],["yearAsc","年代旧→新"],["title","片名"]];
+  var SORTS=[["rating","评分"],["bayes","综合","口碑与人气加权排序"],["hot","热度"],["year","年代新→旧"],["yearAsc","年代旧→新"],["title","片名"]];
   $("#segs").innerHTML=SORTS.map(function(s,i){
-    return '<button data-s="'+s[0]+'"'+(i===0?' class="on"':'')+'>'+s[1]+'</button>';
+    return '<button data-s="'+s[0]+'"'+(i===0?' class="on"':'')+(s[2]?' title="'+s[2]+'"':'')+'>'+s[1]+'</button>';
   }).join("");
   $("#ctry").innerHTML='<option value="">全部地区</option>'+topCtry.map(function(c){
     return '<option value="'+esc(c)+'">'+esc(c)+' · '+CTRY[c]+'</option>';
@@ -1133,52 +1138,107 @@ img.ld{opacity:1}
   $("#decade").innerHTML='<option value="">全部年代</option>'+decades.map(function(d){
     return '<option value="'+d+'">'+(d<1900?"1900 前":d+"s")+' · '+DEC[d]+'</option>';
   }).join("");
+  var RATES=["9","8.5","8","7.5","7","6.5"];
+  $("#rate").innerHTML='<option value="">全部评分</option>'+RATES.map(function(r){
+    return '<option value="'+r+'">'+(+r).toFixed(1)+' 以上</option>';
+  }).join("");
 
-  function match(f){
-    if(state.g&&(f.g||[]).indexOf(state.g)<0)return false;
-    if(state.gs&&state.gs.length){
-      for(var _gi=0;_gi<state.gs.length;_gi++)if((f.g||[]).indexOf(state.gs[_gi])<0)return false;
+  /* skip：跳过某个维度（用于动态计数时排除该维度自身的筛选） */
+  var NO_SKIP={};
+  var SKIP={g:{g:1},dec:{dec:1},ctry:{ctry:1},rate:{rate:1},award:{award:1},fest:{fest:1},rank:{rank:1},studio:{studio:1}};
+  function match(f,skip){
+    var sk=skip||NO_SKIP;
+    if(!sk.g){
+      if(state.g&&(f.g||[]).indexOf(state.g)<0)return false;
+      if(state.gs&&state.gs.length){
+        for(var _gi=0;_gi<state.gs.length;_gi++)if((f.g||[]).indexOf(state.gs[_gi])<0)return false;
+      }
+      if(state.go&&state.go.length){
+        var _hit=false;
+        for(var _oj=0;_oj<state.go.length;_oj++)if((f.g||[]).indexOf(state.go[_oj])>=0){_hit=true;break;}
+        if(!_hit)return false;
+      }
     }
-    if(state.go&&state.go.length){
-      var _hit=false;
-      for(var _oj=0;_oj<state.go.length;_oj++)if((f.g||[]).indexOf(state.go[_oj])>=0){_hit=true;break;}
-      if(!_hit)return false;
-    }
-    if(state.dec&&String(Math.floor(+f.y/10)*10)!==state.dec)return false;
-    if(state.ctry&&(f.c||"").split("/").map(function(s){return s.trim();}).indexOf(state.ctry)<0)return false;
-    if(state.award){
+    if(!sk.dec&&state.dec&&String(Math.floor(+f.y/10)*10)!==state.dec)return false;
+    if(!sk.ctry&&state.ctry&&(f.c||"").split("/").map(function(s){return s.trim();}).indexOf(state.ctry)<0)return false;
+    if(!sk.rate&&state.rate&&num(f.r)<+state.rate)return false;
+    if(!sk.award&&state.award){
       var set=AWARDS_SET[state.award];
       if(!set||!set[f.t+"|"+String(f.y)])return false;
     }
-    if(state.fest){
+    if(!sk.fest&&state.fest){
       var fset=AWARDS_SET[state.fest];
       if(!fset||!fset[f.t+"|"+String(f.y)])return false;
     }
-    if(state.rank){
+    if(!sk.rank&&state.rank){
       var rset=RANK_SET[state.rank];
       if(!rset||!rset[f.t+"|"+String(f.y)])return false;
     }
-    if(state.studio){
+    if(!sk.studio&&state.studio){
       var sset=STUDIO_SET[state.studio];
       if(!sset||!sset[f.t+"|"+String(f.y)])return false;
     }
     if(state.q){
-      var hay=(f.t+" "+(f.e||"")+" "+(f.d||"")+" "+(f.c||"")+" "+(f.g||[]).join(" ")+" "+(f.y||"")).toLowerCase();
+      var hay=(f.t+" "+(f.e||"")+" "+(f.d||"")+" "+(f.c||"")+" "+(f.g||[]).join(" ")+" "+(f.y||"")+" "+(f.acts||"")).toLowerCase();
       if(hay.indexOf(state.q)<0)return false;
     }
     return true;
   }
+  /* 综合排序：贝叶斯加权评分（口碑 × 人气），未评分沉底 */
+  var VOTE_M=5000;
+  var RATE_C=(function(){var s=0,n=0;FILMS.forEach(function(f){var r=num(f.r);if(r>0){s+=r;n++;}});return n?s/n:7;})();
+  function bayes(f){
+    var r=num(f.r); if(r<=0)return -1;
+    var v=f.votes||0;
+    return v/(v+VOTE_M)*r+VOTE_M/(v+VOTE_M)*RATE_C;
+  }
   function sorted(){
-    var a=FILMS.filter(match);
+    var a=FILMS.filter(function(f){return match(f);});
     var s=state.sort;
     a.sort(function(x,y){
       if(s==="rating")return (num(y.r))-(num(x.r))||(y.votes||0)-(x.votes||0);
+      if(s==="bayes")return bayes(y)-bayes(x)||(y.votes||0)-(x.votes||0);
       if(s==="hot")return (y.votes||0)-(x.votes||0);
       if(s==="year")return (+y.y||0)-(+x.y||0);
       if(s==="yearAsc")return (+x.y||0)-(+y.y||0);
       return String(x.t).localeCompare(String(y.t),"zh-Hans-CN");
     });
     return a;
+  }
+
+  /* 动态计数：各筛选选项旁的数量随当前筛选实时变化（排除自身维度） */
+  function updateDynCounts(){
+    var i;
+    /* 类型 chips */
+    var cg={},baseG=FILMS.filter(function(f){return match(f,SKIP.g);});
+    baseG.forEach(function(f){(f.g||[]).forEach(function(g){cg[g]=(cg[g]||0)+1;});});
+    $$("#chips .chip").forEach(function(b){var n=b.querySelector(".n");if(n)n.textContent=cg[b.dataset.g]||0;});
+    /* 地区 */
+    var cc={},baseC=FILMS.filter(function(f){return match(f,SKIP.ctry);});
+    baseC.forEach(function(f){
+      if(!f.c)return;
+      f.c.split("/").map(function(s){return s.trim();}).filter(Boolean).forEach(function(c){cc[c]=(cc[c]||0)+1;});
+    });
+    Array.prototype.forEach.call($("#ctry").options,function(o){
+      if(!o.value)return;
+      o.textContent=o.value+" · "+(cc[o.value]||0);
+    });
+    /* 年代 */
+    var cd={},baseD=FILMS.filter(function(f){return match(f,SKIP.dec);});
+    baseD.forEach(function(f){if(f.y)cd[Math.floor(+f.y/10)*10]=(cd[Math.floor(+f.y/10)*10]||0)+1;});
+    Array.prototype.forEach.call($("#decade").options,function(o){
+      if(!o.value)return;
+      var d=+o.value;
+      o.textContent=(d<1900?"1900 前":d+"s")+" · "+(cd[d]||0);
+    });
+    /* 评分 */
+    var baseR=FILMS.filter(function(f){return match(f,SKIP.rate);});
+    Array.prototype.forEach.call($("#rate").options,function(o){
+      if(!o.value)return;
+      var t=+o.value,n=0;
+      for(i=0;i<baseR.length;i++)if(num(baseR[i].r)>=t)n++;
+      o.textContent=t.toFixed(1)+" 以上 · "+n;
+    });
   }
   function fcard(f,i){
     var cover=f.p
@@ -1206,8 +1266,9 @@ img.ld{opacity:1}
     var g=$("#filmGrid");
     g.classList.toggle("noanim",anim===false);
     var a=sorted();
-    $("#fcount").innerHTML='共 <b>'+a.length+'</b> 部'+(state.award?' · 奖项「'+esc(state.award)+'」':'')+(state.fest?' · 电影节「'+esc(state.fest)+'」':'')+(state.rank?' · 榜单「'+esc(state.rank)+'」':'')+(state.studio?' · 公司「'+esc(state.studio)+'」':'')+(state.glabel?' · 类型「'+esc(state.glabel)+'」':(state.g?' · 类型「'+esc(state.g)+'」':''))+(state.ctry?' · '+esc(state.ctry):'')+(state.dec?' · '+state.dec+'s':'')+(state.q?' · 搜索「'+esc(state.q)+'」':'');
-    $("#reset").hidden=!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.q||state.award||state.fest||state.rank||state.studio);
+    $("#fcount").innerHTML='共 <b>'+a.length+'</b> 部'+(state.award?' · 奖项「'+esc(state.award)+'」':'')+(state.fest?' · 电影节「'+esc(state.fest)+'」':'')+(state.rank?' · 榜单「'+esc(state.rank)+'」':'')+(state.studio?' · 公司「'+esc(state.studio)+'」':'')+(state.glabel?' · 类型「'+esc(state.glabel)+'」':(state.g?' · 类型「'+esc(state.g)+'」':''))+(state.ctry?' · '+esc(state.ctry):'')+(state.dec?' · '+state.dec+'s':'')+(state.rate?' · 评分 '+esc(state.rate)+' 以上':'')+(state.q?' · 搜索「'+esc(state.q)+'」':'');
+    $("#reset").hidden=!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.rate||state.q||state.award||state.fest||state.rank||state.studio);
+    updateDynCounts();
     if(!a.length){
       var kw=$("#q").value.trim();
       if(state.q&&kw){
@@ -1220,7 +1281,7 @@ img.ld{opacity:1}
           +'<p class="es-tip">找不到时建议优先试「维C搜搜 / KK122」——网盘资源画质通常更高</p>'
           +'</div>';
       } else {
-        var hasFilter=!!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.award||state.fest||state.rank||state.studio);
+        var hasFilter=!!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.rate||state.award||state.fest||state.rank||state.studio);
         g.innerHTML='<div class="empty-box">'
           +'<div class="eb-i">🎞️</div>'
           +'<p class="eb-t">'+(hasFilter?"没有符合当前筛选条件的影片":"暂时没有可展示的影片")+'</p>'
@@ -1247,10 +1308,11 @@ img.ld{opacity:1}
     renderFilms();
   });
   $("#decade").addEventListener("change",function(){state.dec=this.value;shown=PAGE;renderFilms();});
+  $("#rate").addEventListener("change",function(){state.rate=this.value;shown=PAGE;renderFilms();});
   $("#ctry").addEventListener("change",function(){state.ctry=this.value;shown=PAGE;renderFilms();});
   $("#q").addEventListener("input",function(){state.q=this.value.trim().toLowerCase();shown=PAGE;renderFilms();});
   $("#reset").addEventListener("click",function(){
-    state.g="";state.gs=[];state.go=[];state.glabel="";state.dec="";state.ctry="";state.q="";state.award="";state.fest="";state.rank="";state.studio="";$("#q").value="";$("#decade").value="";$("#ctry").value="";
+    state.g="";state.gs=[];state.go=[];state.glabel="";state.dec="";state.ctry="";state.rate="";state.q="";state.award="";state.fest="";state.rank="";state.studio="";$("#q").value="";$("#decade").value="";$("#ctry").value="";$("#rate").value="";
     $$("#chips .chip").forEach(function(x){x.classList.remove("on");});
     closeDim();
     shown=PAGE;renderFilms();renderActiveChips();
@@ -1316,8 +1378,8 @@ img.ld{opacity:1}
 
   function setFilter(o){
     state.g=o.g||"";state.gs=o.gs||[];state.go=o.go||[];state.glabel=o.label||"";
-    state.ctry=o.ctry||"";state.dec=o.dec||"";state.q=o.q||"";state.award=o.award||"";state.fest=o.fest||"";state.rank=o.rank||"";state.studio=o.studio||"";
-    $("#q").value=state.q;$("#ctry").value=state.ctry;$("#decade").value=state.dec;
+    state.ctry=o.ctry||"";state.dec=o.dec||"";state.rate=o.rate||"";state.q=o.q||"";state.award=o.award||"";state.fest=o.fest||"";state.rank=o.rank||"";state.studio=o.studio||"";
+    $("#q").value=state.q;$("#ctry").value=state.ctry;$("#decade").value=state.dec;$("#rate").value=state.rate;
     $$("#chips .chip").forEach(function(x){x.classList.toggle("on",x.dataset.g===state.g);});
     shown=PAGE;renderFilms();renderActiveChips();updateDimBtns();go("films");
   }
@@ -1333,11 +1395,11 @@ img.ld{opacity:1}
     return Object.keys(STUDIO_SET);
   }
   function dimCount(dim,k){
-    var s;
-    if(dim==="fest"||dim==="award")s=AWARDS_SET[k];
-    else if(dim==="rank")s=RANK_SET[k];
-    else s=STUDIO_SET[k];
-    return s?Object.keys(s).length:0;
+    var s=(dim==="rank")?RANK_SET[k]:(dim==="studio")?STUDIO_SET[k]:AWARDS_SET[k];
+    if(!s)return 0;
+    var n=0;
+    FILMS.forEach(function(f){ if(s[f.t+"|"+String(f.y)]&&match(f,SKIP[dim]))n++; });
+    return n;
   }
   function updateDimBtns(){
     $$("#dimbar .dimbtn").forEach(function(b){
@@ -1833,13 +1895,14 @@ img.ld{opacity:1}
   function restoreUI(){
     var sv=readUI();
     if(sv&&sv.s){
-      ["g","gs","go","glabel","dec","ctry","q","sort","award","fest","rank","studio"].forEach(function(k){
+      ["g","gs","go","glabel","dec","ctry","rate","q","sort","award","fest","rank","studio"].forEach(function(k){
         if(sv.s[k]!=null)state[k]=sv.s[k];
       });
       if(typeof sv.m==="string")MINE_FILTER=sv.m;
       if($("#q"))$("#q").value=state.q||"";
       if($("#ctry"))$("#ctry").value=state.ctry||"";
       if($("#decade"))$("#decade").value=state.dec||"";
+      if($("#rate"))$("#rate").value=state.rate||"";
       $$("#segs button").forEach(function(b){b.classList.toggle("on",b.dataset.s===state.sort);});
       $$("#chips .chip").forEach(function(b){b.classList.toggle("on",b.dataset.g===state.g);});
     }
