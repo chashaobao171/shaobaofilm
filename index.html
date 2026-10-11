@@ -656,6 +656,40 @@ img.ld{opacity:1}
 .mod-mk.on{background:var(--brand-dim);border-color:var(--brand-line);color:var(--brand);font-weight:600}
 .mod-mk[data-mk="want"].on{background:rgba(91,140,255,.12);border-color:rgba(91,140,255,.42);color:#93b4ff}
 .mod-mk[data-mk="seen"].on{background:rgba(107,159,74,.12);border-color:rgba(107,159,74,.42);color:#8fc06a}
+
+/* ---------- 海报：加载骨架 + 加载失败兜底 ---------- */
+.fcp{
+  background:#0a0a0e linear-gradient(100deg,transparent 28%,rgba(255,255,255,.045) 50%,transparent 72%);
+  background-repeat:no-repeat;background-size:230% 100%;background-position:0 0;
+  animation:fcshim 1.5s linear 3;
+}
+@keyframes fcshim{from{background-position:130% 0}to{background-position:-130% 0}}
+.fcp.imgerr::before{
+  content:attr(data-l);position:absolute;inset:0;z-index:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:34px;color:rgba(255,255,255,.13);
+  background:linear-gradient(150deg,#1c1c26,#0a0a0e);
+}
+
+/* ---------- 空状态（无匹配结果） ---------- */
+.empty-box{grid-column:1/-1;padding:64px 20px;text-align:center;color:var(--ink3)}
+.empty-box .eb-i{font-size:40px;line-height:1;margin-bottom:16px;opacity:.6}
+.empty-box .eb-t{margin:0 0 8px;font-size:16px;color:var(--ink);font-weight:600}
+.empty-box .eb-s{margin:0 0 22px;font-size:13.5px;color:var(--ink2)}
+
+/* ---------- 移动端 / 触屏细节 ---------- */
+@media (max-width:560px){
+  .segs{flex-wrap:wrap}
+  .colltools .hsearch,.dirtools .hsearch{flex:1 1 100%!important;max-width:none!important}
+  select.sel{max-width:none}
+  .fbar-row{gap:9px}
+  .vhead{padding:36px 0 4px}
+}
+@media (hover:none){
+  html{-webkit-tap-highlight-color:transparent}
+  .chip,.dimbtn,.segs button,.nav button{min-height:32px}
+  .fcmk{width:30px;height:30px}
+}
 </style>
 </head>
 <body>
@@ -1016,6 +1050,7 @@ img.ld{opacity:1}
   }).join("");
   updateMineCount();
   function go(v){
+    CUR_VIEW=v; saveUI();
     $$("#nav button").forEach(function(x){x.classList.toggle("on",x.dataset.v===v);});
     $$(".view").forEach(function(s){s.classList.toggle("on",s.id==="view-"+v);});
     if(v==="mine")renderMine();
@@ -1147,13 +1182,14 @@ img.ld{opacity:1}
   }
   function fcard(f,i){
     var cover=f.p
-      ?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">'
+      ?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.onerror=null;this.style.display=\'none\';this.parentNode.classList.add(\'imgerr\')">'
       :'';
-    var ph=f.p?"":'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
+    var _L=esc(String(f.t).slice(0,1));
+    var ph=f.p?"":'<span class="ph">'+_L+'</span>';
     var meta=[f.y,f.c].filter(Boolean).join(" · ");
     var _m=mkOf(f), _marked=!!(_m&&(_m.fav||_m.want||_m.seen));
     return '<article class="fc'+(_marked?' marked':'')+'" data-i="'+f._i+'" tabindex="0" role="button" aria-label="'+esc(f.t)+'" style="animation-delay:'+Math.min(i,23)*28+'ms">'
-      +'<div class="fcp">'+ph+cover
+      +'<div class="fcp" data-l="'+_L+'">'+ph+cover
       +(f.r?'<span class="rate">'+esc(f.r)+'</span>':'')
       +(f.y?'<span class="yr">'+esc(f.y)+'</span>':'')
       +(f.d?'<span class="dir">'+esc(f.d)+'</span>':'')
@@ -1166,6 +1202,7 @@ img.ld{opacity:1}
       +'</div></article>';
   }
   function renderFilms(anim){
+    saveUI();
     var g=$("#filmGrid");
     g.classList.toggle("noanim",anim===false);
     var a=sorted();
@@ -1183,7 +1220,13 @@ img.ld{opacity:1}
           +'<p class="es-tip">找不到时建议优先试「维C搜搜 / KK122」——网盘资源画质通常更高</p>'
           +'</div>';
       } else {
-        g.innerHTML='<p class="empty" style="grid-column:1/-1">没有匹配的影片，换个关键词或清除筛选试试。</p>';
+        var hasFilter=!!(state.g||(state.gs&&state.gs.length)||(state.go&&state.go.length)||state.dec||state.ctry||state.award||state.fest||state.rank||state.studio);
+        g.innerHTML='<div class="empty-box">'
+          +'<div class="eb-i">🎞️</div>'
+          +'<p class="eb-t">'+(hasFilter?"没有符合当前筛选条件的影片":"暂时没有可展示的影片")+'</p>'
+          +'<p class="eb-s">'+(hasFilter?"试试放宽条件，或一键清除全部筛选。":"换个关键词再找找。")+'</p>'
+          +(hasFilter?'<button class="btn btn-s" type="button" id="emptyReset">清除筛选</button>':'')
+          +'</div>';
       }
       $("#moreBtn").hidden=true;return;
     }
@@ -1219,6 +1262,7 @@ img.ld{opacity:1}
   /* ============ 我的片单视图 ============ */
   var MINE_FILTER="";
   function renderMine(){
+    saveUI();
     var grid=$("#mineGrid");
     var defs=[["","全部",markCount()],["fav","收藏",markCountOf("fav")],["want","想看",markCountOf("want")],["seen","已看",markCountOf("seen")]];
     $("#mineChips").innerHTML=defs.map(function(d){
@@ -1534,6 +1578,7 @@ img.ld{opacity:1}
     document.body.style.overflow="";
   }
   $("#filmGrid").addEventListener("click",function(e){
+    if(e.target.closest("#emptyReset")){ $("#reset").click(); return; }
     var b=e.target.closest(".fcmk");
     if(b){e.preventDefault();var card=b.closest(".fc"),f=FILMS[+card.dataset.i];if(f)applyMarkToggle(f,b.dataset.mk,card);return;}
     var c=e.target.closest(".fc"); if(c)openFilm(+c.dataset.i);
@@ -1776,7 +1821,37 @@ img.ld{opacity:1}
     }
   });
 
-  renderFilms();
+  /* ============ 视图状态记忆（刷新后停留当前页/筛选，仅本会话） ============ */
+  var UI_KEY="shaofilm.ui.v1";
+  var CUR_VIEW="films";
+  function saveUI(){
+    try{ sessionStorage.setItem(UI_KEY,JSON.stringify({v:CUR_VIEW,s:state,m:MINE_FILTER})); }catch(e){}
+  }
+  function readUI(){
+    try{ var r=sessionStorage.getItem(UI_KEY); return r?JSON.parse(r):null; }catch(e){ return null; }
+  }
+  function restoreUI(){
+    var sv=readUI();
+    if(sv&&sv.s){
+      ["g","gs","go","glabel","dec","ctry","q","sort","award","fest","rank","studio"].forEach(function(k){
+        if(sv.s[k]!=null)state[k]=sv.s[k];
+      });
+      if(typeof sv.m==="string")MINE_FILTER=sv.m;
+      if($("#q"))$("#q").value=state.q||"";
+      if($("#ctry"))$("#ctry").value=state.ctry||"";
+      if($("#decade"))$("#decade").value=state.dec||"";
+      $$("#segs button").forEach(function(b){b.classList.toggle("on",b.dataset.s===state.sort);});
+      $$("#chips .chip").forEach(function(b){b.classList.toggle("on",b.dataset.g===state.g);});
+    }
+    shown=PAGE;
+    renderFilms();
+    renderActiveChips();
+    updateDimBtns();
+    var v=(sv&&sv.v)?sv.v:"films";
+    if(!TABS.some(function(t){return t.v===v;}))v="films";
+    go(v);
+  }
+  restoreUI();
   
   // 应用URL参数筛选（如果有）
   applyFiltersFromURL();
