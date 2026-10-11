@@ -618,6 +618,44 @@ img.ld{opacity:1}
   .agrid,.rgrid{grid-template-columns:1fr}
   .dgrid{grid-template-columns:repeat(2,1fr);gap:12px}
 }
+
+/* ---------- 个人片单：卡片标记按钮 ---------- */
+.fcm{
+  position:absolute;top:38px;right:8px;z-index:3;display:flex;flex-direction:column;gap:5px;
+  opacity:0;transform:translateX(4px);transition:opacity .16s,transform .16s;pointer-events:none;
+}
+.fc:hover .fcm,.fc:focus-within .fcm,.fc.marked .fcm{opacity:1;transform:none;pointer-events:auto}
+.fcmk{
+  width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(10,10,14,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--line);color:rgba(240,237,229,.8);transition:transform .16s,border-color .16s,color .16s,background .16s;
+}
+.fcmk:hover{border-color:var(--brand-line);color:var(--brand);transform:scale(1.09)}
+.fcmk svg{width:14px;height:14px}
+.fcmk.on{color:var(--brand-ink)}
+.fcmk[data-mk="fav"].on{background:var(--brand);border-color:var(--brand)}
+.fcmk[data-mk="want"].on{background:#5b8cff;border-color:#5b8cff;color:#0d0d11}
+.fcmk[data-mk="seen"].on{background:#6b9f4a;border-color:#6b9f4a;color:#0d0d11}
+@media (hover:none){.fcm{opacity:1;transform:none;pointer-events:auto}}
+
+/* ---------- 我的片单视图 ---------- */
+.minebar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 20px}
+.mine-tip{font-size:12.5px;color:var(--ink3)}
+.mine-empty{padding:76px 20px;text-align:center;color:var(--ink3)}
+.mine-empty .me-i{font-size:40px;line-height:1;margin-bottom:18px;opacity:.55}
+.mine-empty p{margin:0 0 20px;font-size:14.5px;color:var(--ink2)}
+
+/* ---------- 详情弹层：标记按钮 ---------- */
+.mod-marks{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}
+.mod-mk{
+  display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 15px;border:1px solid var(--line);
+  border-radius:8px;font-size:13px;color:var(--ink2);transition:all .16s;
+}
+.mod-mk svg{width:14px;height:14px}
+.mod-mk:hover{border-color:var(--brand-line);color:var(--ink)}
+.mod-mk.on{background:var(--brand-dim);border-color:var(--brand-line);color:var(--brand);font-weight:600}
+.mod-mk[data-mk="want"].on{background:rgba(91,140,255,.12);border-color:rgba(91,140,255,.42);color:#93b4ff}
+.mod-mk[data-mk="seen"].on{background:rgba(107,159,74,.12);border-color:rgba(107,159,74,.42);color:#8fc06a}
 </style>
 </head>
 <body>
@@ -789,6 +827,21 @@ img.ld{opacity:1}
       <div id="sourcesBox"></div>
     </div>
   </section>
+
+  <!-- ============ 我的片单 ============ -->
+  <section class="view" id="view-mine">
+    <div class="wrap">
+      <div class="vhead" data-rv>
+        <h2>我的片单 <span>My List</span></h2>
+        <p>收藏、想看、已看都保存在你当前这台设备的浏览器里，<b>不需要登录</b>、也不会上传。换设备或清理浏览器数据后会丢失。</p>
+      </div>
+      <div class="minebar" data-rv>
+        <div class="chips" id="mineChips"></div>
+        <span class="mine-tip" id="mineTip"></span>
+      </div>
+      <div class="grid" id="mineGrid"></div>
+    </div>
+  </section>
 </main>
 
 <footer class="ftr">
@@ -897,9 +950,60 @@ img.ld{opacity:1}
   var topCtry=Object.keys(CTRY).sort(function(a,b){return CTRY[b]-CTRY[a];}).slice(0,30);
   var decades=Object.keys(DEC).map(Number).sort(function(a,b){return a-b;});
 
+  /* ============ 个人片单：收藏 / 想看 / 已看（localStorage，无需登录） ============ */
+  var MK_KEY="shaofilm.marks.v1";
+  var MK_ORDER=["fav","want","seen"];
+  var MK_META={
+    fav:{n:"收藏",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l2.6 5.3 5.8.85-4.2 4.1 1 5.8L12 16.9 6.8 19.65l1-5.8-4.2-4.1 5.8-.85z"/></svg>'},
+    want:{n:"想看",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.6h12v16.8l-6-4.2-6 4.2z"/></svg>'},
+    seen:{n:"已看",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.4l5 5 10-11"/></svg>'}
+  };
+  var MARKS={};
+  try{ var _mkRaw=localStorage.getItem(MK_KEY); if(_mkRaw)MARKS=JSON.parse(_mkRaw)||{}; }catch(e){ MARKS={}; }
+  function mkKey(f){ return f.t+"|"+String(f.y); }
+  function mkOf(f){ return MARKS[mkKey(f)]||null; }
+  function hasMark(f,t){ var m=mkOf(f); return !!(m&&m[t]); }
+  function markCount(){ var n=0;Object.keys(MARKS).forEach(function(k){var m=MARKS[k];if(m&&(m.fav||m.want||m.seen))n++;});return n; }
+  function markCountOf(t){ var n=0;Object.keys(MARKS).forEach(function(k){if(MARKS[k]&&MARKS[k][t])n++;});return n; }
+  function saveMarks(){ try{ localStorage.setItem(MK_KEY,JSON.stringify(MARKS)); }catch(e){} }
+  function toggleMark(f,t){
+    var k=mkKey(f), m=MARKS[k]||(MARKS[k]={});
+    if(m[t])delete m[t]; else m[t]=1;
+    m.ts=Date.now();
+    if(!m.fav&&!m.want&&!m.seen)delete MARKS[k];
+    saveMarks(); updateMineCount();
+  }
+  function updateMineCount(){ var el=$("#navc-mine"); if(el)el.textContent=markCount(); }
+  function syncMarkBtns(scope,f){
+    if(!scope)return;
+    $$("[data-mk]",scope).forEach(function(b){
+      var on=hasMark(f,b.dataset.mk),meta=MK_META[b.dataset.mk];
+      b.classList.toggle("on",on);
+      b.setAttribute("aria-pressed",on?"true":"false");
+      b.title=(on?"取消":"加入")+(meta?meta.n:b.dataset.mk);
+      var sp=b.querySelector("span"); if(sp&&meta)sp.textContent=(on?"已":"")+meta.n;
+    });
+  }
+  function applyMarkToggle(f,t,card){
+    toggleMark(f,t);
+    var m=mkOf(f), marked=!!(m&&(m.fav||m.want||m.seen));
+    if(card){ card.classList.toggle("marked",marked); syncMarkBtns(card,f); }
+    var mc=$('#filmGrid .fc[data-i="'+f._i+'"]');
+    if(mc)syncMarkBtns(mc,f);
+    return marked;
+  }
+  function mkButtonsHTML(f){
+    var m=mkOf(f);
+    return MK_ORDER.map(function(t){
+      var on=!!(m&&m[t]);
+      return '<button class="fcmk'+(on?' on':'')+'" type="button" data-mk="'+t+'" aria-pressed="'+(on?'true':'false')+'" title="'+(on?'取消':'加入')+MK_META[t].n+'">'+MK_META[t].icon+'</button>';
+    }).join("");
+  }
+
   /* ============ 顶部入口 ============ */
   var TABS=[
     {v:"films",n:"影史名片",c:D.meta.films},
+    {v:"mine",n:"我的片单",c:0},
     {v:"colls",n:"精选片单",c:"—"},
     {v:"genres",n:"图谱",c:(window.taxonomyMeta?window.taxonomyMeta.categories:D.meta.types)},
     {v:"awards",n:"奖项",c:D.meta.awards},
@@ -908,11 +1012,13 @@ img.ld{opacity:1}
     {v:"sources",n:"片源查找",c:4}
   ];
   $("#nav").innerHTML=TABS.map(function(t,i){
-    return '<button data-v="'+t.v+'"'+(i===0?' class="on"':'')+'>'+t.n+'<span class="c">'+t.c+'</span></button>';
+    return '<button data-v="'+t.v+'"'+(i===0?' class="on"':'')+'>'+t.n+'<span class="c" id="navc-'+t.v+'">'+t.c+'</span></button>';
   }).join("");
+  updateMineCount();
   function go(v){
     $$("#nav button").forEach(function(x){x.classList.toggle("on",x.dataset.v===v);});
     $$(".view").forEach(function(s){s.classList.toggle("on",s.id==="view-"+v);});
+    if(v==="mine")renderMine();
     window.scrollTo({top:0,behavior:"smooth"});
   }
   $$("#nav button").forEach(function(b){b.addEventListener("click",function(){go(b.dataset.v);});});
@@ -1045,11 +1151,13 @@ img.ld{opacity:1}
       :'';
     var ph=f.p?"":'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
     var meta=[f.y,f.c].filter(Boolean).join(" · ");
-    return '<article class="fc" data-i="'+f._i+'" tabindex="0" role="button" aria-label="'+esc(f.t)+'" style="animation-delay:'+Math.min(i,23)*28+'ms">'
+    var _m=mkOf(f), _marked=!!(_m&&(_m.fav||_m.want||_m.seen));
+    return '<article class="fc'+(_marked?' marked':'')+'" data-i="'+f._i+'" tabindex="0" role="button" aria-label="'+esc(f.t)+'" style="animation-delay:'+Math.min(i,23)*28+'ms">'
       +'<div class="fcp">'+ph+cover
       +(f.r?'<span class="rate">'+esc(f.r)+'</span>':'')
       +(f.y?'<span class="yr">'+esc(f.y)+'</span>':'')
-      +(f.d?'<span class="dir">'+esc(f.d)+'</span>':'')+'</div>'
+      +(f.d?'<span class="dir">'+esc(f.d)+'</span>':'')
+      +'<div class="fcm">'+mkButtonsHTML(f)+'</div></div>'
       +'<div class="fcb">'
       +'<h3 class="fct">'+esc(f.t)+'</h3>'
       +'<p class="fce">'+esc(f.e||meta||"")+'</p>'
@@ -1107,6 +1215,45 @@ img.ld{opacity:1}
   $("#moreBtn").addEventListener("click",function(){shown+=PAGE;renderFilms(false);});
   $("#ctaExplore").addEventListener("click",function(e){e.preventDefault();$(".fbar").scrollIntoView({behavior:"smooth",block:"start"});});
   $("#ctaRandom").addEventListener("click",function(){openFilm(Math.floor(Math.random()*FILMS.length));});
+
+  /* ============ 我的片单视图 ============ */
+  var MINE_FILTER="";
+  function renderMine(){
+    var grid=$("#mineGrid");
+    var defs=[["","全部",markCount()],["fav","收藏",markCountOf("fav")],["want","想看",markCountOf("want")],["seen","已看",markCountOf("seen")]];
+    $("#mineChips").innerHTML=defs.map(function(d){
+      return '<button class="chip'+(MINE_FILTER===d[0]?' on':'')+'" data-mf="'+d[0]+'">'+d[1]+'<span class="n">'+d[2]+'</span></button>';
+    }).join("");
+    var list=FILMS.filter(function(f){
+      var m=mkOf(f); if(!m)return false;
+      if(MINE_FILTER)return !!m[MINE_FILTER];
+      return !!(m.fav||m.want||m.seen);
+    }).sort(function(a,b){return ((mkOf(b)||{}).ts||0)-((mkOf(a)||{}).ts||0);});
+    $("#mineTip").textContent=list.length?("共 "+list.length+" 部 · 最近标记的在前"):"";
+    if(!list.length){
+      grid.innerHTML='<div class="mine-empty" style="grid-column:1/-1">'
+        +'<div class="me-i">🎬</div>'
+        +(markCount()?'<p>这个分类下还没有影片，点上面的「全部」看看。</p>':'<p>还没有标记任何影片。把鼠标移到任意海报上，或打开详情页，点「收藏 / 想看 / 已看」就能加入这里。</p>')
+        +'<button class="btn btn-p" type="button" id="mineGo">去挑几部</button></div>';
+      return;
+    }
+    grid.innerHTML=list.map(function(f,i){return fcard(f,i);}).join("");
+  }
+  $("#mineChips").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b)return;
+    MINE_FILTER=b.dataset.mf; renderMine();
+  });
+  $("#mineGrid").addEventListener("click",function(e){
+    if(e.target.closest("#mineGo")){go("films");return;}
+    var b=e.target.closest(".fcmk");
+    if(b){e.preventDefault();var card=b.closest(".fc"),f=FILMS[+card.dataset.i];if(f){applyMarkToggle(f,b.dataset.mk,card);renderMine();}return;}
+    var c=e.target.closest(".fc"); if(c)openFilm(+c.dataset.i);
+  });
+  $("#mineGrid").addEventListener("keydown",function(e){
+    if(e.key!=="Enter"&&e.key!==" ")return;
+    if(e.target.closest(".fcmk"))return;
+    var c=e.target.closest(".fc"); if(c){e.preventDefault();openFilm(+c.dataset.i);}
+  });
 
   function renderActiveChips(){
     var box=$("#activeChips");
@@ -1356,6 +1503,10 @@ img.ld{opacity:1}
       var db=f.id?'https://movie.douban.com/subject/'+f.id+'/':(f.e?'https://www.imdb.com/find/?q='+encodeURIComponent(f.e):'');
       if(db)linksHTML='<a class="mod-a" href="'+db+'" target="_blank" rel="noopener">'+IC.out+(f.id?'在豆瓣查看':'在 IMDb 查看')+'</a>';
     }
+    var marksHTML='<div class="mod-marks">'+MK_ORDER.map(function(t){
+      var on=hasMark(f,t);
+      return '<button class="mod-mk'+(on?' on':'')+'" type="button" data-mk="'+t+'" aria-pressed="'+(on?'true':'false')+'" title="'+(on?'取消':'加入')+MK_META[t].n+'">'+MK_META[t].icon+'<span>'+(on?'已':'')+MK_META[t].n+'</span></button>';
+    }).join("")+'</div>';
     $("#modBody").innerHTML='<div class="mod-in">'
       +'<div class="mod-l">'+left+'</div>'
       +'<div class="mod-r">'
@@ -1365,6 +1516,7 @@ img.ld{opacity:1}
       +(kv?'<dl class="mod-kv">'+kv+'</dl>':'')
       +'<p class="mod-syn">'+esc(f.s||"暂无简介")+'</p>'
       +((f.g&&f.g.length)?'<div class="mod-tags">'+f.g.map(function(g){return '<i>'+esc(g)+'</i>';}).join("")+'</div>':'')
+      +marksHTML
       +'<div class="mod-acts"><button class="mod-a mod-next" type="button" title="在当前筛选范围内随机换一部">'+IC.dice+'换一部</button>'
       +linksHTML
       +'<a class="mod-a" href="https://vcsoso.com/s/'+encodeURIComponent(f.t)+'" target="_blank" rel="noopener" title="在维C搜搜搜索《'+esc(f.t)+'》的片源">'+IC.play+'找片源</a>'
@@ -1382,13 +1534,18 @@ img.ld{opacity:1}
     document.body.style.overflow="";
   }
   $("#filmGrid").addEventListener("click",function(e){
+    var b=e.target.closest(".fcmk");
+    if(b){e.preventDefault();var card=b.closest(".fc"),f=FILMS[+card.dataset.i];if(f)applyMarkToggle(f,b.dataset.mk,card);return;}
     var c=e.target.closest(".fc"); if(c)openFilm(+c.dataset.i);
   });
   $("#filmGrid").addEventListener("keydown",function(e){
     if(e.key!=="Enter"&&e.key!==" ")return;
+    if(e.target.closest(".fcmk"))return;
     var c=e.target.closest(".fc"); if(c){e.preventDefault();openFilm(+c.dataset.i);}
   });
   $("#modBody").addEventListener("click",function(e){
+    var mk=e.target.closest(".mod-mk");
+    if(mk){var f=FILMS[curIdx];if(f){applyMarkToggle(f,mk.dataset.mk,null);syncMarkBtns($("#modBody"),f);if($("#view-mine")&&$("#view-mine").classList.contains("on"))renderMine();}return;}
     var nx=e.target.closest(".mod-next"); if(nx){nextRandom();return;}
     var m=e.target.closest(".mc"); if(m)openFilm(+m.dataset.i);
   });
