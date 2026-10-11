@@ -563,6 +563,19 @@ img.ld{opacity:1}
 /* ---- 导演筛选条 ---- */
 .dirtools{display:flex;align-items:center;gap:14px;margin:18px 0 2px;flex-wrap:wrap}
 .dirtool-c{font-size:12px;color:var(--ink3)}
+/* ---- 导演 A–Z 索引 ---- */
+.azbar{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:12px 0 4px}
+.azbar .az{
+  min-width:26px;height:26px;padding:0 7px;border-radius:6px;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink2);font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:all .14s;
+}
+.azbar .az .n{font-size:10px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.azbar .az:hover{border-color:var(--brand-line);color:var(--brand)}
+.azbar .az:hover .n{color:var(--brand)}
+.azbar .az.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+.azbar .az.on .n{color:var(--brand-ink);opacity:.7}
+.azbar .az.off{opacity:.26;cursor:default}
+.azbar .az.off:hover{border-color:var(--line);color:var(--ink2)}
 
 /* ---- 精选片单筛选条 ---- */
 .colltools{display:flex;align-items:center;gap:14px;margin:18px 0 2px;flex-wrap:wrap}
@@ -855,7 +868,7 @@ img.ld{opacity:1}
     <div class="wrap">
       <div class="vhead" data-rv>
         <h2>导演谱系 <span>Directors</span></h2>
-        <p>按华语、日本、韩国、好莱坞、欧洲与当代新锐分组，共 <b id="drCount">—</b> 位导演。正面是代表作海报，<b>悬停或点击卡片翻面</b>看风格判断与代表作概览；背面可一键筛选其库内影片。</p>
+        <p>按华语、日本、韩国、好莱坞、欧洲与当代新锐分组，共 <b id="drCount">—</b> 位导演。正面是代表作海报，<b>悬停或点击卡片翻面</b>看风格判断与代表作概览；背面可一键筛选其库内影片。下方 A–Z 索引按英文名首字母筛选，排序可切「作品数 / 平均分 / 字母」；搜索框输入完整姓名或英文名会精确匹配到那一位。</p>
       </div>
       <div class="dirtools" data-rv>
         <div class="hsearch" style="flex:1;max-width:360px">
@@ -863,8 +876,15 @@ img.ld{opacity:1}
           <input type="search" id="dirQ" placeholder="搜索导演 / 代表作…" autocomplete="off">
         </div>
         <div class="chips" id="dirChips" style="flex:1"></div>
+        <select class="sel" id="dirSort" aria-label="导演排序方式">
+          <option value="default">默认排序</option>
+          <option value="films">作品数多→少</option>
+          <option value="rating">平均分高→低</option>
+          <option value="az">英文名 A→Z</option>
+        </select>
         <span class="dirtool-c" id="dirShown">—</span>
       </div>
+      <div class="azbar" id="dirAZ" data-rv></div>
       <div id="dirsBox"></div>
     </div>
   </section>
@@ -1940,10 +1960,14 @@ img.ld{opacity:1}
             +'<div class="re">'+esc(r.e)+'</div><div class="rm">'+esc(r.m)+'</div><div class="rd">'+esc(r.d)+'</div></a>';
         }).join("")+'</div></div>';
     }).join("")+'</div>';
-  D.dirs.forEach(function(d){
+  D.dirs.forEach(function(d,i){
+    d._o=i;
     d._films=FILMS.filter(function(f){return (f.d||"").indexOf(d.n)>=0;})
       .sort(function(a,b){return num(b.r)-num(a.r)||(b.votes||0)-(a.votes||0);});
     d._hay=(d.n+" "+(d.e||"")+" "+(d.f||[]).join(" ")+" "+d._films.map(function(f){return f.t;}).join(" ")).toLowerCase();
+    d._n=d._films.length;
+    d._avg=d._n?(d._films.reduce(function(s,f){return s+num(f.r);},0)/d._n):0;
+    d._ini=(d.e||d.n||"#").trim().charAt(0).toUpperCase();
   });
   $("#dirsBox").innerHTML=D.dregion.map(function(R){
     var list=D.dirs.filter(function(d){return d.r===R.r;});
@@ -1960,7 +1984,7 @@ img.ld{opacity:1}
         }).join("");
         if(!rows)rows='<p class="ds" style="margin:6px 0 10px;-webkit-line-clamp:6">代表作：'+esc((d.f||[]).join(" · "))+'</p>';
         var more=d._films.length>3?'查看库内全部 '+d._films.length+' 部':'在名片中搜索其影片';
-        return '<div class="dwf" style="--dc:'+R.c+'" data-d="'+esc(d.n)+'" tabindex="0" role="button" aria-label="'+esc(d.n)+'，按回车翻面看代表作">'
+        return '<div class="dwf" style="--dc:'+R.c+'" data-d="'+esc(d.n)+'" data-o="'+d._o+'" data-ini="'+esc(d._ini)+'" tabindex="0" role="button" aria-label="'+esc(d.n)+'，按回车翻面看代表作">'
           +'<div class="dwi">'
           +'<div class="dside dwf-f">'+front+'<span class="dreg">'+esc(R.r)+'</span><span class="dhint">翻面 ↻</span></div>'
           +'<div class="dside dwf-b"><div class="dn">'+esc(d.n)+'</div><div class="de">'+esc(d.e||"")+'</div>'
@@ -1987,30 +2011,74 @@ img.ld{opacity:1}
   });
   $("#dirShown").textContent=D.meta.dirs+" 位";
   var dirRegion="全部";
+  var dirLetter="";
+  var dirSort="default";
+  var DIR_BY_NAME={};
+  D.dirs.forEach(function(d){ DIR_BY_NAME[d.n]=d; });
   $("#dirChips").innerHTML='<button class="chip on" data-r="全部">全部<span class="n">'+D.dirs.length+'</span></button>'
     +D.dregion.map(function(R){
       var cnt=D.dirs.filter(function(d){return d.r===R.r;}).length;
       return '<button class="chip" data-r="'+esc(R.r)+'">'+esc(R.r)+'<span class="n">'+cnt+'</span></button>';
     }).join("");
+  /* A–Z 索引：按英文名首字母跳转（无该字母的置灰不可点） */
+  (function(){
+    var cnt={};
+    D.dirs.forEach(function(d){ cnt[d._ini]=(cnt[d._ini]||0)+1; });
+    var letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    var extra=Object.keys(cnt).filter(function(k){ return letters.indexOf(k)<0; });
+    $("#dirAZ").innerHTML='<button class="az on" data-l="" type="button" title="全部导演">全部<span class="n">'+D.dirs.length+'</span></button>'
+      +letters.concat(extra).map(function(L){
+        var n=cnt[L]||0;
+        return '<button class="az'+(n?"":" off")+'" type="button" data-l="'+L+'"'+(n?' title="'+L+' 开头 '+n+' 位"':' disabled')+'>'+L+(n?'<span class="n">'+n+'</span>':'')+'</button>';
+      }).join("");
+  })();
+  /* 排序：默认 / 作品数 / 平均分 / 英文名 A→Z（在各地区分组内重排） */
+  function sortDirCards(){
+    $$("#dirsBox .dgrp").forEach(function(g){
+      var arr=Array.prototype.slice.call($$(".dwf",g));
+      arr.sort(function(a,b){
+        var da=DIR_BY_NAME[a.dataset.d], db=DIR_BY_NAME[b.dataset.d];
+        if(!da||!db)return 0;
+        if(dirSort==="films")return (db._n||0)-(da._n||0)||(db._avg||0)-(da._avg||0);
+        if(dirSort==="rating")return (db._avg||0)-(da._avg||0)||(db._n||0)-(da._n||0);
+        if(dirSort==="az")return String(da.e||da.n).localeCompare(String(db.e||db.n));
+        return (+a.dataset.o||0)-(+b.dataset.o||0);   /* 默认：保持录入顺序 */
+      });
+      arr.forEach(function(c){ g.appendChild(c); });
+    });
+  }
   function applyDirFilter(){
     var q=($("#dirQ").value||"").trim().toLowerCase(),shown=0;
-    var byName={};
-    D.dirs.forEach(function(d){byName[d.n]=d;});
+    /* 输入与某位导演姓名/英文名完全一致时，只保留该导演（精确匹配优先） */
+    var exact={};
+    if(q){
+      D.dirs.forEach(function(d){ if(d.n.toLowerCase()===q||(d.e||"").toLowerCase()===q)exact[d.n]=1; });
+    }
+    var hasExact=Object.keys(exact).length>0;
     $$("#dirsBox .dgrp").forEach(function(g){
       var regOK=dirRegion==="全部"||g.dataset.region===dirRegion;
       var vis=0;
       $$(".dwf",g).forEach(function(c){
-        var d=byName[c.dataset.d];
+        var d=DIR_BY_NAME[c.dataset.d];
         var ok=!q||(d&&d._hay.indexOf(q)>=0);
+        if(ok&&dirLetter&&c.dataset.ini!==dirLetter)ok=false;
+        if(ok&&hasExact&&!exact[c.dataset.d])ok=false;
         c.style.display=ok?"":"none";
         if(ok)vis++;
       });
       g.style.display=(regOK&&vis)?"":"none";
       if(regOK)shown+=vis;
     });
-    $("#dirShown").textContent=shown+" 位"+(q?" 匹配":"");
+    $("#dirShown").textContent=shown+" 位"+(hasExact?" · 精确匹配":(q?" 匹配":""));
   }
   $("#dirQ").addEventListener("input",applyDirFilter);
+  $("#dirAZ").addEventListener("click",function(e){
+    var b=e.target.closest(".az"); if(!b||b.classList.contains("off"))return;
+    dirLetter=b.dataset.l||"";
+    $$("#dirAZ .az").forEach(function(x){x.classList.toggle("on",x===b);});
+    applyDirFilter();
+  });
+  $("#dirSort").addEventListener("change",function(){ dirSort=this.value; sortDirCards(); });
   $("#dirChips").addEventListener("click",function(e){
     var b=e.target.closest(".chip"); if(!b)return;
     dirRegion=b.dataset.r;
