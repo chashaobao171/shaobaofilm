@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-10-12T08:24:54.949Z",
+  "count": 2,
+  "films": [
+    {
+      "t": "人性本兽",
+      "y": 2026,
+      "d": "本·阿弗莱克",
+      "r": 7.5,
+      "c": "",
+      "dur": 106,
+      "g": [
+        "惊悚",
+        "剧情"
+      ],
+      "s": "在儿子被人绑架后，一位洛杉矶市长候选人和妻子一边急忙筹赎金，一边做出选择，而这些选择可能彻底改变他们的生活。",
+      "acts": "本·阿弗莱克 / 凯丽·华盛顿 / 吉莲·安德森",
+      "p": "https://image.tmdb.org/t/p/w500/4AK2gnG7V8HnMfQT7uiNJo0yMme.jpg",
+      "id": "tmdb1236045",
+      "votes": 239,
+      "e": "Animals",
+      "tmdbId": 1236045,
+      "keywords": [
+        "kidnapping",
+        "political candidate",
+        "ransom demand",
+        "political thriller",
+        "mayoral candidate"
+      ],
+      "collection": null
+    },
+    {
+      "t": "火柴盒大电影",
+      "y": 2026,
+      "d": "萨姆·哈格里夫",
+      "r": 7.9,
+      "c": "",
+      "dur": 127,
+      "g": [
+        "动作",
+        "喜剧",
+        "冒险"
+      ],
+      "s": "一群儿时好友重聚后，生活发生巨变。曾离开家乡的前领袖、中央情报局卧底特工肖恩突然归来，意外将众人卷入一场紧张的国际追逐行动，必须合力拯救世界。",
+      "acts": "约翰·塞纳 / 杰西卡·贝尔 / 阿图罗·卡斯特罗",
+      "p": "https://image.tmdb.org/t/p/w500/qpLaKSlC9OE3Fk1e48jFIekgr5t.jpg",
+      "id": "tmdb1148365",
+      "votes": 222,
+      "e": "Matchbox the Movie",
+      "tmdbId": 1148365,
+      "keywords": [
+        "friendship",
+        "undercover agent",
+        "reunion",
+        "based on toy",
+        "childhood friends",
+        "nostalgic",
+        "friends reunion",
+        "save the world",
+        "arrogant",
+        "assertive",
+        "cia agent"
+      ],
+      "collection": null
+    }
+  ]
+}
