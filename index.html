@@ -991,6 +991,33 @@ img.ld{opacity:1}
   var REDUCED=!!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   var FINE=!!(window.matchMedia&&window.matchMedia("(pointer: fine)").matches);
 
+  /* ============ 海报兜底 ============ */
+  /* EdgeOne 若启用全站安全验证，图片子资源无法完成 JS 验证，会返回 HTML 导致 img 报错；
+     本地海报失败时依次改走两个 GitHub 反向代理，仍失败才隐藏图片走首字占位。 */
+  var POSTER_FB=[
+    "https://ghproxy.net/https://raw.githubusercontent.com/chashaobao171/shaobaofilm/main/",
+    "https://gh-proxy.com/https://raw.githubusercontent.com/chashaobao171/shaobaofilm/main/"
+  ];
+  document.addEventListener("error",function(e){
+    var img=e.target;
+    if(!img||img.tagName!=="IMG")return;
+    var orig=img.getAttribute("data-p");
+    if(!orig){
+      var p=img.getAttribute("src")||"";
+      if(p.indexOf("posters/")!==0)return;
+      orig=p.replace(/\/{2,}/g,"/");
+      img.setAttribute("data-p",orig);
+    }
+    var n=+(img.getAttribute("data-fb")||0);
+    if(n<POSTER_FB.length){
+      img.setAttribute("data-fb",String(n+1));
+      img.src=POSTER_FB[n]+orig;
+      return;
+    }
+    img.style.display="none";
+    if(img.parentNode)img.parentNode.classList.add("imgerr");
+  },true);
+
   var IC={
     out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
     dice:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg>',
@@ -1300,7 +1327,7 @@ img.ld{opacity:1}
   }
   function fcard(f,i){
     var cover=f.p
-      ?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.onerror=null;this.style.display=\'none\';this.parentNode.classList.add(\'imgerr\')">'
+      ?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+' 海报" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')">'
       :'';
     var _L=esc(String(f.t).slice(0,1));
     var ph=f.p?"":'<span class="ph">'+_L+'</span>';
@@ -1646,7 +1673,7 @@ img.ld{opacity:1}
   COLLS.sort(function(a,b){return COLL_TAG_ORDER.indexOf(a.tag||"")-COLL_TAG_ORDER.indexOf(b.tag||"");});
 
   function miniCard(f){
-    var cover=f.p?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+'" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')" onerror="this.style.display=\'none\'">':'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
+    var cover=f.p?'<img src="'+esc(f.p)+'" alt="'+esc(f.t)+'" loading="lazy" decoding="async" onload="this.classList.add(\'ld\')">':'<span class="ph">'+esc(String(f.t).slice(0,1))+'</span>';
     return '<button class="mc" data-i="'+f._i+'" aria-label="'+esc(f.t)+'">'
       +'<div class="mc-p">'+cover+(f.r?'<span class="rate">'+esc(f.r)+'</span>':'')+'</div>'
       +'<div class="mc-t">'+esc(f.t)+'</div>'
