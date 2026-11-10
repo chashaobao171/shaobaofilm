@@ -1277,6 +1277,12 @@ img.ld{opacity:1}
     var v=f.votes||0;
     return v/(v+VOTE_M)*r+VOTE_M/(v+VOTE_M)*RATE_C;
   }
+  /* 时间排序键：有精确上映日（rd）按日排，否则退化为「年份-00-00」 */
+  function dateKey(f){
+    if(f.rd)return String(f.rd);
+    var y=+f.y||0;
+    return y?y+"-00-00":"";
+  }
   function sorted(){
     var a=FILMS.filter(function(f){return match(f);});
     var s=state.sort;
@@ -1284,8 +1290,8 @@ img.ld{opacity:1}
       if(s==="rating")return (num(y.r))-(num(x.r))||(y.votes||0)-(x.votes||0);
       if(s==="bayes")return bayes(y)-bayes(x)||(y.votes||0)-(x.votes||0);
       if(s==="hot")return (y.votes||0)-(x.votes||0);
-      if(s==="year")return (+y.y||0)-(+x.y||0);
-      if(s==="yearAsc")return (+x.y||0)-(+y.y||0);
+      if(s==="year")return dateKey(y)>dateKey(x)?1:dateKey(y)<dateKey(x)?-1:0;
+      if(s==="yearAsc")return dateKey(x)>dateKey(y)?1:dateKey(x)<dateKey(y)?-1:0;
       return String(x.t).localeCompare(String(y.t),"zh-Hans-CN");
     });
     return a;

@@ -7,7 +7,7 @@
 // 分类 count = 该分类下所有【非 all 子类型】tags 的并集命中数（= index.html 的 CAT_TAGS 点击结果）。
 const fs = require('fs');
 const path = require('path');
-const {taxonomyTree} = require(path.join(__dirname, '..', 'taxonomy-data.js'));
+const {taxonomyTree, taxonomyMeta: prevTaxonomyMeta} = require(path.join(__dirname, '..', 'taxonomy-data.js'));
 
 // 1. 读取影片数据（window.CINE 格式）
 const raw = fs.readFileSync(path.join(__dirname, '..', 'films-data.js'), 'utf8');
@@ -16,6 +16,8 @@ if (!m) { console.error('无法解析 films-data.js'); process.exit(1); }
 const CINE = eval('(' + m[1] + ')');
 const films = CINE.films;
 console.log('影片总数:', films.length);
+// 记录重算前的计数快照：无变化时保留原 updated 日期，避免每周产生仅日期变化的提交
+const beforeCounts = JSON.stringify(taxonomyTree);
 
 // 2. 子类型命中判定（与前端一致）
 function subMatch(sub, gs) {
@@ -69,11 +71,13 @@ Object.entries(taxonomyTree).forEach(([mid, mc]) => {
 });
 
 const subCount = Object.values(taxonomyTree).reduce((n, mc) => n + Object.keys(mc.children).length, 0);
+const countsChanged = JSON.stringify(taxonomyTree) !== beforeCounts;
+const today = new Date().toISOString().slice(0, 10);
 const meta = {
   films: films.length,
   categories: Object.keys(taxonomyTree).length,
   subcategories: subCount,
-  updated: new Date().toISOString().slice(0, 10)
+  updated: countsChanged ? today : ((prevTaxonomyMeta && prevTaxonomyMeta.updated) || today)
 };
 
 // 6. 写回文件

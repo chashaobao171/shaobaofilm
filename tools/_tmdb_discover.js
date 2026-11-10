@@ -19,6 +19,11 @@ const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 const MIN_RATING = parseFloat(process.env.TMDB_MIN_RATING || '7.0'); // 最低 TMDB 评分
 const MIN_VOTES = parseInt(process.env.TMDB_MIN_VOTES || '100', 10); // 最低评价人数
 
+// 院线新片通道：刚上映的影片票数天然很少，用独立门槛，避免被热门榜门槛挡掉
+const NEW_MIN_RATING = parseFloat(process.env.TMDB_NEW_MIN_RATING || '5.0');
+const NEW_MIN_VOTES = parseInt(process.env.TMDB_NEW_MIN_VOTES || '0', 10);
+const NEW_MAX = parseInt(process.env.TMDB_NEW_MAX || '20', 10);
+
 // 标题归一化 + 去重键（跨来源按 片名|年份 判重）
 function normTitle(t) {
   return String(t || '').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -31,6 +36,13 @@ function passesThreshold(film) {
   const rating = Number(film.vote_average) || 0;
   const votes = Number(film.vote_count) || 0;
   return rating >= MIN_RATING && votes >= MIN_VOTES;
+}
+// 新片门槛：尚无评分（0 票）也收录；有评分时按较低门槛过滤
+function passesNewReleaseThreshold(film) {
+  const rating = Number(film.vote_average) || 0;
+  const votes = Number(film.vote_count) || 0;
+  if (votes === 0) return true;
+  return rating >= NEW_MIN_RATING && votes >= NEW_MIN_VOTES;
 }
 
 // Load existing films data
@@ -80,6 +92,20 @@ async function discoverTrending() {
 async function discoverPopular() {
   const url = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=zh-CN&page=1`;
   return fetchJSON(url);
+}
+
+// Discover films currently in theaters in mainland China (includes new IMAX/arthouse releases)
+async function discoverNowPlaying() {
+  const results = [];
+  for (let page = 1; page <= 2; page++) {
+    const url = `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=zh-CN&region=CN&page=${page}`;
+    const json = await fetchJSON(url);
+    if (!json || !Array.isArray(json.results)) {
+      throw new Error('TMDB API returned invalid now_playing data structure');
+    }
+    results.push(...json.results);
+  }
+  return results;
 }
 
 // Get film details including keywords, credits, and collection info
@@ -133,10 +159,24 @@ function convertTMDBFilm(tmdbFilm, details) {
     id: `tmdb${tmdbFilm.id}`,
     votes: tmdbFilm.vote_count || 0,
     e: tmdbFilm.original_title || '',
+    rd: tmdbFilm.release_date || '',
     tmdbId: tmdbFilm.id,
+    doubanId: null,
     keywords: keywords,
-    collection: details?.belongs_to_collection?.id || null
+    collection: details?.belongs_to_collection?.id || null,
+    source: 'tmdb',
+    links: {
+      primary: `https://www.themoviedb.org/movie/${tmdbFilm.id}`,
+      secondary: `https://search.douban.com/movie/subject_search?search_text=${encodeURIComponent(tmdbFilm.title || '')}`
+    }
   };
+}
+
+// 未上映影片不入库：只有占位信息（剧情 TBA、0 票）的待映片没有收录价值
+function isUnreleased(film) {
+  const rd = String(film.release_date || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(rd)) return false;
+  return rd > new Date().toISOString().slice(0, 10);
 }
 
 // Main discovery logic
@@ -162,6 +202,8 @@ async function main() {
   const collections = new Set();
   let skippedDup = 0;
   let skippedLow = 0;
+  let skippedNewLow = 0;
+  let skippedUnreleased = 0;
 
   // 统一判重：命中「库内已有」或「本次已加入」任一维度即视为重复
   const isDuplicate = (filmId, tmdbId, title, year) => {
@@ -199,6 +241,11 @@ async function main() {
     if (isDuplicate(tmdbId, film.id, film.title, year)) {
       console.log(`Skip duplicate: ${film.title}`);
       skippedDup++;
+      continue;
+    }
+    if (isUnreleased(film)) {
+      console.log(`Skip unreleased: ${film.title} (${film.release_date})`);
+      skippedUnreleased++;
       continue;
     }
     if (!passesThreshold(film)) {
@@ -246,6 +293,11 @@ async function main() {
       skippedDup++;
       continue;
     }
+    if (isUnreleased(film)) {
+      console.log(`Skip unreleased: ${film.title} (${film.release_date})`);
+      skippedUnreleased++;
+      continue;
+    }
     if (!passesThreshold(film)) {
       console.log(`Skip low-quality: ${film.title} (rating=${(Number(film.vote_average) || 0).toFixed(1)}, votes=${film.vote_count || 0})`);
       skippedLow++;
@@ -268,7 +320,51 @@ async function main() {
     }
   }
   
-  // Step 3: Complete collections
+  // Step 3: Discover films currently in theaters in mainland China
+  console.log('Fetching now playing films (CN)...');
+  const nowPlaying = await discoverNowPlaying();
+  nowPlaying.sort((a, b) => (Number(b.popularity) || 0) - (Number(a.popularity) || 0));
+  console.log(`Found ${nowPlaying.length} now-playing films (CN)`);
+
+  for (const film of nowPlaying.slice(0, NEW_MAX)) {
+    await new Promise(resolve => setTimeout(resolve, 100)); // Rate limiting
+
+    const tmdbId = `tmdb${film.id}`;
+    const year = film.release_date ? parseInt(film.release_date.split('-')[0]) : null;
+
+    if (isDuplicate(tmdbId, film.id, film.title, year)) {
+      console.log(`Skip duplicate: ${film.title}`);
+      skippedDup++;
+      continue;
+    }
+    if (isUnreleased(film)) {
+      console.log(`Skip unreleased: ${film.title} (${film.release_date})`);
+      skippedUnreleased++;
+      continue;
+    }
+    if (!passesNewReleaseThreshold(film)) {
+      console.log(`Skip low-quality new release: ${film.title} (rating=${(Number(film.vote_average) || 0).toFixed(1)}, votes=${film.vote_count || 0})`);
+      skippedNewLow++;
+      continue;
+    }
+
+    try {
+      const details = await getFilmDetails(film.id);
+      const converted = convertTMDBFilm(film, details);
+      newFilms.push(converted);
+      remember(converted);
+
+      if (converted.collection) {
+        collections.add(converted.collection);
+      }
+
+      console.log(`Added new release: ${film.title} (${year || 'N/A'})`);
+    } catch (e) {
+      console.error(`Failed to fetch details for ${film.title}:`, e.message);
+    }
+  }
+
+  // Step 4: Complete collections
   console.log(`\nProcessing ${collections.size} collections...`);
   
   for (const collectionId of collections) {
@@ -287,6 +383,11 @@ async function main() {
           skippedDup++;
           continue;
         }
+        if (isUnreleased(film)) {
+          console.log(`Skip unreleased: ${film.title} (${film.release_date})`);
+          skippedUnreleased++;
+          continue;
+        }
         
         await new Promise(resolve => setTimeout(resolve, 100));
         const details = await getFilmDetails(film.id);
@@ -301,12 +402,15 @@ async function main() {
     }
   }
   
-  // Step 3: Save discovered films
+  // Step 5: Save discovered films
   console.log(`\n=== Summary ===`);
   console.log(`Threshold: rating >= ${MIN_RATING}, votes >= ${MIN_VOTES}`);
+  console.log(`New-release threshold: rating >= ${NEW_MIN_RATING}, votes >= ${NEW_MIN_VOTES} (0 votes allowed), max ${NEW_MAX}`);
   console.log(`New films discovered: ${newFilms.length}`);
   console.log(`Skipped (duplicate): ${skippedDup}`);
   console.log(`Skipped (low-quality): ${skippedLow}`);
+  console.log(`Skipped (low-quality new release): ${skippedNewLow}`);
+  console.log(`Skipped (unreleased): ${skippedUnreleased}`);
   console.log(`Collections completed: ${collections.size}`);
   
   if (newFilms.length > 0) {

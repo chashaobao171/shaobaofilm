@@ -16,10 +16,17 @@ function loadExistingFilms() {
 }
 
 function loadDiscoveredFilms() {
-  if (!fs.existsSync('_tmdb_discovered.json')) {
-    throw new Error('No _tmdb_discovered.json found. Run _tmdb_discover.js first.');
+  const files = ['_tmdb_discovered.json', '_douban_discovered.json'].filter(f => fs.existsSync(f));
+  if (!files.length) {
+    throw new Error('No discovered films file found. Run _tmdb_discover.js or _douban_discover.js first.');
   }
-  return JSON.parse(fs.readFileSync('_tmdb_discovered.json', 'utf8'));
+  const films = [];
+  files.forEach(file => {
+    const json = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (json && Array.isArray(json.films)) films.push(...json.films);
+    console.log(`  ${file}: ${json && json.films ? json.films.length : 0}`);
+  });
+  return {films};
 }
 
 function mergeFilms() {
@@ -36,15 +43,18 @@ function mergeFilms() {
   }
   const seenIds = new Set();
   const seenTmdbIds = new Set();
+  const seenDoubanIds = new Set();
   const seenKeys = new Set();
   const remember = (f) => {
     if (f.id) seenIds.add(f.id);
     if (f.tmdbId !== null && f.tmdbId !== undefined) seenTmdbIds.add(Number(f.tmdbId));
+    if (f.doubanId !== null && f.doubanId !== undefined) seenDoubanIds.add(String(f.doubanId));
     if (f.t) seenKeys.add(filmKey(f.t, f.y));
   };
   const isDuplicate = (f) => {
     if (f.id && seenIds.has(f.id)) return true;
     if (f.tmdbId !== null && f.tmdbId !== undefined && seenTmdbIds.has(Number(f.tmdbId))) return true;
+    if (f.doubanId !== null && f.doubanId !== undefined && seenDoubanIds.has(String(f.doubanId))) return true;
     const key = filmKey(f.t, f.y);
     if (key && key !== '|' && seenKeys.has(key)) return true;
     return false;
