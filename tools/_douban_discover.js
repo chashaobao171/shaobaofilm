@@ -1,6 +1,7 @@
 /**
  * Douban Discover Script
  * 从豆瓣「热门 / 最新」榜单发现新片，补足 TMDB 趋势榜覆盖不到的热门影片。
+ * 另设「豆瓣高分」补全通道：按高分榜逐页比对影库，补齐经典老片缺口。
  * 输出 _douban_discovered.json，由 _tmdb_merge.js 合并进 films-data.js。
  */
 const fs = require('fs');
@@ -17,6 +18,11 @@ const MAX_PER_TAG = parseInt(process.env.DOUBAN_MAX_PER_TAG || '20', 10);
 const MAX_TOTAL = parseInt(process.env.DOUBAN_MAX_TOTAL || '40', 10);
 const MIN_DURATION = parseInt(process.env.DOUBAN_MIN_DURATION || '60', 10);
 const REQUEST_GAP = parseInt(process.env.DOUBAN_REQUEST_GAP || '350', 10);
+
+// 高分补全：每页 100 条，默认扫 5 页（约 500 部），单次最多补 30 部，避免一次涌入过多
+const TOP_PAGE_SIZE = 100;
+const TOP_PAGES = parseInt(process.env.DOUBAN_TOP_PAGES || '5', 10);
+const TOP_MAX = parseInt(process.env.DOUBAN_TOP_MAX || '30', 10);
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -85,6 +91,34 @@ async function fetchList(tag) {
   const json = JSON.parse(r.text);
   if (!json || !Array.isArray(json.subjects)) throw new Error(`Douban list "${tag}" invalid JSON`);
   return json.subjects;
+}
+
+// 豆瓣高分榜逐页抓取（经典补全用）；单页失败不影响整体
+async function fetchHighRated() {
+  const all = [];
+  for (let page = 0; page < TOP_PAGES; page++) {
+    const start = page * TOP_PAGE_SIZE;
+    const url = `https://movie.douban.com/j/search_subjects?type=movie&tag=${encodeURIComponent('豆瓣高分')}&page_limit=${TOP_PAGE_SIZE}&page_start=${start}`;
+    const r = await httpGet(url, {
+      'User-Agent': DESKTOP_UA,
+      'Referer': 'https://movie.douban.com/'
+    }, false);
+    if (r.status !== 200) {
+      console.log(`高分榜第 ${page + 1} 页失败（HTTP ${r.status || r.error}），已抓 ${all.length} 条`);
+      break;
+    }
+    let subjects = [];
+    try {
+      subjects = (JSON.parse(r.text) || {}).subjects || [];
+    } catch (e) {
+      console.log(`高分榜第 ${page + 1} 页解析失败`);
+      break;
+    }
+    all.push(...subjects);
+    if (subjects.length < TOP_PAGE_SIZE) break;
+    await sleep(REQUEST_GAP);
+  }
+  return all;
 }
 
 function normalizeMobile(j) {
@@ -212,13 +246,34 @@ async function downloadPoster(id, url) {
     .sort((a, b) => (b.tags.indexOf('热门') >= 0 ? 1 : 0) - (a.tags.indexOf('热门') >= 0 ? 1 : 0))
     .slice(0, MAX_TOTAL);
 
-  console.log(`Candidates: ${candidates.size}, checking ${pending.length}`);
+  // 高分补全通道：高分榜里影库尚未收录的经典，单次最多补 TOP_MAX 部
+  let highRated = [];
+  try {
+    highRated = await fetchHighRated();
+  } catch (e) {
+    console.log('高分榜不可用，跳过经典补全:', e.message);
+  }
+  const classicPending = highRated
+    .filter(s => s && s.id && !existing.doubanIds.has(String(s.id)))
+    .filter(s => !candidates.has(String(s.id)))
+    .map(s => ({
+      id: String(s.id),
+      title: String(s.title || '').trim(),
+      cover: String(s.cover || '').trim(),
+      isNew: false,
+      tags: ['高分']
+    }))
+    .slice(0, TOP_MAX);
+  console.log(`High-rated list: ${highRated.length}, classics to check: ${classicPending.length}`);
+
+  const queue = [...pending, ...classicPending];
+  console.log(`Candidates: ${candidates.size}, checking ${pending.length} + ${classicPending.length}`);
 
   const newFilms = [];
   const addedKeys = new Set();
   let skippedKnown = 0, skippedTv = 0, skippedShort = 0, skippedBad = 0, skippedUnreleased = 0;
 
-  for (const c of pending) {
+  for (const c of queue) {
     if (existing.doubanIds.has(c.id)) { skippedKnown++; continue; }
 
     const d = await fetchDetail(c.id, c.title, c.cover);

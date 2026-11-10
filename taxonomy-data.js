@@ -7,7 +7,7 @@ const taxonomyTree = {
     "icon": "🎭",
     "color": "#F87171",
     "description": "人性、情感与命运的长卷",
-    "count": 6574,
+    "count": 6576,
     "children": {
       "drama": {
         "id": "drama",
@@ -20,9 +20,9 @@ const taxonomyTree = {
           "生活"
         ],
         "mode": "any",
-        "count": 5136,
+        "count": 5138,
         "tagCounts": {
-          "剧情": 5133,
+          "剧情": 5135,
           "社会": 1,
           "青春": 1,
           "治愈": 1,
@@ -36,9 +36,9 @@ const taxonomyTree = {
           "爱情"
         ],
         "mode": "one",
-        "count": 1705,
+        "count": 1706,
         "tagCounts": {
-          "爱情": 1705
+          "爱情": 1706
         }
       },
       "crime": {
@@ -420,7 +420,7 @@ const taxonomyTree = {
         "count": 635,
         "tagCounts": {
           "喜剧": 2356,
-          "爱情": 1705
+          "爱情": 1706
         }
       },
       "anim-com": {
@@ -462,7 +462,7 @@ const taxonomyTree = {
         "count": 901,
         "tagCounts": {
           "喜剧": 2356,
-          "剧情": 5133
+          "剧情": 5135
         }
       }
     }
@@ -694,7 +694,7 @@ const taxonomyTree = {
 };
 
 const taxonomyMeta = {
-  "films": 8792,
+  "films": 8794,
   "categories": 9,
   "subcategories": 44,
   "updated": "2026-11-10"

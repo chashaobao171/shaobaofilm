@@ -30,7 +30,11 @@ jobs:
           TMDB_NEW_MAX: '20'
         run: node tools/_tmdb_discover.js
 
-      - name: Discover Douban hot/new films
+      - name: Discover Douban hot/new/classic films
+        env:
+          # 热门/最新榜之外，按豆瓣高分榜补齐经典老片，单次最多补 30 部
+          DOUBAN_TOP_PAGES: '5'
+          DOUBAN_TOP_MAX: '30'
         run: node tools/_douban_discover.js
 
       - name: Merge new films into films-data.js
