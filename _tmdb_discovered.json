@@ -1,100 +1,726 @@
 {
-  "timestamp": "2026-11-09T08:56:25.735Z",
-  "count": 3,
+  "timestamp": "2026-11-16T08:53:11.407Z",
+  "count": 21,
   "films": [
     {
-      "t": "野兽之心",
+      "t": "泥面人",
       "y": 2026,
-      "d": "大卫·阿耶",
+      "d": "詹姆斯·沃特金斯",
+      "r": 7.4,
+      "c": "",
+      "dur": 109,
+      "g": [
+        "恐怖",
+        "惊悚",
+        "科幻"
+      ],
+      "s": "好莱坞新星马特·哈根遭犯罪头目毁容后，为恢复容貌接受先进治疗，却意外陷入疯狂，走上复仇之路。",
+      "acts": "汤姆·里斯·哈里斯 / 娜奥米·阿基 / 埃迪·马森",
+      "p": "https://image.tmdb.org/t/p/w500/8AKvV4bJsfUBUZ7cgW41iv3EYaG.jpg",
+      "id": "tmdb1400940",
+      "votes": 446,
+      "e": "Clayface",
+      "rd": "2026-10-19",
+      "tmdbId": 1400940,
+      "doubanId": null,
+      "keywords": [
+        "monster",
+        "shapeshifting",
+        "based on comic",
+        "revenge",
+        "tragedy",
+        "mobster",
+        "unrequited love",
+        "disfigured face",
+        "aspiring actor",
+        "female scientist",
+        "scientific experiment",
+        "body horror",
+        "dc universe (dcu)",
+        "hollywood actor"
+      ],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1400940",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E6%B3%A5%E9%9D%A2%E4%BA%BA"
+      }
+    },
+    {
+      "t": "野马九号",
+      "y": 2026,
+      "d": "马丁·麦克唐纳",
+      "r": 7.9,
+      "c": "",
+      "dur": 117,
+      "g": [
+        "喜剧",
+        "犯罪",
+        "惊悚"
+      ],
+      "s": "1973年智利，性格迥异的CIA特工克里斯和李被局长从圣地亚哥派往复活节岛，这对搭档将执行一项考验彼此信任和忠诚的任务。",
+      "acts": "约翰·马尔科维奇 / 山姆·洛克威尔 / 史蒂夫·布西密",
+      "p": "https://image.tmdb.org/t/p/w500/6ukRHPoxyQWhxmOwH0jXwCtqAay.jpg",
+      "id": "tmdb891621",
+      "votes": 214,
+      "e": "Wild Horse Nine",
+      "rd": "2026-10-30",
+      "tmdbId": 891621,
+      "doubanId": null,
+      "keywords": [
+        "central intelligence agency (cia)",
+        "1970s",
+        "easter island",
+        "joyous",
+        "amused",
+        "tragic"
+      ],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/891621",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E9%87%8E%E9%A9%AC%E4%B9%9D%E5%8F%B7"
+      }
+    },
+    {
+      "t": "戴帽子的猫",
+      "y": 2026,
+      "d": "Erica Rivinoja",
+      "r": 6.9,
+      "c": "",
+      "dur": 108,
+      "g": [
+        "动画",
+        "奇幻",
+        "冒险",
+        "家庭",
+        "喜剧"
+      ],
+      "s": "改编自苏斯博士创作的同名儿童绘本。一只古灵精怪的猫接到最艰巨的任务：帮助一对因搬家而闷闷不乐的兄妹加比和塞巴斯蒂安重拾快乐。这场充满魔法与恶作剧的冒险，也可能成为他证明自己的最后机会，否则就将失去魔法帽。",
+      "acts": "比尔·哈德尔 / 克索斯利尔·戈麦斯 / Tiago Martinez",
+      "p": "https://image.tmdb.org/t/p/w500/6qBLbcj7kM2pkrkGHAOwcleVVqy.jpg",
+      "id": "tmdb1117898",
+      "votes": 28,
+      "e": "The Cat in the Hat",
+      "rd": "2026-11-06",
+      "tmdbId": 1117898,
+      "doubanId": null,
+      "keywords": [
+        "sibling relationship",
+        "based on novel or book",
+        "hat",
+        "cat",
+        "based on children's book",
+        "goldfish",
+        "new town",
+        "talking cat",
+        "talking fish",
+        "lighthearted",
+        "absurd",
+        "cheer up",
+        "hilarious",
+        "whimsical",
+        "ridiculous"
+      ],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1117898",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E6%88%B4%E5%B8%BD%E5%AD%90%E7%9A%84%E7%8C%AB"
+      }
+    },
+    {
+      "t": "鲸口脱险",
+      "y": 2026,
+      "d": "布莱恩·达菲尔德",
+      "r": 6.6,
+      "c": "",
+      "dur": 106,
+      "g": [
+        "惊悚"
+      ],
+      "s": "一场突如其来的意外，让他被巨鲸吞入腹中。受困于漆黑鲸腹之中，他仅剩 一小时氧气。在与时间赛跑、与恐惧正面交锋的同时，父亲留给他的技能，或许正是他逃出生天的唯一希望。",
+      "acts": "奥斯汀·艾布拉姆斯 / 乔什·布洛林 / 伊丽莎白·苏",
+      "p": "https://image.tmdb.org/t/p/w500/dGDJlUMPbLPavjrpMwUhmDHCBMB.jpg",
+      "id": "tmdb1255833",
+      "votes": 145,
+      "e": "Whalefall",
+      "rd": "2026-10-16",
+      "tmdbId": 1255833,
+      "doubanId": null,
+      "keywords": [
+        "race against time",
+        "based on novel or book",
+        "oxygen",
+        "death of father",
+        "survival",
+        "scuba diver",
+        "cautionary",
+        "callous",
+        "embarrassed",
+        "sperm whale",
+        "survival thriller"
+      ],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1255833",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E9%B2%B8%E5%8F%A3%E8%84%B1%E9%99%A9"
+      }
+    },
+    {
+      "t": "小羊肖恩3：怪兽来袭",
+      "y": 2026,
+      "d": "Steve Cox",
       "r": 7.3,
+      "c": "",
+      "dur": 81,
+      "g": [
+        "动画",
+        "科幻",
+        "喜剧",
+        "家庭"
+      ],
+      "s": "青苔农场的居民正翘首以盼万圣节的到来，而笨手笨脚的农夫意外毁了羊群心爱的南瓜地。为了解决问题，肖恩化身疯狂科学家，结果事情失控，森林中一只神秘怪兽横空出世。",
+      "acts": "Justin Fletcher / John Sparkes / 尼娜·索珊娅",
+      "p": "https://image.tmdb.org/t/p/w500/xJDyxCdAmzmkPt5rKrjRFvkZ88D.jpg",
+      "id": "tmdb1477104",
+      "votes": 62,
+      "e": "Shaun the Sheep: The Beast of Mossy Bottom",
+      "rd": "2026-10-24",
+      "tmdbId": 1477104,
+      "doubanId": null,
+      "keywords": [
+        "farm",
+        "sheep",
+        "halloween",
+        "sequel",
+        "based on cartoon",
+        "horror for children",
+        "claymation",
+        "based on tv series",
+        "comedy",
+        "slapstick humor"
+      ],
+      "collection": 899158,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1477104",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E5%B0%8F%E7%BE%8A%E8%82%96%E6%81%A93%EF%BC%9A%E6%80%AA%E5%85%BD%E6%9D%A5%E8%A2%AD"
+      }
+    },
+    {
+      "t": "疾速追杀",
+      "y": 2026,
+      "d": "查德·斯塔赫斯基",
+      "r": 7.5,
       "c": "",
       "dur": 101,
       "g": [
-        "冒险",
+        "动作",
         "惊悚"
       ],
-      "s": "一名前陆军特种部队士兵与他退役战犬在阿拉斯加深处遭遇坠机事故后，这对老搭档必须在环境严酷的极地荒野中相互扶持，为生存而战。",
-      "acts": "布拉德·皮特 / J·K·西蒙斯 / Anna Lambe",
-      "p": "https://image.tmdb.org/t/p/w500/k1nznc9xTRkRq0BNu7qOXE3NSlU.jpg",
-      "id": "tmdb1263337",
-      "votes": 517,
-      "e": "Heart of the Beast",
-      "tmdbId": 1263337,
+      "s": "不久之前刚刚经历丧妻之痛的约翰·威克（基努·里维斯 Keanu Reeves 饰），未曾料到磨难与折磨接二连三袭来。他那辆1964年的福特老爷车被一伙俄罗斯小混混盯上，旋即引来对方入室抢劫，心爱的狗狗被当场杀死，约翰也遭到无情毒打，那辆老爷车自然被对方抢走。偷车的混混（阿尔菲·艾伦 Alfie Allen 饰）是黑帮大佬维格·塔拉索夫（迈克尔·恩奎斯特 Michael Nyqvist 饰）的儿子，而维格在听说这件事后显得紧张非常，因为约翰有着令人胆战心惊的身份。他曾是名震江湖的冷血杀手，当年替塔拉索夫杀掉不少难缠的对手，后来却为了妻子金盆洗手。愤怒至极的约翰拒绝塔拉索夫的调解，他决定单枪匹马展开复仇……",
+      "acts": "基努·里维斯 / 迈克尔·恩奎斯特 / 阿尔菲·艾伦",
+      "p": "https://image.tmdb.org/t/p/w500/5m86tQWN5X1jJ8S3bKPE5D2Ahew.jpg",
+      "id": "tmdb245891",
+      "votes": 21632,
+      "e": "John Wick",
+      "rd": "2026-10-30",
+      "tmdbId": 245891,
+      "doubanId": null,
       "keywords": [
-        "alaska",
+        "hitman",
+        "bratva (russian mafia)",
+        "gangster",
+        "secret organization",
+        "revenge",
+        "murder",
         "dog",
-        "special forces",
-        "military",
-        "american wilderness",
-        "man vs nature",
-        "plane crash",
-        "inspirational",
-        "survival thriller",
-        "extreme conditions"
+        "retired",
+        "widower"
       ],
-      "collection": null
+      "collection": 404609,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/245891",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E7%96%BE%E9%80%9F%E8%BF%BD%E6%9D%80"
+      }
     },
     {
-      "t": "哥斯拉-0.0",
-      "y": 2026,
-      "d": "山崎贵",
-      "r": 8,
+      "t": "海上钢琴师",
+      "y": 2019,
+      "d": "朱塞佩·托纳多雷",
+      "r": 8.2,
       "c": "",
-      "dur": 135,
+      "dur": 170,
       "g": [
-        "科幻",
-        "恐怖",
-        "动作"
+        "剧情",
+        "音乐"
       ],
-      "s": "人类的罪与罚。已经，没法归零。战争将日本粉碎至“零”，哥斯拉的袭击更将它推至“负”的绝境。时间来到两年后，人民历尽痛苦磨难仍坚持复苏的步伐，看似终于可以回归正常生活……然而此时，巨兽再次袭来。它彻底摧毁这份希望，将人类推向新的绝望深渊！",
-      "acts": "神木隆之介 / 滨边美波 / 山田裕贵",
-      "p": "https://image.tmdb.org/t/p/w500/51RBWzkFd4zEsOGg4ZIqYlNszHc.jpg",
-      "id": "tmdb1381071",
-      "votes": 109,
-      "e": "ゴジラ-0.0",
-      "tmdbId": 1381071,
+      "s": "1900年，一个被遗弃的婴儿出现在往返欧美的弗吉尼亚号上，被船上的锅炉工丹尼收养，并以新世纪的年份取名为“1900”。丹尼意外去世后，1900继续在船上长大，并逐渐展现出无师自通的惊人钢琴天赋，成为弗吉尼亚号上的钢琴师。他的演奏吸引着来自世界各地的乘客，也让他与小号手麦克斯结下深厚友谊。然而无论船只多少次靠岸，1900始终没有真正踏上陆地，对他而言，这艘船和八十八个琴键就是自己熟悉的整个世界。直到一次偶然的邂逅，让从未离开过大海的他第一次认真考虑走下弗吉尼亚号，面对那个没有边界的陌生世界……",
+      "acts": "蒂姆·罗斯 / 普路特·泰勒·文斯 / 梅兰尼·蒂埃里",
+      "p": "https://image.tmdb.org/t/p/w500/bXk1kSDSiVPj06LtpESZK7C8HsL.jpg",
+      "id": "tmdb10376",
+      "votes": 2525,
+      "e": "La leggenda del pianista sull'oceano",
+      "rd": "2019-11-09",
+      "tmdbId": 10376,
+      "doubanId": null,
       "keywords": [
-        "japan",
-        "sequel",
-        "kaiju",
-        "monster movie",
-        "godzilla",
-        "tokusatsu"
+        "ship",
+        "ocean",
+        "musical",
+        "ocean liner",
+        "child prodigy",
+        "pianist",
+        "foundling"
       ],
-      "collection": 1474814
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/10376",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E6%B5%B7%E4%B8%8A%E9%92%A2%E7%90%B4%E5%B8%88"
+      }
     },
     {
-      "t": "假面恋人：换档追爱",
+      "t": "笑傲江湖2：东方不败",
       "y": 2026,
-      "d": "Sergej Moya",
+      "d": "程小东",
+      "r": 6.6,
+      "c": "",
+      "dur": 107,
+      "g": [
+        "动作",
+        "奇幻",
+        "冒险"
+      ],
+      "s": "华山派大弟子令狐冲（李连杰 饰）在经历江湖纷争后，本欲与师妹岳灵珊（李嘉欣 饰）及众师弟一同归隐，退出江湖。然而，此时的武林正被一场巨大阴谋笼罩。日月神教教主东方不败（林青霞 饰）凭借绝世武功《葵花宝典》篡权，囚禁了原教主任我行（任世官 饰），并勾结东瀛浪人，意图颠覆朝廷。\r 令狐冲在途中偶遇一位超凡脱俗的神秘女子，两人月下对饮，引为知己，令狐冲更对这位女子暗生情愫。他全然不知，眼前这位佳人，正是他受朋友任盈盈（关之琳 饰）和蓝凤凰（袁洁莹 饰）所托、计划要铲除的魔教枭雄东方不败。\r 与此同时，东方不败为巩固权势，开始铲除教内异己。当令狐冲得知自己的同门师兄弟惨遭东方不败毒手时，他义愤填膺，决心联手任盈盈、向问天（刘洵 饰）以及被救出的任我行，攻上黑木崖，为同门报仇。\r 在最终的决战中，令狐冲震惊地发现，那个与自己有过一段情缘、刻骨铭心的神秘女子，竟然就是他要手刃的仇敌东方不败。爱恨交织与江湖大义在前，两人展开了一场惊天动地的生死对决。东方不败虽武功盖世，但因对令狐冲手下留情，最终坠下悬崖。\r 风波平息后，重掌大权的任我行变得与昔日的东方不败一样专横，开始大肆清除异己。令狐冲看透江湖权力斗争的循环与虚妄，心灰意冷之下，选择携师妹岳灵珊浪迹天涯，真正远离这个纷扰的江湖。",
+      "acts": "林青霞 / 李连杰 / 关之琳",
+      "p": "https://image.tmdb.org/t/p/w500/yZYzCiF0uGSg6kRkDE1UKzuesaF.jpg",
+      "id": "tmdb18672",
+      "votes": 136,
+      "e": "笑傲江湖II東方不敗",
+      "rd": "2026-10-30",
+      "tmdbId": 18672,
+      "doubanId": null,
+      "keywords": [
+        "wuxia"
+      ],
+      "collection": 44917,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/18672",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E7%AC%91%E5%82%B2%E6%B1%9F%E6%B9%962%EF%BC%9A%E4%B8%9C%E6%96%B9%E4%B8%8D%E8%B4%A5"
+      }
+    },
+    {
+      "t": "落凡尘",
+      "y": 2024,
+      "d": "钟鼎",
+      "r": 7.3,
+      "c": "",
+      "dur": 118,
+      "g": [
+        "动画",
+        "奇幻"
+      ],
+      "s": "织女因擅离职守而获罪，逃散的二十八星宿也给人间带来危机。多年后，织女之子金风为替母赎罪，从神界来到人间收服星宿。途中，他意外结识了一心想前往神界寻找母亲的人间少女小凡，两人由此结伴踏上寻星之旅。随着一个个星宿被收服，隐藏在往事背后的秘密也逐渐浮出水面，而金风对凡尘、亲情与自己的选择也有了新的认识……",
+      "acts": "李昕 / 刘校妤 / 星潮",
+      "p": "https://image.tmdb.org/t/p/w500/2nXWDju83nclC4vEJ4dkKnLN8gl.jpg",
+      "id": "tmdb1303336",
+      "votes": 16,
+      "e": "落凡尘",
+      "rd": "2024-07-06",
+      "tmdbId": 1303336,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1303336",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E8%90%BD%E5%87%A1%E5%B0%98"
+      }
+    },
+    {
+      "t": "三国第一部：争洛阳",
+      "y": 2026,
+      "d": "谢君伟",
+      "r": 6.8,
+      "c": "",
+      "dur": 137,
+      "g": [
+        "动画",
+        "历史"
+      ],
+      "s": "东汉末年，危机四伏，宦官掌权，百姓困苦。黄巾军起，曹操、袁绍、袁术、吕布、孙坚、刘备等乱世英雄初露头角。各方势力争斗洛阳，惊涛骇浪中，曹操、袁绍如何应对？",
+      "acts": "王凯 / 魏超 / 万昊",
+      "p": "https://image.tmdb.org/t/p/w500/vsDiLRTjXmK75PXG2jPn575yCnj.jpg",
+      "id": "tmdb1671541",
+      "votes": 4,
+      "e": "三国第一部：争洛阳",
+      "rd": "2026-06-27",
+      "tmdbId": 1671541,
+      "doubanId": null,
+      "keywords": [
+        "shocking",
+        "amused",
+        "defiant",
+        "three kingdoms of china"
+      ],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1671541",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E4%B8%89%E5%9B%BD%E7%AC%AC%E4%B8%80%E9%83%A8%EF%BC%9A%E4%BA%89%E6%B4%9B%E9%98%B3"
+      }
+    },
+    {
+      "t": "生日快乐",
+      "y": 2026,
+      "d": "Sarah Goher",
+      "r": 7.8,
+      "c": "",
+      "dur": 91,
+      "g": [
+        "剧情"
+      ],
+      "s": "八岁的小女孩托哈在开罗一个富裕家庭当童工女仆，并与雇主的女儿奈莉建立了特殊的联系。从未庆祝过自己生日的托哈下定决心要为奈莉举办一场完美的生日派对，她暗自希望借此体验到自己从未感受过的快乐。",
+      "acts": "نيللى كريم / Doha Ramadan / شريف سلامة",
+      "p": "https://image.tmdb.org/t/p/w500/4BL6RXKImeTkh7dffmHkopIIFZd.jpg",
+      "id": "tmdb1303034",
+      "votes": 6,
+      "e": "عيد ميلاد سعيد",
+      "rd": "2026-09-18",
+      "tmdbId": 1303034,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1303034",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E7%94%9F%E6%97%A5%E5%BF%AB%E4%B9%90"
+      }
+    },
+    {
+      "t": "麻将女王",
+      "y": 2026,
+      "d": "王晶",
+      "r": 5.7,
+      "c": "",
+      "dur": 99,
+      "g": [
+        "喜剧"
+      ],
+      "s": "龙家村村长龙卷峰（许绍雄 饰）育有三女一子，分别名叫龙小东（高海宁 饰）、龙小南（陈静 饰）、龙小茜（郭珮文 饰）和龙小北（文佐匡 饰）。大家姐小东是连续五年跻身最佳业绩的百万元桌级经理。外表是事业女王的小东却是一个“天生麻将狂”，更偏偏恋上科学家男友马壮（马国明 饰）。马壮对小东情深一往，只是他一生最憎恨人打麻将。为了不让爱郎失望，小东竭力隐瞒自己是麻将狂的真相。  二妹小南攻读戏剧，毕业后当不了演员，却在片场担任“亲密指导员”，遇上了躁狂影帝千红哥（陈家乐 饰）。二人对戏剧追求南辕北辙，但两个火星撞地球的人偏偏在相处过程中由欢喜冤家变成擦出爱火花。  三妹小茜一天竟被小北老板，胸围厂太子爷林雨云（李尚正 饰）落力追求，以为大团圆结局之际，谁知真相峰回路转。小茜和雨云相爱背后，其实也暗藏一个惊天秘密。",
+      "acts": "高海宁 / 马国明 / 陈家乐",
+      "p": "https://image.tmdb.org/t/p/w500/vY6Nl8km2kxh3uop6o5dfUAwgQj.jpg",
+      "id": "tmdb1394721",
+      "votes": 3,
+      "e": "麻雀女王追男仔",
+      "rd": "2026-11-06",
+      "tmdbId": 1394721,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1394721",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E9%BA%BB%E5%B0%86%E5%A5%B3%E7%8E%8B"
+      }
+    },
+    {
+      "t": "菜肉馄饨",
+      "y": 2025,
+      "d": "吴天戈",
+      "r": 6,
+      "c": "",
+      "dur": 108,
+      "g": [
+        "剧情",
+        "喜剧",
+        "爱情"
+      ],
+      "s": "退休工程师老汪一直走不出丧妻的阴影，时常恍惚间觉得妻子素娟仍在身边，与自己说话。每周六，儿子小汪都会回家看望他，吃一碗父亲亲手包的菜肉馄饨。见面时，老汪总免不了催促儿子找女朋友、结婚成家，小汪却常常找借口溜走。为了儿子的终身大事，老汪来到人民公园相亲角替他征婚，并在那里结识了林美琴、老金和阿芳。几人逐渐成为朋友，老汪也在他们的陪伴下慢慢走出封闭的生活，开始吃饭、跳舞、喝下午茶，重新发现生活的乐趣。而同样经历丧偶的退休教师林美琴，也渐渐走进了他的生活……",
+      "acts": "周野芒 / 潘虹 / 茅善玉",
+      "p": "https://image.tmdb.org/t/p/w500/mqji7R2fq5fNowia3BwEFNl18Za.jpg",
+      "id": "tmdb1406277",
+      "votes": 4,
+      "e": "菜肉馄饨",
+      "rd": "2025-11-15",
+      "tmdbId": 1406277,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1406277",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E8%8F%9C%E8%82%89%E9%A6%84%E9%A5%A8"
+      }
+    },
+    {
+      "t": "我没错！",
+      "y": 2026,
+      "d": "宗海英",
+      "r": 5,
+      "c": "",
+      "dur": 106,
+      "g": [
+        "剧情",
+        "喜剧",
+        "犯罪"
+      ],
+      "s": "一次伸手相助的善意让黎响（佟丽娅 饰）被判过失杀人，不甘心的她携手失意律师韩铮（王皓 饰），与多年未见的三位老友王海燕（王智 饰）、李欣怡（吴优 饰）、刘思涵（王丽坤 饰），一同踏上和时间赛跑的寻证之路。",
+      "acts": "佟丽娅 / 王皓 / 王智",
+      "p": "https://image.tmdb.org/t/p/w500/5ceN7TJ27djX29YtPYvliik9e1T.jpg",
+      "id": "tmdb1821748",
+      "votes": 1,
+      "e": "我没错！",
+      "rd": "2026-11-14",
+      "tmdbId": 1821748,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1821748",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E6%88%91%E6%B2%A1%E9%94%99%EF%BC%81"
+      }
+    },
+    {
+      "t": "刺客：代号37",
+      "y": 2026,
+      "d": "Arthur Môlard",
+      "r": 5.7,
+      "c": "",
+      "dur": 93,
+      "g": [
+        "惊悚",
+        "剧情"
+      ],
+      "s": "文森特是一名卡车司机，做着平凡的工作，努力养家糊口。他的卡车司机朋友弗雷多在开车时被枪杀，而凶手尚未找到。噩耗发生后的某一天，文森特在开车路上遇到一名想要搭便车的孕妇。她自称“37”，脾气暴躁，情绪十分不稳定，更糟糕的是，她的手里还拿着一把自动枪！37用枪指着文森特，要求他一直往前开，开到卡车没油为止。如果文森特拒绝配合，她就会立刻开枪杀了他。而这一切并不像表面看起来那么简单……文森特目睹了一场警察枪击事件，同时被锁进了冷藏拖车里，为了保住自己的性命，回到家人身边，文森特会不惜一切代价，想方设法逃离。貌似毫无关联的人物却有千丝万缕的联系，众人发现自己被卷入一场错综复杂的犯罪大计。37针对文森特的原因以及名字背后的悲剧、犯罪的元凶，被逐渐揭露。真正的黑暗从不是突如其来的暴力，而是藏在人心深处的秘密与执念。当真相的碎片逐渐拼凑，才发现伤害与救赎、罪恶与清白往往相互缠绕。唯有直面过往的创伤，才能打破仇恨的循环，在绝境中寻得一线生机。",
+      "acts": "Guillaume Pottier / Mélodie Wakivuamina / Agnès Sourdillon",
+      "p": "https://image.tmdb.org/t/p/w500/eddIArb9ExNEPS1nqWv5bjwlW06.jpg",
+      "id": "tmdb1130410",
+      "votes": 29,
+      "e": "37 : L'Ombre et la Proie",
+      "rd": "2026-10-28",
+      "tmdbId": 1130410,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1130410",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E5%88%BA%E5%AE%A2%EF%BC%9A%E4%BB%A3%E5%8F%B737"
+      }
+    },
+    {
+      "t": "心迷宫之三重罪",
+      "y": 2026,
+      "d": "何念",
+      "r": 0,
+      "c": "",
+      "dur": 98,
+      "g": [
+        "犯罪"
+      ],
+      "s": "　　一具烧焦的无名尸体被发现，引发邻里间的猜疑。大家都在怀疑小肖杀人，虎子的家人企图认尸躲避恶霸追债，琴儿则借尸体摆脱已无感情的丈夫，此时，又有一场意外发生………随着警方调查，真相逐渐浮现。",
+      "acts": "姜武 / 杜光祎 / 顾鑫",
+      "p": "https://image.tmdb.org/t/p/w500/rJIGUOU3xBAwYN0psHfy4vjRvz1.jpg",
+      "id": "tmdb1810158",
+      "votes": 0,
+      "e": "心迷宫之三重罪",
+      "rd": "2026-11-07",
+      "tmdbId": 1810158,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1810158",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E5%BF%83%E8%BF%B7%E5%AE%AB%E4%B9%8B%E4%B8%89%E9%87%8D%E7%BD%AA"
+      }
+    },
+    {
+      "t": "我们仅有一次的人生",
+      "y": 2026,
+      "d": "孙傲谦",
+      "r": 5,
+      "c": "",
+      "dur": 113,
+      "g": [
+        "剧情",
+        "犯罪"
+      ],
+      "s": "黄燕（宋佳 饰）在按部就班的火化工作中逐渐失去了对生活的期待，变得悲观麻木。直到她意识到自己终将死亡，才决定更勇敢、更大胆地活出自我。一次意外，让她与通透、明媚的姚雪（文淇 饰）相遇。她们彼此治愈，像冬天里靠在一起取暖的两个人；她们互相擦干眼泪，勇敢做自己想做的事，把自己放在人生的第一位，一起体验这仅有一次的人生！",
+      "acts": "宋佳 / 文淇 / 祖峰",
+      "p": "https://image.tmdb.org/t/p/w500/x9qOS6bmqS0aeElkfH9qdO9NPVJ.jpg",
+      "id": "tmdb1409470",
+      "votes": 1,
+      "e": "我们仅有一次的人生",
+      "rd": "2026-11-07",
+      "tmdbId": 1409470,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1409470",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E6%88%91%E4%BB%AC%E4%BB%85%E6%9C%89%E4%B8%80%E6%AC%A1%E7%9A%84%E4%BA%BA%E7%94%9F"
+      }
+    },
+    {
+      "t": "向阳青春",
+      "y": 2026,
+      "d": "王盘灵",
+      "r": 0,
+      "c": "",
+      "dur": 111,
+      "g": [
+        "剧情"
+      ],
+      "s": "高中生夏薇零（肖雨晴 饰），长期困在母亲（李颖 饰） 的严密管控里，学业、选择、交友全都被安排妥当。曾经顺从的她，终于在压抑里爆发，逃课、反抗，和好友宋飞（张恒铭 饰）、陆欢（张婧岚 饰）一起，拼命夺回属于自己的空间。母女之间争吵不断，误会层层叠加，那句沉甸甸的 “我都是为了你”，慢慢变成刺伤彼此的利刃。一边是母亲寄托全部人生的期待，一边是女孩想要自主成长的渴望。这场没有赢家的家庭战争，能否找到和解的出口？这是属于无数青春期孩子的挣扎，也是每个家长都要面对的一课。",
+      "acts": "肖雨晴 / 吕炫乐 / 徐光宇",
+      "p": "https://image.tmdb.org/t/p/w500/ytbvQ1rdOo4OGMcjr1P1fZtaJ67.jpg",
+      "id": "tmdb1812386",
+      "votes": 0,
+      "e": "向阳青春",
+      "rd": "2026-11-14",
+      "tmdbId": 1812386,
+      "doubanId": null,
+      "keywords": [],
+      "collection": null,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/1812386",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E5%90%91%E9%98%B3%E9%9D%92%E6%98%A5"
+      }
+    },
+    {
+      "t": "疾速追杀3",
+      "y": 2019,
+      "d": "查德·斯塔赫斯基",
+      "r": 7.4,
+      "c": "",
+      "dur": 131,
+      "g": [
+        "动作",
+        "惊悚",
+        "犯罪"
+      ],
+      "s": "“高桌”是一个犯罪组织，约翰·威克曾宣誓永远忠于该组织。现在，组织派遣“审判者”到酒店去处理那些帮助过约翰·威克叛逃的人，让他们尝到惩罚的滋味。审判者又招募了一个杀手“零”，想除掉约翰·威克。约翰·威克找到自己的老朋友，他需要治疗自己的伤口，并且找到安全的路子，最终，他联系到了另一个朋友，曾经跟他一起做过杀手的索菲亚。小团队集结起来之后，约翰·威克开始考虑能够一劳永逸彻底除掉“高桌”组织的行动",
+      "acts": "基努·里维斯 / 哈莉·贝瑞 / 伊恩·麦柯肖恩",
+      "p": "https://image.tmdb.org/t/p/w500/zB2z4IKOF1kfuAiBFrzBtzO0sJc.jpg",
+      "id": "tmdb458156",
+      "votes": 12286,
+      "e": "John Wick: Chapter 3 - Parabellum",
+      "rd": "2019-05-15",
+      "tmdbId": 458156,
+      "doubanId": null,
+      "keywords": [
+        "new york city",
+        "martial arts",
+        "bratva (russian mafia)",
+        "casablanca, morocco",
+        "secret society",
+        "secret organization",
+        "black humor",
+        "sahara desert",
+        "sequel",
+        "organized crime",
+        "one man army",
+        "code of honor",
+        "hand to hand combat",
+        "consequences",
+        "professional assassin",
+        "baba yaga",
+        "dog man friendship",
+        "continental hotel"
+      ],
+      "collection": 404609,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/458156",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E7%96%BE%E9%80%9F%E8%BF%BD%E6%9D%803"
+      }
+    },
+    {
+      "t": "疾速追杀4",
+      "y": 2023,
+      "d": "查德·斯塔赫斯基",
       "r": 7.7,
       "c": "",
-      "dur": 102,
+      "dur": 170,
       "g": [
-        "爱情",
-        "惊悚"
+        "动作",
+        "惊悚",
+        "犯罪"
       ],
-      "s": "一位年轻的赛车技师假装与赛车界最具争议的的明星车手订婚，表面上是为了维护他的名声，实则是为了自己能有机会成为赛车手。但很快，这个谎言就威胁到一切，包括这段早已超越单纯交易的感情…",
-      "acts": "Lisa-Marie Koroll / Amin Baahmed / Gustav Schmidt",
-      "p": "https://image.tmdb.org/t/p/w500/ku5BbvRPc7ua9Jfcrmei3ECNgub.jpg",
-      "id": "tmdb1596275",
-      "votes": 144,
-      "e": "Drive – The Pretenders",
-      "tmdbId": 1596275,
+      "s": "高桌组织的首席执行官格拉蒙特（比尔·斯卡斯加德 饰）不断提高对约翰·威克（基努·里维斯 饰）的赏金，同时清理其在这个邪恶组织中的痕迹。巨额赏金的诱惑下，吸引来了潜在的赏金猎人对威克的追杀。被逐出高桌会的威克在与高桌会的对抗过程中找到了击败高桌会的方法，在朋友的帮助下，开始了自己的反击……",
+      "acts": "基努·里维斯 / 甄子丹 / 比尔·斯卡斯加德",
+      "p": "https://image.tmdb.org/t/p/w500/dKtgSYi2AwlaHYo1Iqie8wlMsc5.jpg",
+      "id": "tmdb603692",
+      "votes": 8541,
+      "e": "John Wick: Chapter 4",
+      "rd": "2023-03-21",
+      "tmdbId": 603692,
+      "doubanId": null,
       "keywords": [
-        "based on novel or book",
-        "racing",
-        "debt",
-        "formula one (f1)",
-        "ulterior motive dating",
-        "frankfurt, germany",
-        "mourning and healing",
-        "contract lovers",
-        "fake relationship",
-        "female mechanic",
-        "amalfi coast"
+        "new york city",
+        "martial arts",
+        "berlin, germany",
+        "paris, france",
+        "hitman",
+        "sequel",
+        "organized crime",
+        "osaka, japan",
+        "code of honor",
+        "blindness",
+        "aftercreditsstinger",
+        "hunted",
+        "hand to hand combat",
+        "consequences",
+        "professional assassin",
+        "neo-noir",
+        "japanese mafia",
+        "japan style",
+        "continental hotel"
       ],
-      "collection": null
+      "collection": 404609,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/603692",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E7%96%BE%E9%80%9F%E8%BF%BD%E6%9D%804"
+      }
+    },
+    {
+      "t": "东方不败之风云再起",
+      "y": 1993,
+      "d": "李惠民",
+      "r": 6.1,
+      "c": "",
+      "dur": 98,
+      "g": [
+        "动作",
+        "爱情"
+      ],
+      "s": "自东方不败于黑木崖一役后销声匿迹，江湖上群龙无首，各方势力竞相冒充其名号，致使天下大乱。东方不败的昔日爱妾雪千寻（王祖贤 饰）痴心不改，为延续爱人的霸业而重整日月神教。\r 与此同时，朝廷水师提督（或锦衣卫）顾长风（于荣光 饰）奉命探查东方不败的生死之谜。在黑木崖，他遭遇了西班牙舰队并卷入冲突，危急时刻被一位能徒手接住火枪子弹的神秘怪人（刘洵 饰）所救。顾长风坚信此人便是本尊，并以死相求得见真容。重出江湖的东方不败（林青霞 饰）得知世人假借其名作乱，决定再次现身，清理门户。\r 东方不败的再现引发了连场武林杀劫。他找到了雪千寻，却以冷酷手段斩断情缘。顾长风救下雪千寻并心生爱慕，但雪千寻心中唯有东方不败。东方不败欲再统江湖，顾长风为平息纷争，率朝廷水师与之力战。在一场混战后，雪千寻身死，东方不败怀抱逝去的爱人，心中似有所悟，最终独立船头，悄然而去。",
+      "acts": "林青霞 / 王祖贤 / 王静莹",
+      "p": "https://image.tmdb.org/t/p/w500/nV1gNajhdubw6OnpgHnBwqJYiQG.jpg",
+      "id": "tmdb18667",
+      "votes": 62,
+      "e": "東方不敗之風雲再起",
+      "rd": "1993-08-04",
+      "tmdbId": 18667,
+      "doubanId": null,
+      "keywords": [],
+      "collection": 44917,
+      "source": "tmdb",
+      "links": {
+        "primary": "https://www.themoviedb.org/movie/18667",
+        "secondary": "https://search.douban.com/movie/subject_search?search_text=%E4%B8%9C%E6%96%B9%E4%B8%8D%E8%B4%A5%E4%B9%8B%E9%A3%8E%E4%BA%91%E5%86%8D%E8%B5%B7"
+      }
     }
   ]
 }
