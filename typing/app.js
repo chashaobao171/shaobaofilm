@@ -946,7 +946,7 @@
     writeJSON(result.mode === 'wubi' ? LS.lastWubi : LS.lastNumber, result);
     const history = readJSON(LS.history, []);
     history.unshift(result);
-    writeJSON(LS.history, history.slice(0, 30));
+    writeJSON(LS.history, history.slice(0, 10));
   }
 
   /* ------------------------- 输入逻辑 ------------------------- */
@@ -1306,8 +1306,9 @@
 
     const width = 240;
     const height = 56;
-    const padX = 6;
-    const padY = 8;
+    const padX = 2;
+    const padTop = 16;
+    const padBottom = 8;
     const max = Math.max(...values);
     const min = Math.min(...values);
     const flat = max === min;
@@ -1316,8 +1317,8 @@
     const points = values.map((value, index) => {
       const x = values.length === 1 ? width / 2 : padX + index * stepX;
       const y = flat
-        ? height / 2
-        : height - padY - ((value - min) / span) * (height - padY * 2);
+        ? (padTop + height - padBottom) / 2
+        : height - padBottom - ((value - min) / span) * (height - padTop - padBottom);
       return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
     });
     const line = points.map((point) => point.join(',')).join(' ');
@@ -1325,25 +1326,40 @@
       .map((point) => `${point[0]} ${point[1]}`)
       .join(' L ')} L ${points[points.length - 1][0]} ${height} Z`;
     const gradientId = `trend-grad-${chartElement.id}`;
-    const lastPoint = points[points.length - 1];
+    const dots = points
+      .map(
+        (point, index) =>
+          `<circle cx="${point[0]}" cy="${point[1]}" r="${index === points.length - 1 ? 2.6 : 1.9}" fill="${color}"></circle>`
+      )
+      .join('');
+    /* 数字用 HTML 定位，避免 SVG 横向拉伸导致文字变形 */
+    const valueLabels = points
+      .map(
+        (point, index) =>
+          `<span class="trend-point-value" style="left:clamp(14px, ${((point[0] / width) * 100).toFixed(2)}%, calc(100% - 14px));top:${((point[1] / height) * 100).toFixed(2)}%">${formatNumber(values[index])}</span>`
+      )
+      .join('');
 
     chartElement.innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img"
-           aria-label="${label}进步曲线，最近 ${values.length} 次">
-        <defs>
-          <linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="${color}" stop-opacity="0.24"></stop>
-            <stop offset="100%" stop-color="${color}" stop-opacity="0"></stop>
-          </linearGradient>
-        </defs>
-        <path d="${area}" fill="url(#${gradientId})"></path>
-        ${
-          values.length > 1
-            ? `<polyline points="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>`
-            : ''
-        }
-        <circle cx="${lastPoint[0]}" cy="${lastPoint[1]}" r="2.4" fill="${color}"></circle>
-      </svg>`;
+      <div class="trend-plot">
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img"
+             aria-label="${label}进步曲线，最近 ${values.length} 次">
+          <defs>
+            <linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${color}" stop-opacity="0.24"></stop>
+              <stop offset="100%" stop-color="${color}" stop-opacity="0"></stop>
+            </linearGradient>
+          </defs>
+          <path d="${area}" fill="url(#${gradientId})"></path>
+          ${
+            values.length > 1
+              ? `<polyline points="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>`
+              : ''
+          }
+          ${dots}
+        </svg>
+        ${valueLabels}
+      </div>`;
   }
 
   function updateTrendCharts() {
@@ -1566,17 +1582,15 @@
       <h2 class="modal-title" id="modal-title">${reasonTitle}</h2>
       <p class="modal-subtitle">${reasonText}</p>
 
-      <div class="result-hero">
-        <strong>${formatSpeed(result.average)}</strong>
-        <span>${wubi ? '字 / 分 · 平均速度' : '组 / 6 分 · 平均速度'}</span>
+      <div class="result-hero${Array.isArray(speedSamples) && speedSamples.length >= 2 ? ' has-chart' : ''}">
+        <div class="result-hero-value">
+          <strong>${formatSpeed(result.average)}</strong>
+          <span>${wubi ? '字 / 分 · 平均速度' : '组 / 6 分 · 平均速度'}</span>
+        </div>
+        ${Array.isArray(speedSamples) && speedSamples.length >= 2
+          ? `<div class="result-hero-chart">${speedChartSvg(speedSamples, wubi ? '#3f6e94' : '#e8791e', 320, 88)}</div>`
+          : ''}
       </div>
-
-      ${Array.isArray(speedSamples) && speedSamples.length >= 2
-        ? `<div class="result-speed">
-             <span>本局速度 · ${wubi ? '字/分' : '组/6分'}</span>
-             ${speedChartSvg(speedSamples, wubi ? '#3f6e94' : '#e8791e', 320, 72)}
-           </div>`
-        : ''}
 
       <div class="result-grid">
         <div><span>用时</span><strong>${formatTime(result.seconds)}</strong></div>
@@ -2056,6 +2070,11 @@
     });
 
     updateLimitUI();
+    /* 旧版本最多存 30 条，这里裁剪到最近 10 次 */
+    const storedHistory = readJSON(LS.history, []);
+    if (Array.isArray(storedHistory) && storedHistory.length > 10) {
+      writeJSON(LS.history, storedHistory.slice(0, 10));
+    }
     updateHomeStats();
     initWubiArticleOptions();
     bindEvents();

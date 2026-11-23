@@ -324,14 +324,34 @@ kbd {
 }
 
 .trend-chart {
-  height: 52px;
-  margin-top: 7px;
+  height: 58px;
+  margin: 7px 0 0 -9px;
+}
+
+.trend-plot {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .trend-chart svg {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.trend-point-value {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  margin-top: -3px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .trend-empty {
@@ -1399,23 +1419,28 @@ kbd {
   font-size: 11px;
 }
 
-.result-speed {
-  margin: -6px 0 18px;
+.result-hero.has-chart {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(16px, 3vw, 26px);
 }
 
-.result-speed > span {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+.result-hero-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
 }
 
-.result-speed svg {
+.result-hero-chart {
+  min-width: 0;
+}
+
+.result-hero-chart svg {
   display: block;
   width: 100%;
-  height: 72px;
+  height: 88px;
 }
 
 .result-grid {
@@ -1681,6 +1706,8 @@ kbd {
   .result-grid { grid-template-columns: 1fr 1fr; }
   .modal-card { padding: 24px 20px; }
   .result-hero strong { font-size: 42px; }
+  .result-hero.has-chart { grid-template-columns: 1fr; }
+  .result-hero-chart svg { height: 64px; margin-top: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
