@@ -139,6 +139,7 @@
     confirmAction: null,
     toastTimer: null,
     checkTimer: null,
+    checkChartTimer: null,
     selectedMode: 'number',
   };
 
@@ -240,6 +241,7 @@
       limitMs: state.limitMin * 60 * 1000,
       backspaces: 0,
       history: [],
+      speedSamples: [],
       finishedReason: '',
       pageTurnLock: false,
     };
@@ -322,6 +324,7 @@
       limitMs: state.limitMin * 60 * 1000,
       backspaces: 0,
       history: [],
+      speedSamples: [],
       finishedReason: '',
       pageTurnLock: false,
     };
@@ -831,8 +834,24 @@
     const second = Math.floor(session.elapsedMs / 1000);
     const history = session.history;
     if (history.length === 0 || history[history.length - 1].t < second) {
-      history.push({ t: second, count: totalDone() });
+      const count = totalDone();
+      history.push({ t: second, count });
       if (history.length > 2400) history.splice(0, history.length - 2400);
+
+      /* 速率采样：不断用最近 5 秒的完成量折算成每分钟速度并记录 */
+      const samples = session.speedSamples;
+      const windowStart = second - 5;
+      let base = history[0];
+      for (let index = history.length - 2; index >= 0; index -= 1) {
+        base = history[index];
+        if (base.t <= windowStart) break;
+      }
+      const span = second - base.t;
+      if (span > 0) {
+        const speed = Math.max(0, ((count - base.count) / span) * (isWubi() ? 60 : 360));
+        samples.push({ t: second, speed });
+        if (samples.length > 720) samples.splice(0, samples.length - 720);
+      }
     }
 
     if (session.limitMs > 0 && session.elapsedMs >= session.limitMs) {
@@ -892,7 +911,7 @@
 
     const result = buildResult();
     saveLastSession(result);
-    openResultModal(result);
+    openResultModal(result, state.session.speedSamples || []);
   }
 
   function buildResult() {
@@ -1165,63 +1184,44 @@
     window.scrollTo(0, 0);
   }
 
-  /* 本局速度曲线：按最近 10 秒的完成量折算成每分钟速度 */
-  function sessionSpeedSeries() {
-    const history = state.session && Array.isArray(state.session.history) ? state.session.history : [];
-    if (history.length < 2) return [];
-    const factor = isWubi() ? 60 : 360;
-    const series = [];
-
-    for (let index = 1; index < history.length; index += 1) {
-      const current = history[index];
-      if (!current || current.t <= 0) continue;
-      let base = history[0];
-      for (let back = index - 1; back >= 0; back -= 1) {
-        base = history[back];
-        if (current.t - base.t >= 10) break;
-      }
-      const delta = current.t - base.t;
-      if (delta <= 0) continue;
-      series.push({ t: current.t, value: Math.max(0, ((current.count - base.count) / delta) * factor) });
-    }
-
-    return series;
-  }
-
-  function renderCheckChart() {
-    if (!els.checkChart) return;
-    setText(els.checkChartLabel, isWubi() ? '本局速度 · 字/分' : '本局速度 · 组/分');
-    const series = sessionSpeedSeries();
-    if (series.length < 2) {
-      els.checkChart.innerHTML = '<p class="check-chart-empty">输入满 10 秒后显示本局速度曲线</p>';
-      return;
-    }
-
-    const width = 240;
-    const height = 54;
+  /* 速度采样在计时器里持续记录，这里只负责把样本渲染成折线图 */
+  function speedChartSvg(series, color, width, height) {
+    if (!series || series.length < 2) return '';
     const padY = 6;
-    const max = Math.max(1, ...series.map((point) => point.value));
+    const max = Math.max(1, ...series.map((point) => Number(point.speed) || 0));
     const stepX = (width - 8) / (series.length - 1);
     const points = series.map((point, index) => {
       const x = 4 + index * stepX;
-      const y = height - padY - (point.value / max) * (height - padY * 2);
+      const y = height - padY - ((Number(point.speed) || 0) / max) * (height - padY * 2);
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     });
     const lastX = (4 + (series.length - 1) * stepX).toFixed(1);
     const area = `M 4 ${height} L ${points.join(' L ')} L ${lastX} ${height} Z`;
-    const color = isWubi() ? '#3f6e94' : '#e8791e';
+    const gradientId = `speed-fill-${width}`;
 
-    els.checkChart.innerHTML = `
+    return `
       <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="本局速度曲线">
         <defs>
-          <linearGradient id="check-chart-fill" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="${color}" stop-opacity="0.28"></stop>
             <stop offset="100%" stop-color="${color}" stop-opacity="0"></stop>
           </linearGradient>
         </defs>
-        <path d="${area}" fill="url(#check-chart-fill)"></path>
+        <path d="${area}" fill="url(#${gradientId})"></path>
         <polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
       </svg>`;
+  }
+
+  function renderCheckChart() {
+    if (!els.checkChart) return;
+    const wubi = isWubi();
+    setText(els.checkChartLabel, wubi ? '本局速度 · 字/分' : '本局速度 · 组/6分');
+    const samples = state.session && Array.isArray(state.session.speedSamples) ? state.session.speedSamples : [];
+    if (samples.length < 2) {
+      els.checkChart.innerHTML = '<p class="check-chart-empty">持续输入后将显示速率折线</p>';
+      return;
+    }
+    els.checkChart.innerHTML = speedChartSvg(samples, wubi ? '#3f6e94' : '#e8791e', 240, 54);
   }
 
   function performCheck() {
@@ -1244,7 +1244,13 @@
     els.checkPopover.classList.remove('is-hidden');
     renderCheckChart();
     window.clearTimeout(state.checkTimer);
+    window.clearInterval(state.checkChartTimer);
     state.checkTimer = window.setTimeout(hideCheckPopover, 20000);
+    state.checkChartTimer = window.setInterval(() => {
+      if (state.session && state.session.status === 'running' && !els.checkPopover.classList.contains('is-hidden')) {
+        renderCheckChart();
+      }
+    }, 1000);
 
     if (wubi) {
       $$('.wubi-char.is-wrong', els.wubiReference).forEach((char) => {
@@ -1271,6 +1277,7 @@
   function hideCheckPopover() {
     els.checkPopover.classList.add('is-hidden');
     window.clearTimeout(state.checkTimer);
+    window.clearInterval(state.checkChartTimer);
   }
 
   /* ------------------------- 首页设置 ------------------------- */
@@ -1532,7 +1539,7 @@
     );
   }
 
-  function openResultModal(result) {
+  function openResultModal(result, speedSamples) {
     const wubi = result.mode === 'wubi';
     const unit = wubi ? '字' : '组';
     const reasonTitle = result.reason === 'time' ? '时间到' : result.reason === 'manual' ? '已手动结算' : '全部完成';
@@ -1563,6 +1570,13 @@
         <strong>${formatSpeed(result.average)}</strong>
         <span>${wubi ? '字 / 分 · 平均速度' : '组 / 6 分 · 平均速度'}</span>
       </div>
+
+      ${Array.isArray(speedSamples) && speedSamples.length >= 2
+        ? `<div class="result-speed">
+             <span>本局速度 · ${wubi ? '字/分' : '组/6分'}</span>
+             ${speedChartSvg(speedSamples, wubi ? '#3f6e94' : '#e8791e', 320, 72)}
+           </div>`
+        : ''}
 
       <div class="result-grid">
         <div><span>用时</span><strong>${formatTime(result.seconds)}</strong></div>

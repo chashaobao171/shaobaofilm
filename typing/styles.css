@@ -1390,6 +1390,25 @@ kbd {
   font-size: 11px;
 }
 
+.result-speed {
+  margin: -6px 0 18px;
+}
+
+.result-speed > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.result-speed svg {
+  display: block;
+  width: 100%;
+  height: 72px;
+}
+
 .result-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
