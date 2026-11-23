@@ -942,11 +942,21 @@
     };
   }
 
+  /* 数码与五笔各自保留最近 10 次 */
+  function trimHistory(list) {
+    const counts = {};
+    return list.filter((item) => {
+      const mode = item && item.mode === 'wubi' ? 'wubi' : 'number';
+      counts[mode] = (counts[mode] || 0) + 1;
+      return counts[mode] <= 10;
+    });
+  }
+
   function saveLastSession(result) {
     writeJSON(result.mode === 'wubi' ? LS.lastWubi : LS.lastNumber, result);
     const history = readJSON(LS.history, []);
     history.unshift(result);
-    writeJSON(LS.history, history.slice(0, 10));
+    writeJSON(LS.history, trimHistory(history));
   }
 
   /* ------------------------- 输入逻辑 ------------------------- */
@@ -2070,10 +2080,13 @@
     });
 
     updateLimitUI();
-    /* 旧版本最多存 30 条，这里裁剪到最近 10 次 */
+    /* 旧版本最多存 30 条，这里按模式各裁剪到最近 10 次 */
     const storedHistory = readJSON(LS.history, []);
-    if (Array.isArray(storedHistory) && storedHistory.length > 10) {
-      writeJSON(LS.history, storedHistory.slice(0, 10));
+    if (Array.isArray(storedHistory)) {
+      const trimmedHistory = trimHistory(storedHistory);
+      if (trimmedHistory.length !== storedHistory.length) {
+        writeJSON(LS.history, trimmedHistory);
+      }
     }
     updateHomeStats();
     initWubiArticleOptions();
