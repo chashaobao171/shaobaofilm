@@ -277,6 +277,15 @@ kbd {
   background: rgba(255, 253, 249, 0.62);
 }
 
+.trend-kicker {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
 .trend-head {
   display: flex;
   align-items: baseline;
