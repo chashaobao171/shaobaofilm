@@ -213,6 +213,11 @@
             <span class="popover-kicker">校对结果</span>
             <strong id="check-title">本页错误 0 组</strong>
             <p id="check-detail">累计错误 0 组 · 准确率 100%</p>
+            <div class="check-speed">
+              <span class="check-speed-label" id="check-chart-label">本局速度 · 组/分</span>
+              <div class="check-chart" id="check-chart"></div>
+            </div>
+            <button class="button button-primary check-finish" id="check-finish" type="button">结束训练并结算</button>
           </div>
         </div>
 
@@ -244,6 +249,12 @@
               <strong id="stat-page-errors">0</strong>
               <small id="stat-page-errors-unit">组</small>
             </div>
+          </div>
+
+          <div class="side-extra is-hidden" id="side-extra">
+            <span class="side-extra-title">五笔文本</span>
+            <select class="side-select" id="wubi-article" aria-label="选择内置文本篇号"></select>
+            <button class="button button-secondary side-import" id="practice-import" type="button">导入自己的文本</button>
           </div>
 
           <div class="side-actions">

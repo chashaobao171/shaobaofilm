@@ -1073,7 +1073,8 @@ kbd {
   right: 14px;
   bottom: 14px;
   z-index: 5;
-  min-width: 210px;
+  min-width: 250px;
+  max-width: calc(100% - 28px);
   padding: 14px 34px 14px 16px;
   border: 1px solid var(--line);
   border-radius: 13px;
@@ -1116,6 +1117,42 @@ kbd {
   margin: 2px 0 0;
   color: var(--muted);
   font-size: 10px;
+}
+
+.check-speed {
+  margin-top: 10px;
+}
+
+.check-speed-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+
+.check-chart {
+  height: 54px;
+}
+
+.check-chart svg {
+  display: block;
+  width: 100%;
+  height: 54px;
+}
+
+.check-chart-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.check-finish {
+  width: 100%;
+  height: 34px;
+  margin-top: 10px;
+  font-size: 12px;
 }
 
 @keyframes pop-in {
@@ -1192,6 +1229,45 @@ kbd {
   margin-left: 3px;
   color: var(--muted);
   font-size: 8px;
+}
+
+.side-extra {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid rgba(216, 206, 192, 0.62);
+  border-radius: 12px;
+  background: rgba(255, 253, 249, 0.72);
+}
+
+.side-extra-title {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.side-select {
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  outline: none;
+}
+
+.side-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-ring);
+}
+
+.side-extra .side-import {
+  width: 100%;
+  height: 32px;
+  font-size: 11px;
 }
 
 .side-actions {

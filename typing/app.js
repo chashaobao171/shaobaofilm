@@ -89,6 +89,9 @@
     checkClose: $('#check-close'),
     checkTitle: $('#check-title'),
     checkDetail: $('#check-detail'),
+    checkChart: $('#check-chart'),
+    checkChartLabel: $('#check-chart-label'),
+    checkFinish: $('#check-finish'),
 
     statTime: $('#stat-time'),
     statLimit: $('#stat-limit'),
@@ -106,6 +109,9 @@
     checkButton: $('#check-button'),
     resetButton: $('#reset-button'),
     statusLine: $('#status-line'),
+    sideExtra: $('#side-extra'),
+    wubiArticle: $('#wubi-article'),
+    practiceImport: $('#practice-import'),
 
     modal: $('#modal'),
     modalCard: $('#modal-card'),
@@ -122,6 +128,7 @@
     bankLabel: '自动生成',
     wubiBank: null,
     wubiLabel: '内置文本',
+    wubiArticle: -1,
     wubiComposing: false,
     wubiComposition: '',
     cells: [],
@@ -246,15 +253,42 @@
     return String(text || '').replace(/\s+/g, '');
   }
 
-  function pickWubiText() {
+  function wubiTextAt(index) {
     const list = (Array.isArray(window.WUBI_TEXTS) ? window.WUBI_TEXTS : [])
       .map(normalizeWubiText)
       .filter((text) => text.length > 0);
     if (!list.length) return '烧包五笔训练，用输入法跟打上方文字，练出稳定的中文输入速度。';
-    /* 每篇 2000 字：从随机一篇的篇首开始，按顺序拼接后续文本 */
-    const start = Math.floor(Math.random() * list.length);
+    const start = ((Math.round(Number(index) || 0) % list.length) + list.length) % list.length;
     const corpus = list.slice(start).concat(list.slice(0, start)).join('');
     return corpus.slice(0, WUBI_ARTICLE_CHARS);
+  }
+
+  function pickWubiText() {
+    const total = (Array.isArray(window.WUBI_TEXTS) ? window.WUBI_TEXTS : []).length;
+    return wubiTextAt(Math.floor(Math.random() * Math.max(1, total)));
+  }
+
+  function initWubiArticleOptions() {
+    if (!els.wubiArticle) return;
+    const list = Array.isArray(window.WUBI_TEXTS) ? window.WUBI_TEXTS : [];
+    const options = ['<option value="-1">随机篇目</option>'].concat(
+      list.map((_, index) => `<option value="${index}">第 ${index + 1} 篇</option>`)
+    );
+    els.wubiArticle.innerHTML = options.join('');
+    els.wubiArticle.value = String(state.wubiArticle);
+    els.wubiArticle.disabled = list.length === 0;
+  }
+
+  function startWubiArticle(index) {
+    const article = Number(index);
+    const hasArticle = Number.isInteger(article) && article >= 0;
+    const text = hasArticle ? wubiTextAt(article) : pickWubiText();
+    const label = hasArticle ? `内置文本 · 第 ${article + 1} 篇` : '内置文本';
+    state.wubiArticle = hasArticle ? article : -1;
+    state.wubiBank = hasArticle ? text : null;
+    state.wubiLabel = label;
+    if (els.wubiArticle) els.wubiArticle.value = String(state.wubiArticle);
+    enterPractice({ mode: 'wubi', text, label });
   }
 
   /* 一页固定 5 行，列数随窗口自适应，因此每页字数按当前列数计算 */
@@ -1040,6 +1074,8 @@
     els.numberInputPanel.classList.toggle('is-hidden', wubi);
     els.wubiReferencePanel.classList.toggle('is-hidden', !wubi);
     els.wubiInputPanel.classList.toggle('is-hidden', !wubi);
+    els.sideExtra.classList.toggle('is-hidden', !wubi);
+    if (wubi && els.wubiArticle) els.wubiArticle.value = String(state.wubiArticle);
 
     hideCheckPopover();
     els.pauseLayer.classList.add('is-hidden');
@@ -1117,6 +1153,8 @@
     state.bankLabel = '自动生成';
     state.wubiBank = null;
     state.wubiLabel = '内置文本';
+    state.wubiArticle = -1;
+    if (els.wubiArticle) els.wubiArticle.value = '-1';
     els.practice.classList.remove('is-active');
     els.home.classList.add('is-active');
     els.app.dataset.status = 'home';
@@ -1125,6 +1163,65 @@
     hideToast();
     updateHomeStats();
     window.scrollTo(0, 0);
+  }
+
+  /* 本局速度曲线：按最近 10 秒的完成量折算成每分钟速度 */
+  function sessionSpeedSeries() {
+    const history = state.session && Array.isArray(state.session.history) ? state.session.history : [];
+    if (history.length < 2) return [];
+    const factor = isWubi() ? 60 : 360;
+    const series = [];
+
+    for (let index = 1; index < history.length; index += 1) {
+      const current = history[index];
+      if (!current || current.t <= 0) continue;
+      let base = history[0];
+      for (let back = index - 1; back >= 0; back -= 1) {
+        base = history[back];
+        if (current.t - base.t >= 10) break;
+      }
+      const delta = current.t - base.t;
+      if (delta <= 0) continue;
+      series.push({ t: current.t, value: Math.max(0, ((current.count - base.count) / delta) * factor) });
+    }
+
+    return series;
+  }
+
+  function renderCheckChart() {
+    if (!els.checkChart) return;
+    setText(els.checkChartLabel, isWubi() ? '本局速度 · 字/分' : '本局速度 · 组/分');
+    const series = sessionSpeedSeries();
+    if (series.length < 2) {
+      els.checkChart.innerHTML = '<p class="check-chart-empty">输入满 10 秒后显示本局速度曲线</p>';
+      return;
+    }
+
+    const width = 240;
+    const height = 54;
+    const padY = 6;
+    const max = Math.max(1, ...series.map((point) => point.value));
+    const stepX = (width - 8) / (series.length - 1);
+    const points = series.map((point, index) => {
+      const x = 4 + index * stepX;
+      const y = height - padY - (point.value / max) * (height - padY * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    const lastX = (4 + (series.length - 1) * stepX).toFixed(1);
+    const area = `M 4 ${height} L ${points.join(' L ')} L ${lastX} ${height} Z`;
+    const color = isWubi() ? '#3f6e94' : '#e8791e';
+
+    els.checkChart.innerHTML = `
+      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="本局速度曲线">
+        <defs>
+          <linearGradient id="check-chart-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.28"></stop>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"></stop>
+          </linearGradient>
+        </defs>
+        <path d="${area}" fill="url(#check-chart-fill)"></path>
+        <polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
+      </svg>`;
   }
 
   function performCheck() {
@@ -1145,8 +1242,9 @@
     }
 
     els.checkPopover.classList.remove('is-hidden');
+    renderCheckChart();
     window.clearTimeout(state.checkTimer);
-    state.checkTimer = window.setTimeout(hideCheckPopover, 9000);
+    state.checkTimer = window.setTimeout(hideCheckPopover, 20000);
 
     if (wubi) {
       $$('.wubi-char.is-wrong', els.wubiReference).forEach((char) => {
@@ -1437,13 +1535,15 @@
   function openResultModal(result) {
     const wubi = result.mode === 'wubi';
     const unit = wubi ? '字' : '组';
-    const reasonTitle = result.reason === 'time' ? '时间到' : '全部完成';
+    const reasonTitle = result.reason === 'time' ? '时间到' : result.reason === 'manual' ? '已手动结算' : '全部完成';
     const reasonText =
       result.reason === 'time'
         ? '限时结束，下面是这一局的统计。'
-        : wubi
-          ? '这篇文本已经全部打完。'
-          : '六页数码已经全部完成。';
+        : result.reason === 'manual'
+          ? '已手动结束训练，下面是这一局的统计。'
+          : wubi
+            ? '这篇文本已经全部打完。'
+            : '六页数码已经全部完成。';
 
     const detailItems = result.detail.length
       ? result.detail
@@ -1455,7 +1555,7 @@
       : `<div class="mistake-item"><b>全部正确</b><span>这一局没有错误${unit}。</span></div>`;
 
     const html = `
-      <span class="modal-kicker">${result.reason === 'time' ? 'TIME UP' : 'SESSION COMPLETE'}</span>
+      <span class="modal-kicker">${result.reason === 'time' ? 'TIME UP' : result.reason === 'manual' ? 'MANUAL FINISH' : 'SESSION COMPLETE'}</span>
       <h2 class="modal-title" id="modal-title">${reasonTitle}</h2>
       <p class="modal-subtitle">${reasonText}</p>
 
@@ -1812,6 +1912,36 @@
     els.checkButton.addEventListener('click', performCheck);
     els.resetButton.addEventListener('click', requestReset);
     els.checkClose.addEventListener('click', hideCheckPopover);
+    els.checkPopover.addEventListener('mouseenter', () => window.clearTimeout(state.checkTimer));
+    els.checkPopover.addEventListener('focusin', () => window.clearTimeout(state.checkTimer));
+    els.checkFinish.addEventListener('click', () => {
+      if (!state.session || state.session.status === 'finished') return;
+      if (totalDone() <= 0) {
+        showToast('还没有可结算的内容', 'error');
+        return;
+      }
+      hideCheckPopover();
+      finish('manual');
+    });
+
+    els.wubiArticle.addEventListener('change', () => {
+      const index = Number(els.wubiArticle.value);
+      const current = state.wubiArticle;
+      if (totalDone() > 0 && state.session && state.session.status !== 'finished') {
+        els.wubiArticle.value = String(current);
+        openConfirm('切换文本？', '切换篇目会重新开始，当前进度不会保存。', '切换', () => startWubiArticle(index));
+      } else {
+        startWubiArticle(index);
+      }
+    });
+
+    els.practiceImport.addEventListener('click', () => {
+      if (totalDone() > 0 && state.session && state.session.status !== 'finished') {
+        openConfirm('导入新文本？', '导入会重新开始，当前进度不会保存。', '选择文件', () => els.fileInput.click());
+      } else {
+        els.fileInput.click();
+      }
+    });
     els.modalClose.addEventListener('click', () => closeModal());
 
     els.modal.addEventListener('click', (event) => {
@@ -1913,6 +2043,7 @@
 
     updateLimitUI();
     updateHomeStats();
+    initWubiArticleOptions();
     bindEvents();
 
     els.app.dataset.status = 'home';
