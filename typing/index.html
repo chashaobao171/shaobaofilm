@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f3ee">
+  <title>烧包数码训练</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" data-status="home">
+
+    <!-- ==================== 首页 ==================== -->
+    <section class="screen home-screen is-active" id="screen-home" aria-label="首页">
+      <div class="home-glow home-glow-a" aria-hidden="true"></div>
+      <div class="home-glow home-glow-b" aria-hidden="true"></div>
+      <div class="home-digits" aria-hidden="true">0123<br>4567<br>8901</div>
+
+      <header class="home-nav">
+        <div class="brand">
+          <span class="brand-mark">烧</span>
+          <span class="brand-copy">
+            <strong>烧包数码训练</strong>
+            <small>SHAOBAO NUMBER TRAINER</small>
+          </span>
+        </div>
+        <button class="icon-button" id="home-help" type="button" title="快捷键" aria-label="查看快捷键">?</button>
+      </header>
+
+      <main class="home-main">
+        <section class="home-stats" aria-label="上次成绩">
+          <div class="last-stats" id="last-stats">
+            <div class="last-stat">
+              <strong id="last-avg">—</strong>
+              <span id="last-avg-label">上次平均 · 组/6分</span>
+            </div>
+            <div class="last-stat">
+              <strong id="last-acc">—</strong>
+              <span>上次准确率</span>
+            </div>
+            <div class="last-stat">
+              <strong id="last-groups">—</strong>
+              <span id="last-groups-label">上次完成组数</span>
+            </div>
+          </div>
+
+          <div class="trend-grid" aria-label="进步曲线">
+            <article class="trend-card" data-trend="number">
+              <div class="trend-head">
+                <span>数码训练</span>
+                <small>6 分钟</small>
+              </div>
+              <div class="trend-latest">
+                <strong id="trend-number-value">—</strong>
+                <span>组 · 时限内总数</span>
+              </div>
+              <div class="trend-chart" id="trend-number-chart"></div>
+            </article>
+
+            <article class="trend-card" data-trend="wubi">
+              <div class="trend-head">
+                <span>五笔训练</span>
+                <small>10 分钟</small>
+              </div>
+              <div class="trend-latest">
+                <strong id="trend-wubi-value">—</strong>
+                <span>字 · 时限内总数</span>
+              </div>
+              <div class="trend-chart" id="trend-wubi-chart"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="start-card" aria-label="开始设置">
+          <div class="mode-list">
+            <button class="mode-card is-active" data-mode="number" type="button">
+              <span class="mode-icon">123</span>
+              <span class="mode-text">
+                <strong>数码训练</strong>
+                <small>6 页 × 100 组</small>
+              </span>
+              <span class="mode-check" aria-hidden="true">✓</span>
+            </button>
+
+            <button class="mode-card" data-mode="wubi" type="button">
+              <span class="mode-icon mode-icon-wubi">五</span>
+              <span class="mode-text">
+                <strong>五笔训练</strong>
+                <small>2000 字 · 每页 5 行</small>
+              </span>
+              <span class="mode-check" aria-hidden="true">✓</span>
+            </button>
+          </div>
+
+          <div class="setting-block">
+            <div class="setting-label">
+              <span>限时</span>
+              <small id="limit-hint">6 分钟后自动结算</small>
+            </div>
+            <div class="segmented" id="limit-seg" role="group" aria-label="限时设置">
+              <button data-limit="3" type="button">3 分</button>
+              <button data-limit="6" class="is-active" type="button">6 分</button>
+              <button data-limit="10" type="button">10 分</button>
+              <button data-limit="0" type="button">不限时</button>
+            </div>
+          </div>
+
+          <button class="button button-primary button-start" id="start-home" type="button">
+            <span>开始训练</span>
+            <kbd>Enter</kbd>
+          </button>
+
+          <div class="start-foot">
+            <button class="link-button" id="import-button" type="button">导入题库</button>
+            <span class="foot-dot">·</span>
+            <button class="link-button" id="home-help-2" type="button">快捷键</button>
+          </div>
+
+          <input type="file" id="file-input" accept=".txt,text/plain" hidden>
+        </section>
+      </main>
+    </section>
+
+    <!-- ==================== 训练页 ==================== -->
+    <section class="screen practice-screen" id="screen-practice" aria-label="训练页">
+      <header class="practice-top">
+        <div class="brand brand-mini">
+          <span class="brand-mark">烧</span>
+          <span class="brand-copy">
+            <strong>烧包训练</strong>
+            <small>SHAOBAO TRAINER</small>
+          </span>
+        </div>
+
+        <div class="session-meta" aria-live="polite">
+          <span id="page-label">第 1 / 6 页</span>
+          <span class="meta-sep"></span>
+          <span id="done-label">0 / 100 组</span>
+        </div>
+
+        <div class="top-actions">
+          <button class="ghost-button" id="practice-help" type="button">快捷键</button>
+          <button class="ghost-button" id="back-home" type="button">返回首页</button>
+        </div>
+      </header>
+
+      <div class="time-track" aria-hidden="true">
+        <div class="time-fill" id="time-fill"></div>
+        <span class="time-caption" id="time-caption">06:00 剩余</span>
+      </div>
+
+      <main class="practice-body">
+        <div class="work-area">
+          <section class="panel reference-panel" id="number-reference-panel">
+            <header class="panel-head">
+              <div>
+                <h2>对照区</h2>
+                <p>四位数一组，十组一行</p>
+              </div>
+              <span class="pill" id="source-pill">自动生成</span>
+            </header>
+            <div class="digit-grid" id="reference-grid"></div>
+          </section>
+
+          <section class="panel input-panel" id="number-input-panel">
+            <header class="panel-head">
+              <div>
+                <h2>输入区</h2>
+                <p id="input-hint">输入任意数字开始计时</p>
+              </div>
+              <span class="pill pill-status" id="status-pill">准备中</span>
+            </header>
+            <div class="digit-grid" id="input-grid"></div>
+          </section>
+
+          <section class="panel reference-panel is-hidden" id="wubi-reference-panel">
+            <header class="panel-head">
+              <div>
+                <h2>对照文本</h2>
+                <p id="wubi-ref-hint">标点也要跟打，打错的字会标红</p>
+              </div>
+              <span class="pill" id="wubi-source-pill">内置文本</span>
+            </header>
+            <div class="wubi-reference" id="wubi-reference"></div>
+          </section>
+
+          <section class="panel input-panel is-hidden" id="wubi-input-panel">
+            <header class="panel-head">
+              <div>
+                <h2>输入区</h2>
+                <p id="wubi-input-hint">在下方直接用五笔输入法跟打</p>
+              </div>
+              <span class="pill pill-status" id="wubi-status-pill">准备中</span>
+            </header>
+            <textarea class="wubi-input" id="wubi-input" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="点击这里，用五笔输入法开始跟打"></textarea>
+          </section>
+
+          <div class="pause-layer is-hidden" id="pause-layer">
+            <div class="pause-card">
+              <span class="pause-kicker">PAUSED</span>
+              <strong>已暂停</strong>
+              <p>按 Esc 或 Alt+Q 继续</p>
+              <button class="button button-primary" id="resume-button" type="button">继续训练</button>
+            </div>
+          </div>
+
+          <div class="check-popover is-hidden" id="check-popover" role="status">
+            <button class="popover-close" id="check-close" type="button" aria-label="关闭校对结果">×</button>
+            <span class="popover-kicker">校对结果</span>
+            <strong id="check-title">本页错误 0 组</strong>
+            <p id="check-detail">累计错误 0 组 · 准确率 100%</p>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="time-card">
+            <span>用时</span>
+            <strong id="stat-time">00:00</strong>
+            <small id="stat-limit">限时 6 分</small>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat">
+              <span>平均速度</span>
+              <strong id="stat-average">0</strong>
+              <small id="stat-average-unit">组 / 6 分</small>
+            </div>
+            <div class="stat">
+              <span>最近五秒</span>
+              <strong id="stat-recent">0</strong>
+              <small id="stat-recent-unit">组 / 6 分</small>
+            </div>
+            <div class="stat">
+              <span>累计错误</span>
+              <strong id="stat-errors">0</strong>
+              <small id="stat-errors-unit">组</small>
+            </div>
+            <div class="stat">
+              <span>本页错误</span>
+              <strong id="stat-page-errors">0</strong>
+              <small id="stat-page-errors-unit">组</small>
+            </div>
+          </div>
+
+          <div class="side-actions">
+            <button class="button button-primary" id="toggle-button" type="button">
+              <span id="toggle-label">开始</span>
+              <kbd>Alt+Q</kbd>
+            </button>
+            <button class="button button-secondary" id="check-button" type="button">
+              <span>校对</span>
+              <kbd>Alt+E</kbd>
+            </button>
+            <button class="button button-ghost" id="reset-button" type="button">
+              <span>重来</span>
+              <kbd>Alt+R</kbd>
+            </button>
+          </div>
+
+          <p class="status-line" id="status-line" aria-live="polite">输入任意数字开始计时</p>
+          <p class="side-tip" id="side-tip">空格无需输入，满 4 位自动跳格。</p>
+        </aside>
+      </main>
+    </section>
+
+    <!-- ==================== 通用弹层 ==================== -->
+    <div class="modal-backdrop is-hidden" id="modal" role="presentation">
+      <div class="modal-card" id="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button class="modal-close" id="modal-close" type="button" aria-label="关闭">×</button>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+
+    <div class="toast is-hidden" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="wubi-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
