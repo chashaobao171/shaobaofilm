@@ -963,32 +963,67 @@ kbd {
   animation: cell-shake 0.32s ease-in-out;
 }
 
-.wubi-input {
+/* 输入区与对照区同宽同列，打出的字逐字落在上方对应字的下方 */
+.wubi-input-wrap {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   margin: 0 14px 14px;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
   border-radius: 10px;
   background: #fffdfa;
-  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+  cursor: text;
+  transition: box-shadow 0.16s;
+}
+
+.wubi-input-wrap:focus-within {
+  box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 3px var(--accent-ring);
+}
+
+.wubi-input-wrap:has(.wubi-input[readonly]) {
+  background: var(--surface-soft);
+}
+
+.wubi-typed {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+  align-content: start;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wubi-typed .wubi-char.is-correct { color: #2b2f36; }
+
+.wubi-typed .wubi-char.is-composing {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.wubi-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
   font-family: var(--font-ui);
   font-size: clamp(16px, 1.5vw, 21px);
   line-height: 1.95;
   resize: none;
   outline: none;
-  transition: border-color 0.16s, box-shadow 0.16s;
+  cursor: text;
 }
 
-.wubi-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-ring);
-}
+.wubi-input::placeholder { color: transparent; }
 
-.wubi-input[readonly] {
-  background: var(--surface-soft);
-  color: var(--muted);
-}
+.wubi-input::selection { background: rgba(232, 121, 30, 0.18); }
 
 .pause-layer {
   position: absolute;

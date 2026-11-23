@@ -193,7 +193,10 @@
               </div>
               <span class="pill pill-status" id="wubi-status-pill">准备中</span>
             </header>
-            <textarea class="wubi-input" id="wubi-input" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="点击这里，用五笔输入法开始跟打"></textarea>
+            <div class="wubi-input-wrap" id="wubi-input-wrap">
+              <div class="wubi-typed" id="wubi-typed" aria-hidden="true"></div>
+              <textarea class="wubi-input" id="wubi-input" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="点击这里，用五笔输入法开始跟打"></textarea>
+            </div>
           </section>
 
           <div class="pause-layer is-hidden" id="pause-layer">

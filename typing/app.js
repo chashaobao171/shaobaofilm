@@ -76,6 +76,7 @@
     wubiInputPanel: $('#wubi-input-panel'),
     wubiReference: $('#wubi-reference'),
     wubiInput: $('#wubi-input'),
+    wubiTyped: $('#wubi-typed'),
     wubiInputHint: $('#wubi-input-hint'),
     wubiStatusPill: $('#wubi-status-pill'),
     wubiSourcePill: $('#wubi-source-pill'),
@@ -122,6 +123,7 @@
     wubiBank: null,
     wubiLabel: '内置文本',
     wubiComposing: false,
+    wubiComposition: '',
     cells: [],
     refGroups: [],
     modalOpen: false,
@@ -310,6 +312,31 @@
     return errors;
   }
 
+  /* 输入区与对照区同列渲染，打出的字逐字落在上方对应字的下方 */
+  function renderWubiTyped(expected, typed) {
+    if (!els.wubiTyped) return;
+    const columns = Math.max(1, Math.round((state.session.pageSize || expected.length) / WUBI_ROWS_PER_PAGE));
+    els.wubiTyped.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
+    const composing = state.wubiComposing ? String(state.wubiComposition || '') : '';
+    const fragment = document.createDocumentFragment();
+
+    for (let index = 0; index < expected.length; index += 1) {
+      const span = document.createElement('span');
+      const typedChar = typed[index] || '';
+      const composingChar = !typedChar ? composing[index - typed.length] || '' : '';
+      span.className = 'wubi-char';
+      span.textContent = typedChar || composingChar || '\u00a0';
+      if (typedChar) {
+        span.classList.add(typedChar === expected[index] ? 'is-correct' : 'is-wrong');
+      } else if (composingChar) {
+        span.classList.add('is-composing');
+      }
+      fragment.appendChild(span);
+    }
+
+    els.wubiTyped.replaceChildren(fragment);
+  }
+
   function renderWubiPage() {
     if (!isWubi()) return;
     const expected = wubiPageText();
@@ -329,7 +356,9 @@
     }
 
     els.wubiReference.replaceChildren(fragment);
-    if (els.wubiInput.value !== typed) els.wubiInput.value = typed;
+    renderWubiTyped(expected, typed);
+    /* 输入法拼写过程中不要回写输入框，否则会打断候选 */
+    if (!state.wubiComposing && els.wubiInput.value !== typed) els.wubiInput.value = typed;
     setText(els.wubiSourcePill, state.session.sourceLabel);
   }
 
@@ -1816,9 +1845,15 @@
     els.wubiInput.addEventListener('input', handleWubiInput);
     els.wubiInput.addEventListener('compositionstart', () => {
       state.wubiComposing = true;
+      state.wubiComposition = '';
+    });
+    els.wubiInput.addEventListener('compositionupdate', (event) => {
+      state.wubiComposition = event.data || '';
+      if (isWubi()) renderWubiPage();
     });
     els.wubiInput.addEventListener('compositionend', () => {
       state.wubiComposing = false;
+      state.wubiComposition = '';
       window.setTimeout(handleWubiInput, 0);
     });
     els.wubiInputPanel.addEventListener('click', (event) => {
